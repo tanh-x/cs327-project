@@ -34,7 +34,7 @@
 
 #define ROAD_MOMENTUM_COEFF 0.8221f
 #define ROAD_DRIFT_FACTOR 0.121f
-#define ROAD_KICK_FACTOR 3.52f
+#define ROAD_KICK_FACTOR 2.62f
 #define ROAD_TARGET_ATTRACTION_FACTOR 2.2572f
 
 #define VORONOI_POINTS_SEED 21679733
@@ -95,10 +95,18 @@ bool placeRoad(Map *map, int x, int y) {
     }
 }
 
+void placeBuilding(Map *map, TileType type, int x, int y, int sizeX, int sizeY) {
+    for (int i = 0; i < sizeX; i++) {
+        for (int j = 0; j < sizeY; j++) {
+            map->tileset[y + j][x + i].type = type;
+        }
+    }
+}
+
 void initializeMap(Map *map, bool useBadApple) {
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
     float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
-    int gateSeed = 31209474;
+    int gateSeed = useBadApple ? 31209474 : map->mapSeed - 58250;
 
     int numPoints = NOISE_DENSITY * FIRST_PASS_NUM_TYPES;
     int voronoiSeed = useBadApple ?
@@ -115,7 +123,7 @@ void initializeMap(Map *map, bool useBadApple) {
 
     srand(map->mapSeed);
 
-    printf("World seed: %d. Voronoi seed: %d. Gates seed: %d\n", map->mapSeed, voronoiSeed, gateSeed);
+    printf("World seed: %d. Voronoi seed: %d. Border/buildings seed: %d\n", map->mapSeed, voronoiSeed, gateSeed);
     // Populate and generate natural tile types
     TileType firstPassTileTypes[FIRST_PASS_NUM_TYPES] = {
         FLAT, BOULDER, TALL_GRASS, WATER
@@ -171,6 +179,9 @@ void initializeMap(Map *map, bool useBadApple) {
     int eastGateY = randomInt(GATE_PLACEMENT_PADDING, MAP_HEIGHT - GATE_PLACEMENT_PADDING);
     int northGateX = randomInt(GATE_PLACEMENT_PADDING * 3, MAP_WIDTH - GATE_PLACEMENT_PADDING * 3);
     int southGateX = randomInt(GATE_PLACEMENT_PADDING * 3, MAP_WIDTH - GATE_PLACEMENT_PADDING * 3);
+    bool pokeCenterOnVertical = randomInt(0, 1);
+    int horizontalPlacement = randomInt(ROAD_PLACEMENT_PADDING * 2, MAP_WIDTH - ROAD_PLACEMENT_PADDING * 2);
+    int verticalPlacement = randomInt(ROAD_PLACEMENT_PADDING, MAP_HEIGHT - ROAD_PLACEMENT_PADDING);
 
     // Fill borders and place gates
     for (int x = 0; x < MAP_WIDTH; x++) {
@@ -200,9 +211,20 @@ void initializeMap(Map *map, bool useBadApple) {
         if (remaining > 0) {
             splineVelocity = ROAD_MOMENTUM_COEFF * splineVelocity +
                              (1 - ROAD_MOMENTUM_COEFF) * generateStochasticWalk(1.5f, drift, remaining);
-            dy = (int) floorf(splineVelocity + 0.5f) + randomInt(0, 2);
+            dy = (int) floorf(splineVelocity + 0.5f);
         } else {
             dy = (int) drift;
+        }
+
+        if (rx == horizontalPlacement) {
+            int dir = signum(dy);
+            dir = (dir == 0 ? 1 : dir);
+            placeRoad(map, rx, ry - dir);
+            placeRoad(map, rx, ry - 2 * dir);
+            placeBuilding(
+                map, pokeCenterOnVertical ? POKEMART : POKECENTER,
+                rx, ry - 3 * dir, 2, 2
+            );
         }
 
         if (placeRoad(map, rx, ry) && remaining > 1) continue;
@@ -221,10 +243,23 @@ void initializeMap(Map *map, bool useBadApple) {
         if (remaining > 1) {
             splineVelocity = ROAD_MOMENTUM_COEFF * splineVelocity +
                              (1 - ROAD_MOMENTUM_COEFF) * generateStochasticWalk(2.3f, drift, remaining);
-            dx = (int) floorf(splineVelocity + 0.5f) + randomInt(-1, 2);
+            dx = (int) floorf(splineVelocity + 0.5f) + randomInt(-1, 1);
         } else {
             dx = (int) drift;
         }
+
+        if (ry == verticalPlacement) {
+            int dir = signum(dx);
+            dir = (dir == 0 ? 1 : dir);
+            placeRoad(map, rx - dir, ry);
+            placeRoad(map, rx - 2 * dir, ry);
+            placeBuilding(
+                map, pokeCenterOnVertical ? POKECENTER : POKEMART,
+                rx - 3 * dir, ry, 2, 2
+            );
+        }
+
+
         if (placeRoad(map, rx, ry) && remaining > 1) continue;
         for (int i = 0; i < abs(dx); i++) {
             rx = clamp(rx + signum(dx), ROAD_PLACEMENT_PADDING, MAP_WIDTH - ROAD_PLACEMENT_PADDING);

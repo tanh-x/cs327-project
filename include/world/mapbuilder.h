@@ -15,7 +15,9 @@ typedef enum {
     BOULDER_ROAD,// =   <2nd pass>
     TALL_GRASS, // :    <1st pass>
     WATER,      // ~    <1st pass>
-    TREE,       // ^    <3nd pass>
+    TREE,       // ^    <1st pass>
+    POKECENTER, // C    <2nd pass>
+    POKEMART,   // M    <2nd pass>
 } TileType;
 
 typedef struct {

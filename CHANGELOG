@@ -1,13 +1,16 @@
 Assignment 1.01:
 * Day 1 (2024-01-28)
+    Evening:
     - Set up project
     - Wrote Makefile and CHANGELOG
 
 * Day 2 (2024-01-29)
+    Afternoon:
     - Completed basic version of coloring.c
     - Started working on output in main.c
     - Established project structure
     - Improved Makefile
+    Evening:
     - Generated a flat map with borders and printed it to stdout
     - Can now play full image sequence
     - First successful voronoi noise
@@ -15,8 +18,12 @@ Assignment 1.01:
     - Voronoi done, animation done; only road placement remains.
 
 * Day 3 (2024-01-30)
+    Morning:
     - Completed biome blending and noise improvements
     - Added type-specific rules for biome blending
     - Realised that this is just cellular automaton
     - Further improved type-specific rules for more natural terrain
     - Roads done
+    Afternoon:
+    - Placed Pokecenter and Pokemart
+    - Finalized things

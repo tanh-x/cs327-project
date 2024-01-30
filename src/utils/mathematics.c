@@ -17,7 +17,7 @@ int clamp(int n, int low, int high) {
 }
 
 int randomInt(int low, int high) {
-    return low + rand() % (low - high + 1);
+    return low + rand() % (low - high - 1);
 }
 
 float randomFloat(float low, float high) {

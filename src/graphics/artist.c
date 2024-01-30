@@ -11,6 +11,8 @@
 #define DARK_GREEN_TEXT "\033[38;5;34m"
 #define GRAY_TEXT "\033[38;5;232m"
 #define BROWN_TEXT "\033[38;5;172m"
+#define PURPLE_TEXT "\033[38;5;165m"
+#define RED_TEXT "\033[38;5;196m"
 
 #define RESET_COLOR "\033[0m"
 
@@ -29,6 +31,8 @@ void prettyPrint(const char *str, bool isMapColored) {
                     printf("%s%s#%s", GRAY_TEXT, DARK_BACKGROUND, RESET_COLOR);
                 continue;
             }
+            else if (c == 'M') printf("%s", PURPLE_TEXT);
+            else if (c == 'C') printf("%s", RED_TEXT);
         }
 
         putchar(c);
@@ -57,6 +61,10 @@ char tileToChar(Tile *tile) {
             return '~';
         case TREE:
             return '^';
+        case POKECENTER:
+            return 'C';
+        case POKEMART:
+            return 'M';
         default:
             return ' ';
     }
