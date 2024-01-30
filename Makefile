@@ -13,7 +13,7 @@ all:
 	@echo -e "  │ See README file for optional flags (--color, --verbose)."
 	@echo -e "  └──"
 
-main: src/graphics/artist.o src/graphics/parse_frame.c src/utils/mathematics.c src/world/mapbuilder.c src/main.o
+main: src/graphics/artist.o src/graphics/parse_frame.c src/utils/voronoi_noise.c src/utils/mathematics.c src/world/mapbuilder.c src/main.o
 	$gcc -o $@ $^ -g -lm -lpng
 
 %.o: %.c

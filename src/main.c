@@ -14,7 +14,6 @@ int main(int argc, char *argv[]) {
     bool doColoring;
     bool useBadApple;
 
-
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--color") == 0) doColoring = true;
         else if (strcmp(argv[i], "--badapple") == 0) useBadApple = true;

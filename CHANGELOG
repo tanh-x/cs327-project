@@ -9,3 +9,4 @@ Day 2 (2024-01-29)
     - Improved Makefile
     - Generated a flat map with borders and printed it to stdout
     - Can now play full image sequence
+    - First successful voronoi noise

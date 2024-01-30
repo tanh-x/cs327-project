@@ -17,4 +17,12 @@ float vec3_norm(Vec3 v);
 
 Vec3 vec3_normalized(Vec3 v);
 
+void printVector(Vec3 v);
+
+float distanceSq(Vec3 p1, Vec3 p2);
+
+float randomFloat(float min, float max);
+
+int randomInt(int min, int max);
+
 #endif
