@@ -1,6 +1,8 @@
 #ifndef MATHEMATICS_H
 #define MATHEMATICS_H
 
+#define proba() randomFloat(0.0f, 1.0f)
+
 int min(int a, int b);
 
 int max(int a, int b);

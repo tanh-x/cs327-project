@@ -1,15 +1,11 @@
 #include <stdlib.h>
 #include <float.h>
-#include <math.h>
-#include <time.h>
 #include "../../include/utils/voronoi_noise.h"
 #include "../../include/world/mapbuilder.h"
 
 #define RANDOM_VECTOR_PADDING 6.0f
-#define VORONOI_POINTS_SEED 216797466
 
 void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int numTypes, float z, int seed) {
-//    srand(VORONOI_POINTS_SEED);
     srand(seed);
 
     for (int t = 0; t < numTypes; t++) {

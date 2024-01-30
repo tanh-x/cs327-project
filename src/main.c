@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
     char *val = getenv("START");
     long long int invocationStartTime;
-    if (val != NULL) invocationStartTime = strtol(val, NULL, 10);
+    if (val != NULL) invocationStartTime = strtol(val, NULL, 10) % 2190666 + 16270;
     else invocationStartTime = 0;
     struct timespec timeNano;
     timespec_get(&timeNano, TIME_UTC);
