@@ -1,5 +1,5 @@
-#ifndef PROJECT_MATHEMATICS_H
-#define PROJECT_MATHEMATICS_H
+#ifndef MATHEMATICS_H
+#define MATHEMATICS_H
 
 typedef struct {
     float x;

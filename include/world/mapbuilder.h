@@ -1,13 +1,15 @@
-#ifndef WORLDGEN_H
-#define WORLDGEN_H
+#ifndef MAPBUILDER_H
+#define MAPBUILDER_H
 
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21
 
 typedef enum {
-    EMPTY,      // .
+    FLAT,      // .
     BOULDER,    // %
     BORDER,     // %
+    GATE,       // #
+    ROAD,       // #
     TALL_GRASS, // :
     WATER,      // ~
     TREE,       // ^

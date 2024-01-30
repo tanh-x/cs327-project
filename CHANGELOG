@@ -7,3 +7,4 @@ Day 2 (2024-01-29)
     - Started working on output in main.c
     - Establised project structure
     - Improved Makefile
+    - Generated a flat map with borders and printed it to stdout
