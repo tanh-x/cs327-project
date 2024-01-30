@@ -7,6 +7,21 @@
 #include "../../include/graphics/parse_frame.h"
 #include "../../include/utils/voronoi_noise.h"
 
+#define MAX_FRAME_COUNT 6572
+
+#define GATE_PLACEMENT_PADDING 6
+#define FIRST_PASS_NUM_TYPES 4
+
+#define NOISE_DENSITY 16
+#define NOISE_SCALE 0.925f
+#define NOISE_LACUNARITY 8.3242f
+
+#define DISTORTION_EXP_PROBABILITY 0.8453f
+#define DISTORTION_ITERATIONS 32
+#define DISTORTION_PADDING 3
+#define DISTORTION_KERNEL_RADIUS_SQ 7.54f
+#define DISTORTION_ENERGY 3.1416f
+
 void initializeMap(Map *map, bool useBadApple) {
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
     float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
@@ -23,9 +38,13 @@ void initializeMap(Map *map, bool useBadApple) {
     };
     for (int y = 1; y < MAP_HEIGHT - 1; y++) {
         for (int x = 1; x < MAP_WIDTH - 1; x++) {
-            Vec3 tilePosition = {(float) x * NOISE_SCALE, (float) y * NOISE_SCALE * VERTICAL_SCALING_FACTOR, sliceZ};
-            int sampledType = sampleVoronoiNoise(tilePosition, voronoiPoints, numPoints);
-            map->tiles[y][x].type = firstPassTileTypes[sampledType];
+            Vec3 tilePosition = {
+                (float) x * NOISE_SCALE,
+                (float) y * NOISE_SCALE * VERTICAL_SCALING_FACTOR,
+                sliceZ
+            };
+            int sampledType = sampleVoronoiNoise(voronoiPoints, numPoints, tilePosition, NOISE_LACUNARITY);
+            map->tileset[y][x].type = firstPassTileTypes[sampledType];
         }
     }
 
@@ -35,14 +54,36 @@ void initializeMap(Map *map, bool useBadApple) {
         int **frame = parse_frame(filename);
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {
             for (int x = 1; x < MAP_WIDTH - 1; x++) {
-                if (frame[y - 1][x - 1] > 128) map->tiles[y][x].type = BOULDER;
-                else if (map->tiles[y][x].type == BOULDER) map->tiles[y][x].type = TREE;
+                if (frame[y - 1][x - 1] > 128) map->tileset[y][x].type = BOULDER;
+                else if (map->tileset[y][x].type == BOULDER) map->tileset[y][x].type = TREE;
             }
         }
-
         // Clean up?
         for (int i = 0; i < MAP_HEIGHT - 2; i++) free(frame[i]);
         free(frame);
+    }
+
+    // Biome blending pass
+    int distortionEdgeX = MAP_WIDTH - DISTORTION_PADDING;
+    int distortionEdgeY = MAP_HEIGHT - DISTORTION_PADDING;
+    for (int i = 0; i < DISTORTION_ITERATIONS; i++) {
+        int tx = randomInt(DISTORTION_PADDING, distortionEdgeX);
+        int ty = randomInt(DISTORTION_PADDING, distortionEdgeY);
+        int biome = map->tileset[ty][tx].type;
+        float p = 1.0f;
+        while (p > DISTORTION_EXP_PROBABILITY
+               && (tx > DISTORTION_PADDING) && (tx < distortionEdgeX)
+               && (ty > DISTORTION_PADDING) && (ty < distortionEdgeY)) {
+            for (int cx = -2; cx <= 2; cx++) {
+                for (int cy = -2; cy <= 2; cy++) {
+                    if ((float) (cx * cx + cy * cy) > DISTORTION_KERNEL_RADIUS_SQ) continue;
+                    map->tileset[ty + cy][tx + cx].type = biome;
+                }
+            }
+
+            tx += (int) floorf(randomFloat(-DISTORTION_ENERGY, DISTORTION_ENERGY));
+            p = randomFloat(0.0f, 1.0f);
+        }
     }
 
     // Define gate positions
@@ -53,18 +94,18 @@ void initializeMap(Map *map, bool useBadApple) {
 
     // Fill borders and place gates
     for (int x = 0; x < MAP_WIDTH; x++) {
-        map->tiles[0][x].type = BORDER;
-        map->tiles[MAP_HEIGHT - 1][x].type = BORDER;
+        map->tileset[0][x].type = BORDER;
+        map->tileset[MAP_HEIGHT - 1][x].type = BORDER;
     }
 
     for (int y = 0; y < MAP_HEIGHT; y++) {
-        map->tiles[y][0].type = BORDER;
-        map->tiles[y][MAP_WIDTH - 1].type = BORDER;
+        map->tileset[y][0].type = BORDER;
+        map->tileset[y][MAP_WIDTH - 1].type = BORDER;
     }
-    map->tiles[westGateY][0].type = GATE;
-    map->tiles[eastGateY][MAP_WIDTH - 1].type = GATE;
-    map->tiles[0][northGateX].type = GATE;
-    map->tiles[MAP_HEIGHT - 1][southGateX].type = GATE;
+    map->tileset[westGateY][0].type = GATE;
+    map->tileset[eastGateY][MAP_WIDTH - 1].type = GATE;
+    map->tileset[0][northGateX].type = GATE;
+    map->tileset[MAP_HEIGHT - 1][southGateX].type = GATE;
 
     // Start placing roads
 

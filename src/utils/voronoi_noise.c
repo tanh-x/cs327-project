@@ -5,6 +5,8 @@
 #include "../../include/utils/voronoi_noise.h"
 #include "../../include/world/mapbuilder.h"
 
+#define RANDOM_VECTOR_PADDING 6.0f
+#define VORONOI_POINTS_SEED 216797466
 
 void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int numTypes, float z, int seed) {
 //    srand(VORONOI_POINTS_SEED);
@@ -23,12 +25,12 @@ void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int nu
     }
 }
 
-int sampleVoronoiNoise(Vec3 position, VoronoiPoint points[], int numPoints) {
+int sampleVoronoiNoise( VoronoiPoint points[], int numPoints, Vec3 position, float lacunarity) {
     float minDist = FLT_MAX;
     int result = 0;
 
     for (int i = 0; i < numPoints; i++) {
-        float distance = distanceSq(position, points[i].position) + randomFloat(-10.0f, 10.0f);
+        float distance = distanceSq(position, points[i].position) + randomFloat(-lacunarity, lacunarity);
         if (distance < minDist) {
             minDist = distance;
             result = points[i].type;

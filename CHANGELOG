@@ -10,3 +10,5 @@ Day 2 (2024-01-29)
     - Generated a flat map with borders and printed it to stdout
     - Can now play full image sequence
     - First successful voronoi noise
+    - Improved bash command for playing full animation
+    - Voronoi done, animation done; only road placement remains.

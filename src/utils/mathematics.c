@@ -3,6 +3,27 @@
 #include <stdio.h>
 #include "../../include/utils/mathematics.h"
 
+
+int min(int a, int b) {
+    return (a < b) ? a : b;
+}
+
+int max(int a, int b) {
+    return (a < b) ? a : b;
+}
+
+int clamp(int n, int low, int high) {
+    return (n < low) ? ((n > high) ? high : n) : low;
+}
+
+int randomInt(int low, int high) {
+    return low + rand() % (low - high + 1);
+}
+
+float randomFloat(float low, float high) {
+    return low + (float) rand() / (float) (RAND_MAX) * (high - low);
+}
+
 Vec3 vec3_add(Vec3 v1, Vec3 v2) {
     Vec3 result = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
     return result;
@@ -35,12 +56,3 @@ float distanceSq(Vec3 p1, Vec3 p2) {
     float dz = p2.z - p1.z;
     return dx * dx + dy * dy + dz * dz;
 }
-
-int randomInt(int min, int max) {
-    return min + (rand() / (RAND_MAX)) * (max - min);
-}
-
-float randomFloat(float min, float max) {
-    return min + (float) rand() / (float) (RAND_MAX) * (max - min);
-}
-

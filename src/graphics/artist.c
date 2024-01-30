@@ -9,7 +9,7 @@
 #define LIME_TEXT "\033[38;5;191m"
 #define GREEN_TEXT "\033[38;5;76m"
 #define DARK_GREEN_TEXT "\033[38;5;22m"
-#define GRAY_TEXT "\033[90m"
+#define GRAY_TEXT "\033[38;5;232m"
 #define BROWN_TEXT "\033[38;5;172m"
 
 #define RESET_COLOR "\033[0m"
@@ -59,7 +59,7 @@ char tileToChar(Tile *tile) {
 void worldToString(Map *map, char *str) {
     int idx = 0;
     for (int y = 0; y < MAP_HEIGHT; y++) {
-        for (int x = 0; x < MAP_WIDTH; x++) str[idx++] = tileToChar(&map->tiles[y][x]);
+        for (int x = 0; x < MAP_WIDTH; x++) str[idx++] = tileToChar(&map->tileset[y][x]);
         str[idx++] = '\n';
     }
     str[idx] = '\0';

@@ -1,6 +1,16 @@
 #ifndef MATHEMATICS_H
 #define MATHEMATICS_H
 
+int min(int a, int b);
+
+int max(int a, int b);
+
+int clamp(int n, int low, int high);
+
+float randomFloat(float low, float high);
+
+int randomInt(int low, int high);
+
 typedef struct {
     float x;
     float y;
@@ -20,9 +30,5 @@ Vec3 vec3_normalized(Vec3 v);
 void printVector(Vec3 v);
 
 float distanceSq(Vec3 p1, Vec3 p2);
-
-float randomFloat(float min, float max);
-
-int randomInt(int min, int max);
 
 #endif

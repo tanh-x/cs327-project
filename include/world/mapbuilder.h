@@ -3,17 +3,8 @@
 #ifndef MAPBUILDER_H
 #define MAPBUILDER_H
 
-#define MAX_FRAME_COUNT 6572
-
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21
-
-#define GATE_PLACEMENT_PADDING 6
-#define FIRST_PASS_NUM_TYPES 4
-
-#define NOISE_SCALE 1.0f
-#define NOISE_DENSITY 16
-//#define NOISE_LACUNARITY 1.0006f
 
 typedef enum {
     FLAT,       // .    <1st pass>
@@ -31,7 +22,7 @@ typedef struct {
 } Tile;
 
 typedef struct {
-    Tile tiles[MAP_HEIGHT][MAP_WIDTH];
+    Tile tileset[MAP_HEIGHT][MAP_WIDTH];
     int mapSeed;
     int globalX;
     int globalY;
