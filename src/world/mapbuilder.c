@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,8 +25,8 @@ void initializeMap(Map *map, bool useBadApple) {
 
     if (useBadApple) {
         char filename[42];
-        int frameIdx = (map->mapSeed / 33) % MAX_FRAME_COUNT;
-        sprintf(filename, "assets/badapple-30fps/badapple-%05d.png", frameIdx);
+        int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
+        sprintf(filename, "assets/sequence/badapple-%05d.png", frameIdx % MAX_FRAME_COUNT);
         int **frame = parse_frame(filename);
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {
             for (int x = 1; x < MAP_WIDTH - 1; x++) {

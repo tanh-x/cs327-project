@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
@@ -13,14 +14,19 @@ int main(int argc, char *argv[]) {
     bool doColoring;
     bool useBadApple;
 
+
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--color") == 0) doColoring = true;
         else if (strcmp(argv[i], "--badapple") == 0) useBadApple = true;
     }
 
+    char *val = getenv("START");
+    long long int invocationStartTime;
+    if (val != NULL) invocationStartTime = strtol(val, NULL, 10);
+    else invocationStartTime = 0;
     struct timespec timeNano;
     timespec_get(&timeNano, TIME_UTC);
-    long long int timeSeedMilli = timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL;
+    long long int timeSeedMilli = (timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime;
 
 
     // Generate the map
