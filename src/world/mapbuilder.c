@@ -8,32 +8,29 @@
 #include "../../include/utils/voronoi_noise.h"
 
 void initializeMap(Map *map, bool useBadApple) {
-    float sliceZ = (float) (map->mapSeed & 0xffff) / 1225.477f;
+    int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
+    float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
 
     int numPoints = NOISE_DENSITY * FIRST_PASS_NUM_TYPES;
     VoronoiPoint voronoiPoints[numPoints];
-    initializeVoronoiPoints(voronoiPoints, NOISE_DENSITY, FIRST_PASS_NUM_TYPES, sliceZ);
+    initializeVoronoiPoints(voronoiPoints, NOISE_DENSITY, FIRST_PASS_NUM_TYPES, sliceZ, frameIdx);
 
     srand(map->mapSeed);
-    for (int i = 0; i < numPoints; i++) {
-        printf("%d - ", voronoiPoints[i].type);
-        printVector(voronoiPoints[i].position);
-    }
+
     // Populate and generate natural tile types
     TileType firstPassTileTypes[FIRST_PASS_NUM_TYPES] = {
         FLAT, BOULDER, TALL_GRASS, WATER
     };
     for (int y = 1; y < MAP_HEIGHT - 1; y++) {
         for (int x = 1; x < MAP_WIDTH - 1; x++) {
-            Vec3 tilePosition = {(float) x * NOISE_SCALE, (float) y * NOISE_SCALE, sliceZ};
+            Vec3 tilePosition = {(float) x * NOISE_SCALE, (float) y * NOISE_SCALE * VERTICAL_SCALING_FACTOR, sliceZ};
             int sampledType = sampleVoronoiNoise(tilePosition, voronoiPoints, numPoints);
             map->tiles[y][x].type = firstPassTileTypes[sampledType];
         }
     }
 
-    if (!useBadApple) {
+    if (useBadApple) {
         char filename[42];
-        int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
         sprintf(filename, "assets/sequence/badapple-%05d.png", frameIdx % MAX_FRAME_COUNT);
         int **frame = parse_frame(filename);
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {

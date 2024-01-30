@@ -8,6 +8,7 @@
 #define BLUE_TEXT "\033[38;5;75m"
 #define LIME_TEXT "\033[38;5;191m"
 #define GREEN_TEXT "\033[38;5;76m"
+#define DARK_GREEN_TEXT "\033[38;5;22m"
 #define GRAY_TEXT "\033[90m"
 #define BROWN_TEXT "\033[38;5;172m"
 
@@ -22,6 +23,7 @@ void prettyPrint(const char *str, bool isMapColored) {
             else if (c == '.') printf("%s", LIME_TEXT);
             else if (c == '~') printf("%s", BLUE_TEXT);
             else if (c == ':') printf("%s", GREEN_TEXT);
+            else if (c == '^') printf("%s", DARK_GREEN_TEXT);
             else if (c == '#') printf("%s%s", BROWN_TEXT, DARK_BACKGROUND);
         }
 

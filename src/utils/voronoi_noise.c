@@ -6,14 +6,15 @@
 #include "../../include/world/mapbuilder.h"
 
 
-void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int numTypes, float z) {
-    srand(VORONOI_POINTS_SEED + (int) floorf(z));
+void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int numTypes, float z, int seed) {
+//    srand(VORONOI_POINTS_SEED);
+    srand(seed);
 
     for (int t = 0; t < numTypes; t++) {
         for (int i = 0; i < numPointsPerType; i++) {
             Vec3 position = {
                 randomFloat(-RANDOM_VECTOR_PADDING, MAP_WIDTH + RANDOM_VECTOR_PADDING),
-                randomFloat(-RANDOM_VECTOR_PADDING, MAP_HEIGHT + RANDOM_VECTOR_PADDING),
+                randomFloat(-RANDOM_VECTOR_PADDING, MAP_HEIGHT + RANDOM_VECTOR_PADDING) * VERTICAL_SCALING_FACTOR,
                 randomFloat(z - RANDOM_VECTOR_PADDING, z + RANDOM_VECTOR_PADDING)
             };
             points[i + t * numPointsPerType].position = position;
@@ -27,7 +28,7 @@ int sampleVoronoiNoise(Vec3 position, VoronoiPoint points[], int numPoints) {
     int result = 0;
 
     for (int i = 0; i < numPoints; i++) {
-        float distance = sqrtf(distanceSq(position, points[i].position));
+        float distance = distanceSq(position, points[i].position) + randomFloat(-10.0f, 10.0f);
         if (distance < minDist) {
             minDist = distance;
             result = points[i].type;

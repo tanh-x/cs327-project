@@ -12,7 +12,7 @@
 #define FIRST_PASS_NUM_TYPES 4
 
 #define NOISE_SCALE 1.0f
-#define NOISE_DENSITY 8
+#define NOISE_DENSITY 16
 //#define NOISE_LACUNARITY 1.0006f
 
 typedef enum {
