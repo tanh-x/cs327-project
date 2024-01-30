@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #ifndef MAPBUILDER_H
 #define MAPBUILDER_H
 
@@ -27,6 +29,6 @@ typedef struct {
     int globalY;
 } Map;
 
-void initializeMap(Map *map);
+void initializeMap(Map *map, bool useBadApple);
 
 #endif

@@ -10,7 +10,13 @@
 
 int main(int argc, char *argv[]) {
     printf("%s", CLEAR_SCREEN);
-    bool doColoring = (argc > 1 && strcmp(argv[1], "--color") == 0);
+    bool doColoring;
+    bool useBadApple;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--color") == 0) doColoring = true;
+        else if (strcmp(argv[i], "--badapple") == 0) useBadApple = true;
+    }
 
     struct timespec timeNano;
     timespec_get(&timeNano, TIME_UTC);
@@ -22,7 +28,7 @@ int main(int argc, char *argv[]) {
     map.mapSeed = timeSeedMilli & 0xffffffff; // NOLINT(*-narrowing-conversions)
     map.globalX = 0;
     map.globalY = 0;
-    initializeMap(&map);
+    initializeMap(&map, useBadApple);
 
     // Print it to stdout
     char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
