@@ -13,7 +13,7 @@ int max(int a, int b) {
 }
 
 int clamp(int n, int low, int high) {
-    return (n < low) ? ((n > high) ? high : n) : low;
+    return (n > low) ? ((n > high) ? high : n) : low;
 }
 
 int randomInt(int low, int high) {
@@ -55,4 +55,16 @@ float distanceSq(Vec3 p1, Vec3 p2) {
     float dy = p2.y - p1.y;
     float dz = p2.z - p1.z;
     return dx * dx + dy * dy + dz * dz;
+}
+
+int signum(int x) {
+    if (x > 0) return 1;
+    else if (x < 0) return -1;
+    else return 0;
+}
+
+float signumf(float x) {
+    if (x > 0) return 1.0f;
+    else if (x < 0) return -1.0f;
+    else return 0.0f;
 }

@@ -33,4 +33,8 @@ void printVector(Vec3 v);
 
 float distanceSq(Vec3 p1, Vec3 p2);
 
+int signum(int x);
+
+float signumf(float x);
+
 #endif

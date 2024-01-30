@@ -2,8 +2,8 @@
 #include <stdbool.h>
 #include "../../include/world/mapbuilder.h"
 
-#define WHITE_BACKGROUND "\033[48;5;245m"
-#define DARK_BACKGROUND "\033[48;5;236m"
+#define WHITE_BACKGROUND "\033[48;5;247m"
+#define DARK_BACKGROUND "\033[48;5;240m"
 
 #define BLUE_TEXT "\033[38;5;75m"
 #define YELLOW_TEXT "\033[38;5;226m"
@@ -24,7 +24,11 @@ void prettyPrint(const char *str, bool isMapColored) {
             else if (c == '~') printf("%s", BLUE_TEXT);
             else if (c == ':') printf("%s", GREEN_TEXT);
             else if (c == '^') printf("%s", DARK_GREEN_TEXT);
-            else if (c == '#') printf("%s%s", BROWN_TEXT, DARK_BACKGROUND);
+            else if (c == '#') printf("%s", BROWN_TEXT);
+            else if (c == '=') {
+                    printf("%s%s#%s", GRAY_TEXT, DARK_BACKGROUND, RESET_COLOR);
+                continue;
+            }
         }
 
         putchar(c);
@@ -45,6 +49,8 @@ char tileToChar(Tile *tile) {
             return '#';
         case ROAD:
             return '#';
+        case BOULDER_ROAD:
+            return '=';
         case TALL_GRASS:
             return ':';
         case WATER:

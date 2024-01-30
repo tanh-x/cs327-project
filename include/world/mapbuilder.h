@@ -12,6 +12,7 @@ typedef enum {
     BORDER,     // %    <border pass>
     GATE,       // #    <border pass>
     ROAD,       // #    <2nd pass>
+    BOULDER_ROAD,// =   <2nd pass>
     TALL_GRASS, // :    <1st pass>
     WATER,      // ~    <1st pass>
     TREE,       // ^    <3nd pass>

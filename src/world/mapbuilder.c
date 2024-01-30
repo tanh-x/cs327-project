@@ -9,25 +9,33 @@
 
 #define MAX_FRAME_COUNT 6572
 
-#define GATE_PLACEMENT_PADDING 6
+#define GATE_PLACEMENT_PADDING 7
+#define ROAD_PLACEMENT_PADDING 2
 #define FIRST_PASS_NUM_TYPES 4
 
 #define NOISE_DENSITY 20
 #define NOISE_SCALE 1.025f
 #define NOISE_LACUNARITY 7.3242f
 
-#define DISTORTION_EXP_PROBABILITY 0.753f
+#define DISTORTION_EXP_PROBABILITY 0.5163f
 #define DISTORTION_ITERATIONS 80
-#define DISTORTION_PADDING 3
+#define DISTORTION_PADDING 2
 #define DISTORTION_KERNEL_RADIUS_SQ 4.85f
 #define DISTORTION_ENERGY 2.6416f
 
 #define BLEND_BOULDER_SPREAD_PROBABILITY 0.0452f
-#define BLEND_BOULDER_EROSION_PROBABILITY 0.8411f
-#define BLEND_SPROUTING_PROBABILITY 0.72f
-#define BLEND_TREE_SPREAD_PROBABILITY 0.62f
-#define BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS 1.6f
+#define BLEND_BOULDER_EROSION_PROBABILITY 0.7211f
+#define BLEND_BOULDER_WATER_EROSION_PROBABILITY 0.9511f
+#define BLEND_SPROUTING_PROBABILITY 0.5222f
+#define BLEND_TALL_GRASS_GROWTH_FACTOR 0.8621f
+#define BLEND_TREE_SPREAD_PROBABILITY 0.1627f
+#define BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS 1.2621f
 #define BLEND_FLAT_SPREAD_PROBABILITY 0.6f
+
+#define ROAD_MOMENTUM_COEFF 0.8221f
+#define ROAD_DRIFT_FACTOR 0.121f
+#define ROAD_KICK_FACTOR 3.52f
+#define ROAD_TARGET_ATTRACTION_FACTOR 2.2572f
 
 #define VORONOI_POINTS_SEED 21679733
 
@@ -41,21 +49,25 @@ void applyBiomeBlending(Map *map, int tx, int ty, TileType biome) {
             TileType spread = type;
             if (biome == BOULDER) {
                 if ((type == TALL_GRASS || type == WATER)
-                    && proba() < BLEND_SPROUTING_PROBABILITY) {
+                    && proba() < BLEND_SPROUTING_PROBABILITY)
                     spread = TREE;
-                } else if (proba() < BLEND_BOULDER_SPREAD_PROBABILITY) spread = BOULDER;
+                else if (proba() < BLEND_BOULDER_SPREAD_PROBABILITY) spread = BOULDER;
+            } else if (biome == WATER) {
+                if (type == BOULDER && proba() < BLEND_BOULDER_WATER_EROSION_PROBABILITY) spread = WATER;
             } else if (biome == TREE) {
                 float p = proba();
                 if (type == TALL_GRASS || type == FLAT) p /= BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS;
                 if (p < BLEND_TREE_SPREAD_PROBABILITY) spread = TREE;
+                else spread = TALL_GRASS;
             } else if (biome == TALL_GRASS) {
                 if ((type == TALL_GRASS || type == WATER) &&
                     proba() < BLEND_SPROUTING_PROBABILITY * 0.4)
                     spread = TREE;
                 else if (type == WATER || type == BOULDER) spread = TALL_GRASS;
+                else if (type == FLAT && proba() < BLEND_TALL_GRASS_GROWTH_FACTOR) spread = TALL_GRASS;
+
             } else if (biome == FLAT) {
-                if ((type == WATER || type == TALL_GRASS) &&
-                    proba() < BLEND_FLAT_SPREAD_PROBABILITY)
+                if (type == WATER || (type == TALL_GRASS && proba() < BLEND_FLAT_SPREAD_PROBABILITY))
                     spread = FLAT;
             } else {
                 spread = biome;
@@ -64,11 +76,29 @@ void applyBiomeBlending(Map *map, int tx, int ty, TileType biome) {
             map->tileset[ty + cy][tx + cx].type = spread;
         }
     }
+
+}
+
+float generateStochasticWalk(float scale, float drift, float remaining) {
+    float kick = randomFloat(-ROAD_KICK_FACTOR, ROAD_KICK_FACTOR);
+    float interpFactor = (ROAD_DRIFT_FACTOR + ROAD_TARGET_ATTRACTION_FACTOR / remaining) * scale;
+    return (kick + drift * interpFactor) / (1 + interpFactor);
+}
+
+bool placeRoad(Map *map, int x, int y) {
+    if (map->tileset[y][x].type == BOULDER || map->tileset[y][x].type == BOULDER_ROAD) {
+        map->tileset[y][x].type = BOULDER_ROAD;
+        return true;
+    } else {
+        map->tileset[y][x].type = ROAD;
+        return false;
+    }
 }
 
 void initializeMap(Map *map, bool useBadApple) {
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
     float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
+    int gateSeed = 31209474;
 
     int numPoints = NOISE_DENSITY * FIRST_PASS_NUM_TYPES;
     int voronoiSeed = useBadApple ?
@@ -85,7 +115,7 @@ void initializeMap(Map *map, bool useBadApple) {
 
     srand(map->mapSeed);
 
-    printf("World seed: %d. Voronoi seed: %d\n", map->mapSeed, voronoiSeed);
+    printf("World seed: %d. Voronoi seed: %d. Gates seed: %d\n", map->mapSeed, voronoiSeed, gateSeed);
     // Populate and generate natural tile types
     TileType firstPassTileTypes[FIRST_PASS_NUM_TYPES] = {
         FLAT, BOULDER, TALL_GRASS, WATER
@@ -109,7 +139,7 @@ void initializeMap(Map *map, bool useBadApple) {
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {
             for (int x = 1; x < MAP_WIDTH - 1; x++) {
                 if (frame[y - 1][x - 1] > 128) map->tileset[y][x].type = BOULDER;
-                else if (map->tileset[y][x].type == BOULDER) map->tileset[y][x].type = TREE;
+                else if (map->tileset[y][x].type == BOULDER) map->tileset[y][x].type = TALL_GRASS;
             }
         }
         // Clean up?
@@ -136,10 +166,11 @@ void initializeMap(Map *map, bool useBadApple) {
     }
 
     // Define gate positions
+    srand(gateSeed);
     int westGateY = randomInt(GATE_PLACEMENT_PADDING, MAP_HEIGHT - GATE_PLACEMENT_PADDING);
     int eastGateY = randomInt(GATE_PLACEMENT_PADDING, MAP_HEIGHT - GATE_PLACEMENT_PADDING);
-    int northGateX = randomInt(GATE_PLACEMENT_PADDING, MAP_WIDTH - GATE_PLACEMENT_PADDING);
-    int southGateX = randomInt(GATE_PLACEMENT_PADDING, MAP_WIDTH - GATE_PLACEMENT_PADDING);
+    int northGateX = randomInt(GATE_PLACEMENT_PADDING * 3, MAP_WIDTH - GATE_PLACEMENT_PADDING * 3);
+    int southGateX = randomInt(GATE_PLACEMENT_PADDING * 3, MAP_WIDTH - GATE_PLACEMENT_PADDING * 3);
 
     // Fill borders and place gates
     for (int x = 0; x < MAP_WIDTH; x++) {
@@ -157,8 +188,48 @@ void initializeMap(Map *map, bool useBadApple) {
     map->tileset[MAP_HEIGHT - 1][southGateX].type = GATE;
 
     // Start placing roads
+    srand(map->mapSeed);
 
-    // Place trees
+    int rx = 1;
+    int ry = westGateY;
+    float splineVelocity = 0.0f;
+    for (; rx < MAP_WIDTH - 1; rx++) {
+        float remaining = (float) (MAP_WIDTH - 2 - rx);
+        int dy;
+        float drift = (float) (eastGateY - ry);
+        if (remaining > 0) {
+            splineVelocity = ROAD_MOMENTUM_COEFF * splineVelocity +
+                             (1 - ROAD_MOMENTUM_COEFF) * generateStochasticWalk(1.5f, drift, remaining);
+            dy = (int) floorf(splineVelocity + 0.5f) + randomInt(0, 2);
+        } else {
+            dy = (int) drift;
+        }
 
+        if (placeRoad(map, rx, ry) && remaining > 1) continue;
+        for (int i = 0; i < abs(dy); i++) {
+            ry = clamp(ry + signum(dy), ROAD_PLACEMENT_PADDING, MAP_HEIGHT - ROAD_PLACEMENT_PADDING);
+            placeRoad(map, rx, ry);
+        }
+    }
+    rx = northGateX;
+    ry = 1;
+    splineVelocity = 0.0f;
+    for (; ry < MAP_HEIGHT - 1; ry++) {
+        float remaining = (float) (MAP_HEIGHT - 2 - ry) * 1.3f;
+        int dx;
+        float drift = (float) (southGateX - rx);
+        if (remaining > 1) {
+            splineVelocity = ROAD_MOMENTUM_COEFF * splineVelocity +
+                             (1 - ROAD_MOMENTUM_COEFF) * generateStochasticWalk(2.3f, drift, remaining);
+            dx = (int) floorf(splineVelocity + 0.5f) + randomInt(-1, 2);
+        } else {
+            dx = (int) drift;
+        }
+        if (placeRoad(map, rx, ry) && remaining > 1) continue;
+        for (int i = 0; i < abs(dx); i++) {
+            rx = clamp(rx + signum(dx), ROAD_PLACEMENT_PADDING, MAP_WIDTH - ROAD_PLACEMENT_PADDING);
+            placeRoad(map, rx, ry);
+        }
+    }
     // Finalize
 }

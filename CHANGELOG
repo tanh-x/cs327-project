@@ -6,7 +6,7 @@ Assignment 1.01:
 * Day 2 (2024-01-29)
     - Completed basic version of coloring.c
     - Started working on output in main.c
-    - Establised project structure
+    - Established project structure
     - Improved Makefile
     - Generated a flat map with borders and printed it to stdout
     - Can now play full image sequence
@@ -18,3 +18,5 @@ Assignment 1.01:
     - Completed biome blending and noise improvements
     - Added type-specific rules for biome blending
     - Realised that this is just cellular automaton
+    - Further improved type-specific rules for more natural terrain
+    - Roads done
