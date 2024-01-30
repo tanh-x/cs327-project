@@ -5,3 +5,5 @@ Day 1 (2024-01-28)
 Day 2 (2024-01-29)
     - Completed basic version of coloring.c
     - Started working on output in main.c
+    - Establised project structure
+    - Improved Makefile

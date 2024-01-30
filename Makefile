@@ -3,18 +3,18 @@ all:
 	@echo -e "  │ Starting build..."
 	@echo -e "  └──"
 	make main
+	@echo -e "  ┌───────────"
+	@echo -e "  │ Finished compile jobs, cleaning object files..."
+	@echo -e "  └──"
+	make clean_objects
 	chmod a+rx main
 	@echo -e "\n  ┌───────────"
 	@echo -e "  │ Finished all Makefile rules. Binary should be \"main\""
 	@echo -e "  │ See README file for optional flags (--color, --verbose)."
 	@echo -e "  └──"
 
-main: src/main.o src/graphics/artist.o
-	$gcc -o $@ $^ -g
-	@echo -e "  ┌───────────"
-	@echo -e "  │ Finished compile jobs, cleaning object files..."
-	@echo -e "  └──"
-	make clean_objects
+main: src/graphics/artist.o src/utils/mathematics.c src/world/mapbuilder.c src/main.o
+	$gcc -o $@ $^ -g -lm
 
 %.o: %.c
 	gcc -c -o $@ $< -Iinclude -Wall -g
