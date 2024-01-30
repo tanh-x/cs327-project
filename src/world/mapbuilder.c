@@ -1,8 +1,12 @@
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include "../../include/world/mapbuilder.h"
 #include "../../include/utils/mathematics.h"
 #include "../../include/graphics/parse_frame.h"
+
+#define MAX_FRAME_COUNT 6572
 
 void initializeMap(Map *map, bool useBadApple) {
     int westGateY = 8;
@@ -19,7 +23,10 @@ void initializeMap(Map *map, bool useBadApple) {
     }
 
     if (useBadApple) {
-        int **frame = parse_frame("assets/badapple-test.png");
+        char filename[42];
+        int frameIdx = (map->mapSeed / 33) % MAX_FRAME_COUNT;
+        sprintf(filename, "assets/badapple-30fps/badapple-%05d.png", frameIdx);
+        int **frame = parse_frame(filename);
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {
             for (int x = 1; x < MAP_WIDTH - 1; x++) {
                 if (frame[y - 1][x - 1] > 128) map->tiles[y][x].type = BOULDER;
