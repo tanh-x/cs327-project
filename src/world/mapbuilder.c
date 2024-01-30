@@ -12,15 +12,43 @@
 #define GATE_PLACEMENT_PADDING 6
 #define FIRST_PASS_NUM_TYPES 4
 
-#define NOISE_DENSITY 16
+#define NOISE_DENSITY 18
 #define NOISE_SCALE 0.925f
-#define NOISE_LACUNARITY 8.3242f
+#define NOISE_LACUNARITY 7.3242f
 
-#define DISTORTION_EXP_PROBABILITY 0.8453f
-#define DISTORTION_ITERATIONS 32
+#define DISTORTION_EXP_PROBABILITY 0.453f
+#define DISTORTION_ITERATIONS 64
 #define DISTORTION_PADDING 3
-#define DISTORTION_KERNEL_RADIUS_SQ 7.54f
-#define DISTORTION_ENERGY 3.1416f
+#define DISTORTION_KERNEL_RADIUS_SQ 7.2f
+#define DISTORTION_ENERGY 2.6416f
+
+#define BLEND_SPROUTING_PROBABILITY 0.775f
+#define BLEND_TREE_SPREAD_PROBABILITY 0.3721f
+#define BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS 1.7f
+
+
+void applyBiomeBlending(Map *map, int tx, int ty, TileType biome) {
+    for (int cx = -2; cx <= 2; cx++) {
+        for (int cy = -2; cy <= 2; cy++) {
+            if ((float) (cx * cx + cy * cy) > DISTORTION_KERNEL_RADIUS_SQ) continue;
+            TileType type = map->tileset[ty + cy][tx + cx].type;
+            TileType spread = biome;
+            float p = randomFloat(0.0f, 1.0f);
+
+            if (biome == BOULDER) {
+                if ((type == TALL_GRASS || type == WATER)
+                    && p < BLEND_SPROUTING_PROBABILITY) {
+                    spread = TREE;
+                }
+            } else if (biome == TREE) {
+                if (type == TALL_GRASS || type == FLAT) p *= BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS;
+                if (p < BLEND_TREE_SPREAD_PROBABILITY) spread = TREE;
+            }
+
+            map->tileset[ty + cy][tx + cx].type = spread;
+        }
+    }
+}
 
 void initializeMap(Map *map, bool useBadApple) {
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
@@ -69,17 +97,12 @@ void initializeMap(Map *map, bool useBadApple) {
     for (int i = 0; i < DISTORTION_ITERATIONS; i++) {
         int tx = randomInt(DISTORTION_PADDING, distortionEdgeX);
         int ty = randomInt(DISTORTION_PADDING, distortionEdgeY);
-        int biome = map->tileset[ty][tx].type;
-        float p = 1.0f;
-        while (p > DISTORTION_EXP_PROBABILITY
+        TileType biome = map->tileset[ty][tx].type;
+        float p = 0.0f;
+        while (p < DISTORTION_EXP_PROBABILITY
                && (tx > DISTORTION_PADDING) && (tx < distortionEdgeX)
                && (ty > DISTORTION_PADDING) && (ty < distortionEdgeY)) {
-            for (int cx = -2; cx <= 2; cx++) {
-                for (int cy = -2; cy <= 2; cy++) {
-                    if ((float) (cx * cx + cy * cy) > DISTORTION_KERNEL_RADIUS_SQ) continue;
-                    map->tileset[ty + cy][tx + cx].type = biome;
-                }
-            }
+            applyBiomeBlending(map, tx, ty, biome);
 
             tx += (int) floorf(randomFloat(-DISTORTION_ENERGY, DISTORTION_ENERGY));
             p = randomFloat(0.0f, 1.0f);

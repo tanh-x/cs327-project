@@ -1,8 +1,9 @@
-Day 1 (2024-01-28)
+Assignment 1.01:
+* Day 1 (2024-01-28)
     - Set up project
     - Wrote Makefile and CHANGELOG
 
-Day 2 (2024-01-29)
+* Day 2 (2024-01-29)
     - Completed basic version of coloring.c
     - Started working on output in main.c
     - Establised project structure
@@ -12,3 +13,8 @@ Day 2 (2024-01-29)
     - First successful voronoi noise
     - Improved bash command for playing full animation
     - Voronoi done, animation done; only road placement remains.
+
+* Day 3 (2024-01-30)
+    - Completed biome blending and noise improvements
+    - Added type-specific rules for biome blending
+    - Realised that this is just cellular automaton
