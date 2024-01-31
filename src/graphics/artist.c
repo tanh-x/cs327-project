@@ -28,11 +28,16 @@ void prettyPrint(const char *str, bool isMapColored) {
             else if (c == '^') printf("%s", DARK_GREEN_TEXT);
             else if (c == '#') printf("%s", BROWN_TEXT);
             else if (c == '=') {
-                    printf("%s%s#%s", GRAY_TEXT, DARK_BACKGROUND, RESET_COLOR);
+                printf("%s%s#%s", GRAY_TEXT, DARK_BACKGROUND, RESET_COLOR);
                 continue;
             }
             else if (c == 'M') printf("%s", PURPLE_TEXT);
             else if (c == 'C') printf("%s", RED_TEXT);
+        } else {
+            if (c == '=') {
+                printf("#");
+                continue;
+            }
         }
 
         putchar(c);

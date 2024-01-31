@@ -1,0 +1,121 @@
+┌─< README Main Content >──────────────────────────────────────────────────────┐
+│                                                                              │
+│  Generates the terrain for a single map. Includes short grass, tall grass,   │
+│  boulders, water, trees, and roads. A Pokemon center and a Pokemart is also  │
+│  placed randomly on the roads.                                               │
+│                                                                              │
+│  Flags:                                                                      │
+│  --color                                                                     │
+│      Tiles will be colored by their type. Uses ANSI 256 colors.              │
+│                                                                              │
+│  --badapple                                                                  │
+│      Generate a standard map, but initial boulder placement is determined    │
+│      by a frame from "Bad Apple".                                            │
+│                                                                              │
+│      !!IMPORTANT!! This requires assets/sequence.tar.gz to be unzipped. If   │
+│      done correctly, there should be exactly 6572 of 78x19 PNG images at     │
+│      assets/sequence/badapple-#####.png.                                     │
+│                                                                              │
+│      Then, to play the full animation, run ./animate.sh.                     │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+[ Generation algorithm documentation ]
+The generation consists of three phases:
+- Sampling from 3D voronoi noise
+- Blend and distort the terrain to make it more natural
+- Place roads and buildings
+
+1. First pass: Voronoi noise
+    20 points of each of the 4 types (short/tall grass, boulder, water) are
+    scattered uniformly in 3D space. Initial terrain types are then generated
+    by sampling the corresponding voronoi diagram, i.e., the closest point will
+    determine the type of terrain at that cell. The sampling point has a small
+    random factor to make the terrain more natural.
+
+    The 3rd dimension allows for smooth tweaks of the terrain by sliding along
+    the z-axis, as opposed to using a new seed, which will always generate a 
+    completely different terrain map.
+
+    Since the y-axis covers more space than the x-axis (text is tall, rather
+    than wide), the coordinate space is also scaled accordingly to minimize
+    distortion.
+
+    This first pass will define overall shape of the terrain, but the appearance
+    will be similar to that of a voronoi diagram, which is too geometric. We
+    need further processing to make the terrain more natural
+
+2. Second pass: "Biome blending" / quasi cellular automaton
+    Choose one tile at random ("pivot point"), and consider the neighborhood of
+    12 adjacent points whose taxicab distance is less than 2 from the pivot.
+    These points have a chance to be converted to a different type, whose rules
+    depend on the type of the pivot and the type of the current point. This can
+    be thought of as a cellular automaton system. For more details, see the
+    biome blending rules section.
+
+    Once we're done, with ~80% probability, continue the process by moving the
+    pivot along a random direction by a random amount (0-2 tiles). However, we
+    keep the pivot type of the original one. This allows some chosen tiles to
+    have a far-reaching influence. Repeat until we hit the ~20% stop condition.
+
+    Do this process for 64-80 pivot points, (chosen randomly with replacement).
+
+3. Third pass: Road and buildings
+    Road traversal start from the left and top. For the horizontal road, every
+    step, the road traverses to the right by 1 tile, and goes up/down by `dy`
+    tiles. `dy` is initially 0, but for every step, a random "kick" is applied
+    to `dy`. We don't want our paths to be jagged, so `dy` has a "momentum"
+    factor. Finally, `dy` is also biased by a "drift" factor that pulls the path
+    towards the gate on the other side. The closer we are to the eastern border,
+    the stronger the drift factor. A similar process is done for the vertical.
+
+    For buildings, a random point on a road is chosen prior to road generation.
+    During generation, we know that the road will bend towards `dy` (or `dy`),
+    so we place buildings 1-3 tiles away on the other direction, `-dy`, then we
+    connect the building to the main road with a simple straight path.
+
+
+[Biome blending rules]
+All these rules are applied for each of the 12 neighboring tiles independently.
+In other words, we reroll, check, and convert for each tile separately.
+
+Boulder pivot: 
+    Boulders may sprout nearby tall grass or water tiles into trees, with a 50%
+    probability. Otherwise, it has a 4.52% probability to convert any tile to
+    another boulder.
+
+Water pivot:
+    Each nearby boulder tile has a 68.5% chance to be eroded, becoming water.
+
+Tall grass pivot:
+    A tall grass have a 20.8% chance of converting neighboring tall grass or
+    water tiles to sprout a new tree. If this fails, it is guaranteed to convert
+    neighboring water or boulders tiles to tall grass. Neighboring short grass
+    tiles might also be grown to tall grass, with 86.2% probability.
+
+Short grass pivot:
+    Short grass has a 60% chance to grow into nearby tall grass or water tiles.
+
+Tree pivot:
+    A tree can spread to any neighboring tiles, with 16.2% probability, or 22.1%
+    probability if it's a short/tall grass tile. If this succeeds, the tile will
+    be converted to a tree. Otherwise, it is converted to tall grass. So, while
+    trees are rare, they can spread plants very well.
+
+Parameters used:
+```c
+#define DISTORTION_EXP_PROBABILITY 0.5163f
+#define DISTORTION_ITERATIONS 80
+#define DISTORTION_PADDING 2
+#define DISTORTION_KERNEL_RADIUS_SQ 4.85f
+#define DISTORTION_ENERGY 2.6416f
+#define BLEND_BOULDER_SPREAD_PROBABILITY 0.0452f
+#define BLEND_BOULDER_EROSION_PROBABILITY 0.7211f
+#define BLEND_BOULDER_WATER_EROSION_PROBABILITY 0.9511f
+#define BLEND_SPROUTING_PROBABILITY 0.5222f
+#define BLEND_TALL_GRASS_GROWTH_FACTOR 0.8621f
+#define BLEND_TREE_SPREAD_PROBABILITY 0.1627f
+#define BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS 1.2621f
+#define BLEND_FLAT_SPREAD_PROBABILITY 0.6f
+```
