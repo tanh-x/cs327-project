@@ -5,6 +5,8 @@
 #define WHITE_BACKGROUND "\033[48;5;247m"
 #define DARK_BACKGROUND "\033[48;5;240m"
 
+#define WHITE_TEXT "\033[38;5;252m"
+#define LIGHT_GRAY_TEXT "\033[38;5;247m"
 #define BLUE_TEXT "\033[38;5;75m"
 #define YELLOW_TEXT "\033[38;5;226m"
 #define GREEN_TEXT "\033[38;5;112m"
@@ -21,14 +23,15 @@ void prettyPrint(const char *str, bool isMapColored) {
         char c = str[i];
 
         if (isMapColored) {
-            if (c == '%') printf("%s%s", GRAY_TEXT, WHITE_BACKGROUND);
+//            if (c == '%') printf("%s%s", GRAY_TEXT, WHITE_BACKGROUND);
+            if (c == '%') printf("%s", WHITE_TEXT);
             else if (c == '.') printf("%s", YELLOW_TEXT);
             else if (c == '~') printf("%s", BLUE_TEXT);
             else if (c == ':') printf("%s", GREEN_TEXT);
             else if (c == '^') printf("%s", DARK_GREEN_TEXT);
             else if (c == '#') printf("%s", BROWN_TEXT);
             else if (c == '=') {
-                printf("%s%s#%s", GRAY_TEXT, DARK_BACKGROUND, RESET_COLOR);
+                printf("%s#%s", LIGHT_GRAY_TEXT, RESET_COLOR);
                 continue;
             }
             else if (c == 'M') printf("%s", PURPLE_TEXT);

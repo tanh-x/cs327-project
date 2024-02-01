@@ -5,7 +5,11 @@
 
 int min(int a, int b);
 
+float minf(float a, float b);
+
 int max(int a, int b);
+
+float maxf(float a, float b);
 
 int clamp(int n, int low, int high);
 

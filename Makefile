@@ -10,8 +10,9 @@ all:
 	chmod a+rx main
 	@echo -e "\n  ┌───────────"
 	@echo -e "  │ Finished all Makefile rules. Binary should be \"main\""
-	@echo -e "  │ See README file for optional flags (--color, --verbose)."
-	@echo -e "  └──"
+	@echo -e "  │ "
+	@echo -e "  │ See README file for optional flags (--color, --badapple)."
+	@echo -e "  └──\n"
 
 main: src/graphics/artist.o src/graphics/parse_frame.c src/utils/voronoi_noise.c src/utils/mathematics.c src/world/mapbuilder.c src/main.o
 	$gcc -o $@ $^ -g -lm -lpng

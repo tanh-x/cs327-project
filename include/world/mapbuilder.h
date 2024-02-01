@@ -6,7 +6,7 @@
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21
 
-typedef enum {
+typedef enum __attribute__ ((__packed__)) {
     FLAT,       // .    <1st pass>
     BOULDER,    // %    <1st pass>
     BORDER,     // %    <border pass>

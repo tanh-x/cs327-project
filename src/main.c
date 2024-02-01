@@ -6,6 +6,7 @@
 #include "../include/graphics/artist.h"
 #include "../include/world/mapbuilder.h"
 #include "../include/utils/mathematics.h"
+#include "../include/world/world.h"
 
 #define CLEAR_SCREEN "\033[2J\033[H"
 
@@ -27,6 +28,8 @@ int main(int argc, char *argv[]) {
     timespec_get(&timeNano, TIME_UTC);
     long long int timeSeedMilli = (timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime;
 
+    World world;
+    world.worldSeed = (int) (timeSeedMilli & 0xffffffffLL);
 
     // Generate the map
     Map map;

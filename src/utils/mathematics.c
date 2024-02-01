@@ -8,9 +8,17 @@ int min(int a, int b) {
     return (a < b) ? a : b;
 }
 
-int max(int a, int b) {
+float minf(float a, float b) {
     return (a < b) ? a : b;
 }
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+float maxf(float a, float b) {
+    return (a > b) ? a : b;
+};
 
 int clamp(int n, int low, int high) {
     return (n > low) ? ((n > high) ? high : n) : low;
