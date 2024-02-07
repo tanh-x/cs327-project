@@ -18,6 +18,7 @@ typedef enum __attribute__ ((__packed__)) {
     TREE,       // ^    <1st pass>
     POKECENTER, // C    <2nd pass>
     POKEMART,   // M    <2nd pass>
+    JOULDER,    // )    <2nd pass>
 } TileType;
 
 typedef struct {

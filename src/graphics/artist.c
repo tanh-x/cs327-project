@@ -8,13 +8,14 @@
 #define WHITE_TEXT "\033[38;5;252m"
 #define LIGHT_GRAY_TEXT "\033[38;5;247m"
 #define BLUE_TEXT "\033[38;5;75m"
-#define YELLOW_TEXT "\033[38;5;226m"
-#define GREEN_TEXT "\033[38;5;112m"
-#define DARK_GREEN_TEXT "\033[38;5;34m"
+#define FLAT_COLOR "\033[38;5;155m"
+#define GRASS_COLOR "\033[38;5;40m"
+#define TREE_COLOR "\033[38;5;28m"
 #define GRAY_TEXT "\033[38;5;232m"
 #define BROWN_TEXT "\033[38;5;172m"
 #define PURPLE_TEXT "\033[38;5;165m"
 #define RED_TEXT "\033[38;5;196m"
+#define JOULDER_COLOR "\033[38;5;216m"
 
 #define RESET_COLOR "\033[0m"
 
@@ -25,17 +26,17 @@ void prettyPrint(const char *str, bool isMapColored) {
         if (isMapColored) {
 //            if (c == '%') printf("%s%s", GRAY_TEXT, WHITE_BACKGROUND);
             if (c == '%') printf("%s", WHITE_TEXT);
-            else if (c == '.') printf("%s", YELLOW_TEXT);
+            else if (c == '.') printf("%s", FLAT_COLOR);
             else if (c == '~') printf("%s", BLUE_TEXT);
-            else if (c == ':') printf("%s", GREEN_TEXT);
-            else if (c == '^') printf("%s", DARK_GREEN_TEXT);
+            else if (c == ':') printf("%s", GRASS_COLOR);
+            else if (c == '^') printf("%s", TREE_COLOR);
             else if (c == '#') printf("%s", BROWN_TEXT);
             else if (c == '=') {
                 printf("%s#%s", LIGHT_GRAY_TEXT, RESET_COLOR);
                 continue;
-            }
-            else if (c == 'M') printf("%s", PURPLE_TEXT);
+            } else if (c == 'M') printf("%s", PURPLE_TEXT);
             else if (c == 'C') printf("%s", RED_TEXT);
+            else if (c == ')') printf("%s", JOULDER_COLOR);
         } else {
             if (c == '=') {
                 printf("#");
@@ -54,11 +55,9 @@ char tileToChar(Tile *tile) {
         case FLAT:
             return '.';
         case BOULDER:
-            return '%';
         case BORDER:
             return '%';
         case GATE:
-            return '#';
         case ROAD:
             return '#';
         case BOULDER_ROAD:
@@ -73,6 +72,8 @@ char tileToChar(Tile *tile) {
             return 'C';
         case POKEMART:
             return 'M';
+        case JOULDER:
+            return ')';
         default:
             return ' ';
     }

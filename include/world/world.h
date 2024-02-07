@@ -4,11 +4,11 @@
 #define WORLD_H
 
 #define WORLD_X_SPAN 200
-#define WORLD_Y_SPAN 100
+#define WORLD_Y_SPAN 200
 
 // Coupled with above
 #define WORLD_WIDTH 401
-#define WORLD_HEIGHT 201
+#define WORLD_HEIGHT 401
 
 typedef struct {
     Map *maps[WORLD_HEIGHT][WORLD_WIDTH];

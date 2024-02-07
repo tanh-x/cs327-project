@@ -11,9 +11,12 @@
 #define MAX_FRAME_COUNT 6572
 #define MAX_ITER_MULTIPLIER 8
 
-#define PADDING 2
+#define PADDING 3
 #define GATE_PADDING 7
 #define FIRST_PASS_NUM_TYPES 4
+
+#define BUILDING_FALLOFF_FACTOR 63.85f
+#define BUILDING_FALLOFF_INTERCEPT 75.85f
 
 #define NOISE_DENSITY 16
 #define NOISE_SCALE 1.025f
@@ -23,6 +26,7 @@
 #define SCATTER_BOULDER_VARIABILITY 5
 #define SCATTER_BOULDER_ON_WATER_PROBABILITY 0.1277f
 #define SCATTER_BOULDER_MAX_RADIUS 2.13f
+#define PURPLE_BOULDER_PROBABILITY 0.0159f
 
 #define DISTORTION_EXP_PROBABILITY 0.7563f
 #define DISTORTION_ITERATIONS_BASELINE 80    // More iterations = more overgrown terrain
@@ -44,7 +48,19 @@
 #define ROAD_KICK_FACTOR 3.12f
 #define ROAD_TARGET_ATTRACTION_FACTOR 2.2572f
 
+#define EDGE_STUB_PADDING_X 15
+#define EDGE_STUB_PADDING_Y 4
+#define EDGE_WEST_BITMASK 1
+#define EDGE_EAST_BITMASK 2
+#define EDGE_SOUTH_BITMASK 4
+#define EDGE_NORTH_BITMASK 8
+
 #define VORONOI_POINTS_BASE_SEED 21679733
+
+float calculateBuildingProbability(int globalX, int globalY) {
+    return (-BUILDING_FALLOFF_FACTOR * (float) (abs(globalX) + abs(globalY)) / 200.0f + BUILDING_FALLOFF_INTERCEPT) /
+           100.0f;
+}
 
 void applyBiomeBlending(Map *map, int tx, int ty, TileType biome) {
     for (int cx = -2; cx <= 2; cx++) {
@@ -84,7 +100,7 @@ void applyBiomeBlending(Map *map, int tx, int ty, TileType biome) {
                 }
 
             } else {
-                spread = biome;
+                continue;
             }
 
             map->tileset[ty + cy][tx + cx].type = spread;
@@ -99,7 +115,18 @@ float generateStochasticWalk(float scale, float drift, float remaining) {
     return (kick + drift * interpFactor) / (1 + interpFactor);
 }
 
-bool placeRoad(Map *map, int x, int y) {
+bool placeRoad(Map *map, int x, int y, int edgeBitmask) {
+    bool isNorthEdge = edgeBitmask & EDGE_NORTH_BITMASK;
+    bool isSouthEdge = edgeBitmask & EDGE_SOUTH_BITMASK;
+    bool isEastEdge = edgeBitmask & EDGE_EAST_BITMASK;
+    bool isWestEdge = edgeBitmask & EDGE_WEST_BITMASK;
+
+    if ((isWestEdge && x < EDGE_STUB_PADDING_X)
+        || (isEastEdge && x >= MAP_WIDTH - EDGE_STUB_PADDING_X)
+        || (isNorthEdge && y < EDGE_STUB_PADDING_Y)
+        || (isSouthEdge && y >= MAP_HEIGHT - EDGE_STUB_PADDING_Y))
+        return false;
+
     if (map->tileset[y][x].type == BOULDER || map->tileset[y][x].type == BOULDER_ROAD) {
         map->tileset[y][x].type = BOULDER_ROAD;
         return true;
@@ -129,6 +156,14 @@ void placeKernelChunk(Map *map, TileType type, int x, int y, float kernelRadius)
 }
 
 void generateMap(Map *map, int worldSeed, bool useBadApple) {
+    int globalX = map->globalX;
+    int globalY = map->globalY;
+    int edgeBitmask = 0;
+    if (globalY == -WORLD_Y_SPAN) edgeBitmask |= EDGE_NORTH_BITMASK;
+    if (globalY == +WORLD_Y_SPAN) edgeBitmask |= EDGE_SOUTH_BITMASK;
+    if (globalX == +WORLD_X_SPAN) edgeBitmask |= EDGE_EAST_BITMASK;
+    if (globalX == -WORLD_X_SPAN) edgeBitmask |= EDGE_WEST_BITMASK;
+
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
     float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
 
@@ -153,11 +188,9 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
         FLAT,
         TALL_GRASS,
         WATER,
-//        BOULDER,
     };
     for (int y = 1; y < MAP_HEIGHT - 1; y++) {
         for (int x = 1; x < MAP_WIDTH - 1; x++) {
-//            for (int i = 0; i < numPoints; i++) {
             Vec3 tilePosition = {
                 (float) x * NOISE_SCALE,
                 (float) y * NOISE_SCALE * VERTICAL_SCALING_FACTOR,
@@ -191,11 +224,28 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
             int scatterY = randomInt(PADDING, MAP_HEIGHT - PADDING);
 
             if (map->tileset[scatterY][scatterX].type != WATER || proba() < SCATTER_BOULDER_ON_WATER_PROBABILITY) {
-                float radius = maxf(1.0f, randomFloat(-4.0f, SCATTER_BOULDER_MAX_RADIUS));
-                placeKernelChunk(map, BOULDER, scatterX, scatterY, radius);
+                if (proba() < PURPLE_BOULDER_PROBABILITY) {
+                    placeChunk(map, JOULDER, scatterX, scatterY, 1, 1);
+                } else {
+                    float radius = maxf(1.0f, randomFloat(-4.0f, SCATTER_BOULDER_MAX_RADIUS));
+                    placeKernelChunk(map, BOULDER, scatterX, scatterY, radius);
+                }
                 boulderCount++;
             }
         }
+    }
+
+    if (edgeBitmask & EDGE_WEST_BITMASK) {
+
+    }
+    if (edgeBitmask & EDGE_EAST_BITMASK) {
+
+    }
+    if (edgeBitmask & EDGE_NORTH_BITMASK) {
+
+    }
+    if (edgeBitmask & EDGE_SOUTH_BITMASK) {
+
     }
 
     // Biome blending pass
@@ -215,12 +265,10 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
             p = proba();
         }
     }
-    // 0 1 2 3 4
 
     // Define gate positions
-
-    int latticeX = 2 * map->globalX;
-    int latticeY = 2 * map->globalY;
+    int latticeX = 2 * globalX;
+    int latticeY = 2 * globalY;
     int westGateY = globalHashFunction(latticeX - 1, latticeY, worldSeed);
     int eastGateY = globalHashFunction(latticeX + 1, latticeY, worldSeed);
     int northGateX = globalHashFunction(latticeX, latticeY - 1, worldSeed);
@@ -231,8 +279,9 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
     southGateX = positiveMod(southGateX, MAP_WIDTH - 4 * GATE_PADDING) + 2 * GATE_PADDING;
 
     bool pokeCenterOnVertical = randomInt(0, 1);
-    int horizontalPlacement = randomInt(PADDING * 2, MAP_WIDTH - PADDING * 2);
-    int verticalPlacement = randomInt(PADDING * 2, MAP_HEIGHT - PADDING * 2);
+    float buildingProbability = calculateBuildingProbability(globalX, globalY);
+    int horizontalPlacement = proba() < buildingProbability ? randomInt(PADDING * 2, MAP_WIDTH - PADDING * 2) : -1;
+    int verticalPlacement = proba() < buildingProbability ? randomInt(PADDING * 2, MAP_HEIGHT - PADDING * 2) : -1;
 
     // Start placing roads
     srand(map->mapSeed);
@@ -255,18 +304,18 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
         if (rx == horizontalPlacement) {
             int dir = signum(dy);
             dir = (dir == 0 ? 1 : dir);
-            placeRoad(map, rx, ry - dir);
-            placeRoad(map, rx, ry - 2 * dir);
+            placeRoad(map, rx, ry - dir, edgeBitmask);
+            placeRoad(map, rx, ry - 2 * dir, edgeBitmask);
             placeChunk(
                 map, pokeCenterOnVertical ? POKEMART : POKECENTER,
                 rx, ry - 3 * dir, 2, 2
             );
         }
 
-        if (placeRoad(map, rx, ry) && remaining > 1) continue;
+        if (placeRoad(map, rx, ry, edgeBitmask) && remaining > 1) continue;
         for (int i = 0; i < abs(dy); i++) {
             ry = clamp(ry + signum(dy), PADDING, MAP_HEIGHT - PADDING);
-            placeRoad(map, rx, ry);
+            placeRoad(map, rx, ry, edgeBitmask);
         }
     }
     rx = northGateX;
@@ -287,8 +336,8 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
         if (ry == verticalPlacement) {
             int dir = signum(dx);
             dir = (dir == 0 ? 1 : dir);
-            placeRoad(map, rx - dir, ry);
-            placeRoad(map, rx - 2 * dir, ry);
+            placeRoad(map, rx - dir, ry, edgeBitmask);
+            placeRoad(map, rx - 2 * dir, ry, edgeBitmask);
             placeChunk(
                 map, pokeCenterOnVertical ? POKECENTER : POKEMART,
                 rx - 3 * dir, ry, 2, 2
@@ -296,10 +345,10 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
         }
 
 
-        if (placeRoad(map, rx, ry) && remaining > 1) continue;
+        if (placeRoad(map, rx, ry, edgeBitmask) && remaining > 1) continue;
         for (int i = 0; i < abs(dx); i++) {
             rx = clamp(rx + signum(dx), PADDING, MAP_WIDTH - PADDING);
-            placeRoad(map, rx, ry);
+            placeRoad(map, rx, ry, edgeBitmask);
         }
     }
 
@@ -313,8 +362,8 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
         map->tileset[y][0].type = BORDER;
         map->tileset[y][MAP_WIDTH - 1].type = BORDER;
     }
-    map->tileset[westGateY][0].type = GATE;
-    map->tileset[eastGateY][MAP_WIDTH - 1].type = GATE;
-    map->tileset[0][northGateX].type = GATE;
-    map->tileset[MAP_HEIGHT - 1][southGateX].type = GATE;
+    if (!(edgeBitmask & EDGE_WEST_BITMASK)) map->tileset[westGateY][0].type = GATE;
+    if (!(edgeBitmask & EDGE_EAST_BITMASK)) map->tileset[eastGateY][MAP_WIDTH - 1].type = GATE;
+    if (!(edgeBitmask & EDGE_NORTH_BITMASK)) map->tileset[0][northGateX].type = GATE;
+    if (!(edgeBitmask & EDGE_SOUTH_BITMASK)) map->tileset[MAP_HEIGHT - 1][southGateX].type = GATE;
 }
