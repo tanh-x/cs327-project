@@ -1,8 +1,12 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../../include/utils/mathematics.h"
+#include "utils/mathematics.h"
 
+
+int positiveMod(int x, int y) {
+    return ((x % y) + y) % y;
+}
 
 int min(int a, int b) {
     return (a < b) ? a : b;

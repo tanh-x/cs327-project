@@ -12,14 +12,15 @@
 
 typedef struct {
     Map *maps[WORLD_HEIGHT][WORLD_WIDTH];
-    bool filled[WORLD_HEIGHT][WORLD_WIDTH];
     int worldSeed;
 } World;
 
 void initializeWorld(World *world, int worldSeed);
 
-bool getOrInitialize(World *world, Map *emptyMap, int globalX, int globalY);
+Map *getMap(World *world, int globalX, int globalY);
 
 int globalHashFunction(int globalX, int globalY, int worldSeed);
+
+void destroyWorld(World *world);
 
 #endif

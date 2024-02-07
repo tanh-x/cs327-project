@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <float.h>
-#include "../../include/utils/voronoi_noise.h"
-#include "../../include/world/mapbuilder.h"
+#include "utils/voronoi_noise.h"
+#include "world/mapbuilder.h"
 
 #define RANDOM_VECTOR_PADDING 6.0f
 
@@ -21,7 +21,7 @@ void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int nu
     }
 }
 
-int sampleVoronoiNoise( VoronoiPoint points[], int numPoints, Vec3 position, float lacunarity) {
+int sampleVoronoiNoise(VoronoiPoint points[], int numPoints, Vec3 position, float lacunarity) {
     float minDist = FLT_MAX;
     int result = 0;
 

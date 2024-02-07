@@ -2,10 +2,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../include/world/mapbuilder.h"
-#include "../../include/utils/mathematics.h"
-#include "../../include/graphics/parse_frame.h"
-#include "../../include/utils/voronoi_noise.h"
+#include "world/mapbuilder.h"
+#include "utils/mathematics.h"
+#include "graphics/parse_frame.h"
+#include "utils/voronoi_noise.h"
 
 #define MAX_FRAME_COUNT 6572
 #define MAX_ITER_MULTIPLIER 8
@@ -14,12 +14,12 @@
 #define GATE_PADDING 7
 #define FIRST_PASS_NUM_TYPES 4
 
-#define NOISE_DENSITY 14
+#define NOISE_DENSITY 16
 #define NOISE_SCALE 1.025f
 #define NOISE_LACUNARITY 9.3242f
 
-#define SCATTER_BOULDER_COUNT 16
-#define SCATTER_BOULDER_VARIABILITY 6
+#define SCATTER_BOULDER_COUNT 19
+#define SCATTER_BOULDER_VARIABILITY 5
 #define SCATTER_BOULDER_ON_WATER_PROBABILITY 0.1277f
 #define SCATTER_BOULDER_MAX_RADIUS 2.13f
 
@@ -38,9 +38,9 @@
 #define BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS 1.2621f
 #define BLEND_FLAT_SPREAD_PROBABILITY 0.62f
 
-#define ROAD_MOMENTUM_COEFF 0.8221f
+#define ROAD_MOMENTUM_COEFF 0.7621f
 #define ROAD_DRIFT_FACTOR 0.121f
-#define ROAD_KICK_FACTOR 2.62f
+#define ROAD_KICK_FACTOR 3.12f
 #define ROAD_TARGET_ATTRACTION_FACTOR 2.2572f
 
 #define VORONOI_POINTS_BASE_SEED 21679733
@@ -157,6 +157,7 @@ void generateMap(Map *map, bool useBadApple) {
     };
     for (int y = 1; y < MAP_HEIGHT - 1; y++) {
         for (int x = 1; x < MAP_WIDTH - 1; x++) {
+//            for (int i = 0; i < numPoints; i++) {
             Vec3 tilePosition = {
                 (float) x * NOISE_SCALE,
                 (float) y * NOISE_SCALE * VERTICAL_SCALING_FACTOR,
@@ -169,7 +170,7 @@ void generateMap(Map *map, bool useBadApple) {
 
     if (useBadApple) {
         char filename[42];
-        sprintf(filename, "assets/sequence/badapple-%05d.png", frameIdx % MAX_FRAME_COUNT);
+        sprintf(filename, "assets/sequence/badapple-%05d.png", positiveMod(frameIdx, MAX_FRAME_COUNT));
         int **frame = parse_frame(filename);
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {
             for (int x = 1; x < MAP_WIDTH - 1; x++) {
@@ -180,7 +181,6 @@ void generateMap(Map *map, bool useBadApple) {
         // Clean up?
         for (int i = 0; i < MAP_HEIGHT - 2; i++) free(frame[i]);
         free(frame);
-
     } else { // Otherwise, scatter boulders randomly
         // Number of boulders can vary
         int boulderCount = randomInt(-SCATTER_BOULDER_VARIABILITY, SCATTER_BOULDER_VARIABILITY);

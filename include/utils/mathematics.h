@@ -3,6 +3,8 @@
 
 #define proba() randomFloat(0.0f, 1.0f)
 
+int positiveMod(int x, int y);
+
 int min(int a, int b);
 
 float minf(float a, float b);

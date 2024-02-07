@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include "../world/mapbuilder.h"
+#include "world/mapbuilder.h"
 
 #ifndef ARTIST_H
 #define ARTIST_H

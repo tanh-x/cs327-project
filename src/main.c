@@ -3,20 +3,20 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include "../include/graphics/artist.h"
-#include "../include/world/mapbuilder.h"
-#include "../include/utils/mathematics.h"
-#include "../include/world/world.h"
+#include "graphics/artist.h"
+#include "world/mapbuilder.h"
+#include "utils/mathematics.h"
+#include "world/world.h"
 
 #define CLEAR_SCREEN "\033[2J\033[H"
 
 int main(int argc, char *argv[]) {
     printf("%s", CLEAR_SCREEN);
-    bool doColoring;
-    bool useBadApple;
+    bool doColoring = true;
+    bool useBadApple = false;
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--color") == 0) doColoring = true;
+        if (strcmp(argv[i], "--nocolor") == 0) doColoring = false;
         else if (strcmp(argv[i], "--badapple") == 0) useBadApple = true;
     }
 
@@ -32,18 +32,18 @@ int main(int argc, char *argv[]) {
     initializeWorld(&world, (int) (timeSeedMilli & 0xffffffffLL));
 
     // Generate the map
-    Map map;
-
-    map.mapSeed = timeSeedMilli & 0xffffffff; // NOLINT(*-narrowing-conversions)
-    map.globalX = 0;
-    map.globalY = 0;
-    generateMap(&map, useBadApple);
+    Map* map = getMap(&world, 0, 0);
+    map->mapSeed = timeSeedMilli & 0xffffffff; // NOLINT(*-narrowing-conversions)
+    map->globalX = 0;
+    map->globalY = 0;
+    generateMap(map, useBadApple);
 
     // Print it to stdout
     char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-    worldToString(&map, mapStr);
+    worldToString(map, mapStr);
 
     prettyPrint(mapStr, doColoring);
 
+    destroyWorld(&world);
     return 0;
 }

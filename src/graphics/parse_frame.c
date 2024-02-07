@@ -1,7 +1,7 @@
 #include <png.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../../include/world/mapbuilder.h"
+#include "world/mapbuilder.h"
 
 // Credit: https://stackoverflow.com/a/65590152/
 // Derived from answer by user Halt State, shared under CC BY-SA 4.0
