@@ -1,8 +1,8 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│  Generates the terrain for a single map. Includes short grass, tall grass,   │
-│  boulders, water, trees, and roads. A Pokemon center and a Pokemart is also  │
-│  placed randomly on the roads.                                               │
+│  Generates a 401x401 world, maps will vary depending on distance from origin │
+│  for instance, maps further will be more overgrown and with less buildings.  │
+│  Roads leading to world edges are cut off by an ocean.                       │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 

@@ -18,11 +18,11 @@
 #define BUILDING_FALLOFF_FACTOR 63.85f
 #define BUILDING_FALLOFF_INTERCEPT 70.85f
 
-#define NOISE_DENSITY 16
-#define NOISE_SCALE 1.025f
-#define NOISE_LACUNARITY 9.3242f
+#define NOISE_DENSITY 17
+#define NOISE_SCALE 1.035f
+#define NOISE_LACUNARITY 10.1042f
 
-#define SCATTER_BOULDER_COUNT 19
+#define SCATTER_BOULDER_COUNT 24
 #define SCATTER_BOULDER_VARIABILITY 5
 #define SCATTER_BOULDER_ON_WATER_PROBABILITY 0.1277f
 #define SCATTER_BOULDER_MAX_RADIUS 2.13f
@@ -41,15 +41,15 @@
 #define BLEND_TALL_GRASS_GROWTH_FACTOR 0.7121f
 #define BLEND_TREE_SPREAD_PROBABILITY 0.1627f
 #define BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS 1.2621f
-#define BLEND_FLAT_SPREAD_PROBABILITY 0.62f
+#define BLEND_FLAT_SPREAD_PROBABILITY 0.5522f
 
 #define ROAD_MOMENTUM_COEFF 0.7621f
 #define ROAD_DRIFT_FACTOR 0.121f
 #define ROAD_KICK_FACTOR 3.12f
 #define ROAD_TARGET_ATTRACTION_FACTOR 2.2572f
 
-#define EDGE_STUB_PADDING_X 15
-#define EDGE_STUB_PADDING_Y 4
+#define EDGE_STUB_PADDING_X 13
+#define EDGE_STUB_PADDING_Y 5
 #define EDGE_WEST_BITMASK 1
 #define EDGE_EAST_BITMASK 2
 #define EDGE_SOUTH_BITMASK 4
@@ -115,6 +115,7 @@ float generateStochasticWalk(float scale, float drift, float remaining) {
     return (kick + drift * interpFactor) / (1 + interpFactor);
 }
 
+// @formatter:off
 bool placeRoad(Map *map, int x, int y, int edgeBitmask) {
     bool isNorthEdge = edgeBitmask & EDGE_NORTH_BITMASK;
     bool isSouthEdge = edgeBitmask & EDGE_SOUTH_BITMASK;
@@ -123,9 +124,15 @@ bool placeRoad(Map *map, int x, int y, int edgeBitmask) {
 
     if ((isWestEdge && x < EDGE_STUB_PADDING_X)
         || (isEastEdge && x >= MAP_WIDTH - EDGE_STUB_PADDING_X)
-        || (isNorthEdge && y < EDGE_STUB_PADDING_Y)
-        || (isSouthEdge && y >= MAP_HEIGHT - EDGE_STUB_PADDING_Y))
-        return false;
+    ) {
+        x = clamp(x, EDGE_STUB_PADDING_X, MAP_WIDTH - EDGE_STUB_PADDING_X);
+    }
+
+    if ((isNorthEdge && y < EDGE_STUB_PADDING_Y)
+        || (isSouthEdge && y >= MAP_HEIGHT - EDGE_STUB_PADDING_Y)
+    ) {
+        y = clamp(y, EDGE_STUB_PADDING_Y, MAP_HEIGHT - EDGE_STUB_PADDING_Y);
+    }
 
     if (map->tileset[y][x].type == BOULDER || map->tileset[y][x].type == BOULDER_ROAD) {
         map->tileset[y][x].type = BOULDER_ROAD;
@@ -135,6 +142,7 @@ bool placeRoad(Map *map, int x, int y, int edgeBitmask) {
         return false;
     }
 }
+// @formatter:on
 
 void placeChunk(Map *map, TileType type, int x, int y, int sizeX, int sizeY) {
     for (int i = 0; i < sizeX; i++) {
@@ -250,8 +258,7 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
     // Biome blending pass
     int distortionEdgeX = MAP_WIDTH - DISTORTION_PADDING;
     int distortionEdgeY = MAP_HEIGHT - DISTORTION_PADDING;
-    int iterations =
-        DISTORTION_ITERATIONS_BASELINE + clamp((int) floorf(map->overgrowth), 0, 250);
+    int iterations = DISTORTION_ITERATIONS_BASELINE + clamp((int) floorf(map->overgrowth), 0, 260);
     for (int i = 0; i < iterations; i++) {
         int tx = randomInt(DISTORTION_PADDING, distortionEdgeX);
         int ty = randomInt(DISTORTION_PADDING, distortionEdgeY);

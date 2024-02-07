@@ -40,7 +40,7 @@ Map *getMap(World *world, int globalX, int globalY, bool generateIfNull) {
 }
 
 int globalHashFunction(int globalX, int globalY, int worldSeed) {
-    return (((globalX * worldSeed) ^ (globalY ^ b)) * p3 + ((globalX * p1) ^ (globalY * p2))) & 0xffffff + worldSeed;
+    return ((((globalX * worldSeed) ^ (globalY ^ b)) * p3 + ((globalX * p1) ^ (globalY * p2))) & 0xffffff) + worldSeed;
 }
 
 void destroyWorld(World *world) {

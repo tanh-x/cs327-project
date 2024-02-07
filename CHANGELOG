@@ -37,3 +37,13 @@ Assignment 1.02:
 * Day 2 (2024-02-06)
     Evening:
     - Improved Makefile
+
+* Day 3 (2024-02-07)
+    Late night:
+    - Successful multiple map generation
+    - Added command prompt
+    - Implemented varying generation parameters depending on distance
+    - Added edge handling
+    - Finalized project
+    Morning:
+    - Finalized Makefile, README, and CHANGELOG for submission
