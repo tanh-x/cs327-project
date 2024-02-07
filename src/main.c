@@ -1,17 +1,13 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
 #include "graphics/artist.h"
 #include "world/mapbuilder.h"
-#include "utils/mathematics.h"
 #include "world/world.h"
-
-#define CLEAR_SCREEN "\033[2J\033[H"
+#include "core/game.h"
 
 int main(int argc, char *argv[]) {
-    printf("%s", CLEAR_SCREEN);
     bool doColoring = true;
     bool useBadApple = false;
 
@@ -20,30 +16,36 @@ int main(int argc, char *argv[]) {
         else if (strcmp(argv[i], "--badapple") == 0) useBadApple = true;
     }
 
+    GameOptions options;
+    options.doColoring = doColoring;
+
     char *val = getenv("START");
     long long int invocationStartTime;
-    if (val != NULL) invocationStartTime = strtol(val, NULL, 10) % 2190666 + 16270;
+    if (val != NULL) invocationStartTime = strtol(val, NULL, 10) % 2190666 + 69820;
     else invocationStartTime = 0;
     struct timespec timeNano;
     timespec_get(&timeNano, TIME_UTC);
-    long long int timeSeedMilli = (timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime;
+    int timeSeedMilli = (int) ((timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime);
+
+
+    GameManager game;
+
+    Player player;
+    player.globalX = 0;
+    player.globalY = 0;
+    game.player = &player;
 
     World world;
-    initializeWorld(&world, (int) (timeSeedMilli & 0xffffffffLL));
+    initializeWorld(&world, timeSeedMilli);
+    game.world = &world;
 
-    // Generate the map
-    Map* map = getMap(&world, 0, 0);
-    map->mapSeed = timeSeedMilli & 0xffffffff; // NOLINT(*-narrowing-conversions)
-    map->globalX = 0;
-    map->globalY = 0;
-    generateMap(map, useBadApple);
+    // Get and generate the central map
+    Map *map = getMap(&world, player.globalX, player.globalY, false);
+    // Override seed for the center map
+    map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
+    generateMap(map, world.worldSeed, useBadApple);
 
-    // Print it to stdout
-    char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-    worldToString(map, mapStr);
-
-    prettyPrint(mapStr, doColoring);
-
-    destroyWorld(&world);
+    // Enter game loop
+    update(&game, options);
     return 0;
 }

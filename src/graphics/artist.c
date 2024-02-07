@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "../../include/world/mapbuilder.h"
+#include "world/mapbuilder.h"
 
 #define WHITE_BACKGROUND "\033[48;5;247m"
 #define DARK_BACKGROUND "\033[48;5;240m"

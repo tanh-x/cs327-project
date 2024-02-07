@@ -17,7 +17,7 @@ typedef struct {
 
 void initializeWorld(World *world, int worldSeed);
 
-Map *getMap(World *world, int globalX, int globalY);
+Map *getMap(World *world, int globalX, int globalY, bool generateIfNull);
 
 int globalHashFunction(int globalX, int globalY, int worldSeed);
 

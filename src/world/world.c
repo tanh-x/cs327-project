@@ -17,7 +17,7 @@ void initializeWorld(World *world, int worldSeed) {
     world->worldSeed = worldSeed;
 }
 
-Map *getMap(World *world, int globalX, int globalY) {
+Map *getMap(World *world, int globalX, int globalY, bool generateIfNull) {
     int i = globalX + WORLD_X_SPAN;
     int j = globalY + WORLD_Y_SPAN;
     if (i < 0 || i >= WORLD_WIDTH || j < 0 || j >= WORLD_HEIGHT) return NULL;
@@ -27,6 +27,7 @@ Map *getMap(World *world, int globalX, int globalY) {
         newMap->globalX = globalX;
         newMap->globalY = globalY;
         newMap->mapSeed = globalHashFunction(globalX, globalY, world->worldSeed + p4);
+        if (generateIfNull) generateMap(newMap, world->worldSeed, false);
         world->maps[j][i] = newMap;
     }
 
@@ -34,7 +35,7 @@ Map *getMap(World *world, int globalX, int globalY) {
 }
 
 int globalHashFunction(int globalX, int globalY, int worldSeed) {
-    return (((globalX * worldSeed) ^ (globalY ^ b)) * p3 + ((globalX * p1) ^ (globalY * p2))) & 0xffffff;
+    return (((globalX * worldSeed) ^ (globalY ^ b)) * p3 + ((globalX * p1) ^ (globalY * p2))) & 0xffffff + worldSeed;
 }
 
 void destroyWorld(World *world) {

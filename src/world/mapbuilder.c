@@ -6,6 +6,7 @@
 #include "utils/mathematics.h"
 #include "graphics/parse_frame.h"
 #include "utils/voronoi_noise.h"
+#include "world/world.h"
 
 #define MAX_FRAME_COUNT 6572
 #define MAX_ITER_MULTIPLIER 8
@@ -127,10 +128,9 @@ void placeKernelChunk(Map *map, TileType type, int x, int y, float kernelRadius)
     }
 }
 
-void generateMap(Map *map, bool useBadApple) {
+void generateMap(Map *map, int worldSeed, bool useBadApple) {
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
     float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
-    int gateSeed = useBadApple ? 31209474 : map->mapSeed - 58250;
 
     int numPoints = NOISE_DENSITY * FIRST_PASS_NUM_TYPES;
     int voronoiSeed = useBadApple ?
@@ -215,13 +215,21 @@ void generateMap(Map *map, bool useBadApple) {
             p = proba();
         }
     }
+    // 0 1 2 3 4
 
     // Define gate positions
-    srand(gateSeed);
-    int westGateY = randomInt(GATE_PADDING, MAP_HEIGHT - GATE_PADDING);
-    int eastGateY = randomInt(GATE_PADDING, MAP_HEIGHT - GATE_PADDING);
-    int northGateX = randomInt(GATE_PADDING * 3, MAP_WIDTH - GATE_PADDING * 3);
-    int southGateX = randomInt(GATE_PADDING * 3, MAP_WIDTH - GATE_PADDING * 3);
+
+    int latticeX = 2 * map->globalX;
+    int latticeY = 2 * map->globalY;
+    int westGateY = globalHashFunction(latticeX - 1, latticeY, worldSeed);
+    int eastGateY = globalHashFunction(latticeX + 1, latticeY, worldSeed);
+    int northGateX = globalHashFunction(latticeX, latticeY - 1, worldSeed);
+    int southGateX = globalHashFunction(latticeX, latticeY + 1, worldSeed);
+    westGateY = positiveMod(westGateY, MAP_HEIGHT - 2 * GATE_PADDING) + GATE_PADDING;
+    eastGateY = positiveMod(eastGateY, MAP_HEIGHT - 2 * GATE_PADDING) + GATE_PADDING;
+    northGateX = positiveMod(northGateX, MAP_WIDTH - 4 * GATE_PADDING) + 2 * GATE_PADDING;
+    southGateX = positiveMod(southGateX, MAP_WIDTH - 4 * GATE_PADDING) + 2 * GATE_PADDING;
+
     bool pokeCenterOnVertical = randomInt(0, 1);
     int horizontalPlacement = randomInt(PADDING * 2, MAP_WIDTH - PADDING * 2);
     int verticalPlacement = randomInt(PADDING * 2, MAP_HEIGHT - PADDING * 2);
