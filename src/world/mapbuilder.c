@@ -16,7 +16,7 @@
 #define FIRST_PASS_NUM_TYPES 4
 
 #define BUILDING_FALLOFF_FACTOR 63.85f
-#define BUILDING_FALLOFF_INTERCEPT 75.85f
+#define BUILDING_FALLOFF_INTERCEPT 70.85f
 
 #define NOISE_DENSITY 16
 #define NOISE_SCALE 1.025f
@@ -236,22 +236,23 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
     }
 
     if (edgeBitmask & EDGE_WEST_BITMASK) {
-
+        placeChunk(map, WATER, 1, 1, EDGE_STUB_PADDING_X, MAP_HEIGHT);
+    } else if (edgeBitmask & EDGE_EAST_BITMASK) {
+        placeChunk(map, WATER, MAP_WIDTH - EDGE_STUB_PADDING_X, 1, EDGE_STUB_PADDING_X, MAP_HEIGHT);
     }
-    if (edgeBitmask & EDGE_EAST_BITMASK) {
 
-    }
     if (edgeBitmask & EDGE_NORTH_BITMASK) {
-
-    }
-    if (edgeBitmask & EDGE_SOUTH_BITMASK) {
-
+        placeChunk(map, WATER, 1, 1, MAP_WIDTH, EDGE_STUB_PADDING_Y + 3);
+    } else if (edgeBitmask & EDGE_SOUTH_BITMASK) {
+        placeChunk(map, WATER, 1, MAP_HEIGHT - EDGE_STUB_PADDING_Y - 4, MAP_WIDTH, EDGE_STUB_PADDING_Y + 3);
     }
 
     // Biome blending pass
     int distortionEdgeX = MAP_WIDTH - DISTORTION_PADDING;
     int distortionEdgeY = MAP_HEIGHT - DISTORTION_PADDING;
-    for (int i = 0; i < DISTORTION_ITERATIONS_BASELINE; i++) {
+    int iterations =
+        DISTORTION_ITERATIONS_BASELINE + clamp((int) floorf(map->overgrowth), 0, 250);
+    for (int i = 0; i < iterations; i++) {
         int tx = randomInt(DISTORTION_PADDING, distortionEdgeX);
         int ty = randomInt(DISTORTION_PADDING, distortionEdgeY);
         TileType biome = map->tileset[ty][tx].type;
@@ -362,6 +363,7 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
         map->tileset[y][0].type = BORDER;
         map->tileset[y][MAP_WIDTH - 1].type = BORDER;
     }
+
     if (!(edgeBitmask & EDGE_WEST_BITMASK)) map->tileset[westGateY][0].type = GATE;
     if (!(edgeBitmask & EDGE_EAST_BITMASK)) map->tileset[eastGateY][MAP_WIDTH - 1].type = GATE;
     if (!(edgeBitmask & EDGE_NORTH_BITMASK)) map->tileset[0][northGateX].type = GATE;

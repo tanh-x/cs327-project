@@ -30,6 +30,8 @@ typedef struct {
     int mapSeed;
     int globalX;
     int globalY;
+
+    float overgrowth;
 } Map;
 
 void generateMap(Map *map, int worldSeed, bool useBadApple);

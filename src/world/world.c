@@ -1,5 +1,7 @@
 #include <time.h>
 #include <malloc.h>
+#include <math.h>
+#include <stdlib.h>
 #include "world/world.h"
 
 #define b 0xDEFCBA9
@@ -7,6 +9,8 @@
 #define p2 298482817
 #define p3 709348097
 #define p4 485820427
+
+#define OVERGROWTH_FACTOR 12.6277f
 
 void initializeWorld(World *world, int worldSeed) {
     for (int i = 0; i < WORLD_WIDTH; i++) {
@@ -27,6 +31,7 @@ Map *getMap(World *world, int globalX, int globalY, bool generateIfNull) {
         newMap->globalX = globalX;
         newMap->globalY = globalY;
         newMap->mapSeed = globalHashFunction(globalX, globalY, world->worldSeed + p4);
+        newMap->overgrowth = OVERGROWTH_FACTOR * sqrt(abs(globalX) + abs(globalY));
         if (generateIfNull) generateMap(newMap, world->worldSeed, false);
         world->maps[j][i] = newMap;
     }
