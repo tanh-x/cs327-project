@@ -32,3 +32,8 @@ Assignment 1.02:
 * Day 1 (2024-02-01)
     Morning:
     - Improved generation algorithm
+    - Added scaffolding for multiple maps
+
+* Day 2 (2024-02-06)
+    Evening:
+    - Improved Makefile

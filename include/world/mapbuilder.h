@@ -31,6 +31,6 @@ typedef struct {
     int globalY;
 } Map;
 
-void initializeMap(Map *map, bool useBadApple);
+void generateMap(Map *map, bool useBadApple);
 
 #endif

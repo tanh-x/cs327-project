@@ -29,14 +29,15 @@ int main(int argc, char *argv[]) {
     long long int timeSeedMilli = (timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime;
 
     World world;
-    world.worldSeed = (int) (timeSeedMilli & 0xffffffffLL);
+    initializeWorld(&world, (int) (timeSeedMilli & 0xffffffffLL));
 
     // Generate the map
     Map map;
+
     map.mapSeed = timeSeedMilli & 0xffffffff; // NOLINT(*-narrowing-conversions)
     map.globalX = 0;
     map.globalY = 0;
-    initializeMap(&map, useBadApple);
+    generateMap(&map, useBadApple);
 
     // Print it to stdout
     char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];

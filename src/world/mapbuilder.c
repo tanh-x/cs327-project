@@ -127,7 +127,7 @@ void placeKernelChunk(Map *map, TileType type, int x, int y, float kernelRadius)
     }
 }
 
-void initializeMap(Map *map, bool useBadApple) {
+void generateMap(Map *map, bool useBadApple) {
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
     float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
     int gateSeed = useBadApple ? 31209474 : map->mapSeed - 58250;
