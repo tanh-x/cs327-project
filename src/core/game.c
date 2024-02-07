@@ -5,9 +5,9 @@
 #define CLEAR_SCREEN "\033[2J\033[H"
 
 void update(GameManager *game, GameOptions options) {
-    World world = *(game->world);
-    Player player = *(game->player);
-    Map map = *(world.maps[player.globalY + WORLD_Y_SPAN][player.globalX + WORLD_X_SPAN]);
+    World *world = game->world;
+    Player *player = game->player;
+    Map *map = world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
 
     bool quitFlag = false;
     while (true) {
@@ -18,20 +18,21 @@ void update(GameManager *game, GameOptions options) {
 
         // Print the map
         char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-        worldToString(&map, mapStr);
+        worldToString(map, mapStr);
         prettyPrint(mapStr, options.doColoring);
 
         // First line
+        printf("Map position: (%d, %d)", player->globalX, player->globalY);
+        printf("\n");
 
         // Second line
 
-
         // Third line
         char cmd[CMD_MAX_LENGTH];
-        char first = 0;
-        printf("$ ");
+        char first;
+        printf("Input command: ");
         while (true) {
-            scanf("%s", cmd);
+            fgets(cmd, CMD_MAX_LENGTH, stdin);
             first = cmd[0];
 
             // Process the input
@@ -39,18 +40,20 @@ void update(GameManager *game, GameOptions options) {
                 quitFlag = true;
                 break;
             } else if (first == 'n' || first == 'w' || first == 's' || first == 'e') {
-                map = *moveInWorldDirection(game, cmd[0]);
-                break;
+                map = moveInWorldDirection(game, cmd[0]);
+                if (map != NULL) break;  // NULL if invalid move
+                // Else, let it exit the if body
             } else if (first == 'f') {
                 int x, y;
                 int parsedItems = sscanf(cmd, "f %d %d", &x, &y);
                 if (parsedItems == 2) {
-                    map = *moveToMap(game, x, y);
-                    break;
+                    map = moveToMap(game, x, y);
+                    if (map != NULL) break;  // NULL if invalid move
+                    // Else, let it exit the if body
                 }
             }
             // If we got here, it was an invalid command
-            printf("\r\033[K");
+            printf("\033[A\r\033[K");
             printf("Invalid command, try again: ");
         }
     }
@@ -63,10 +66,13 @@ Map *moveInWorldDirection(GameManager *game, char dir) {
 }
 
 Map *moveToMap(GameManager *game, int globalX, int globalY) {
-    game->player->globalX = globalX;
-    game->player->globalY = globalY;
+    Map *newMap = getMap(game->world, globalX, globalY, true);
+    if (newMap != NULL) {
+        game->player->globalX = globalX;
+        game->player->globalY = globalY;
+    }
 
-    return getMap(game->world, globalX, globalY, true);
+    return newMap;
 }
 
 void printGameState(GameManager *game) {
