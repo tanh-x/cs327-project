@@ -362,13 +362,13 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
 
     // Fill borders and place gates
     for (int x = 0; x < MAP_WIDTH; x++) {
-        map->tileset[0][x].type = BORDER;
-        map->tileset[MAP_HEIGHT - 1][x].type = BORDER;
+        map->tileset[0][x].type = MOUNTAIN;
+        map->tileset[MAP_HEIGHT - 1][x].type = MOUNTAIN;
     }
 
     for (int y = 0; y < MAP_HEIGHT; y++) {
-        map->tileset[y][0].type = BORDER;
-        map->tileset[y][MAP_WIDTH - 1].type = BORDER;
+        map->tileset[y][0].type = MOUNTAIN;
+        map->tileset[y][MAP_WIDTH - 1].type = MOUNTAIN;
     }
 
     if (!(edgeBitmask & EDGE_WEST_BITMASK)) map->tileset[westGateY][0].type = GATE;

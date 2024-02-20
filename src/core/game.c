@@ -2,8 +2,6 @@
 #include "core/game.h"
 #include "graphics/artist.h"
 
-#define CLEAR_SCREEN "\033[2J\033[H"
-
 void update(GameManager *game, GameOptions options) {
     World *world = game->world;
     Player *player = game->player;

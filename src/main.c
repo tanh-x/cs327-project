@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <stdio.h>
 #include "graphics/artist.h"
 #include "world/mapbuilder.h"
 #include "world/world.h"
@@ -44,6 +45,15 @@ int main(int argc, char *argv[]) {
     // Override seed for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
     generateMap(map, world.worldSeed, useBadApple);
+
+    // Initial print of the map
+    printf("%s", CLEAR_SCREEN);
+    char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
+    worldToString(map, mapStr);
+    prettyPrint(mapStr, options.doColoring);
+
+    // Override gameloop
+    if (useBadApple) return 0;
 
     // Enter game loop
     update(&game, options);

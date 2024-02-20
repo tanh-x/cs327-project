@@ -10,6 +10,7 @@ typedef enum __attribute__ ((__packed__)) {
     FLAT,       // .    <1st pass>
     BOULDER,    // %    <1st pass>
     BORDER,     // %    <border pass>
+    MOUNTAIN,   // %
     GATE,       // #    <border pass>
     ROAD,       // #    <2nd pass>
     BOULDER_ROAD,// =   <2nd pass>

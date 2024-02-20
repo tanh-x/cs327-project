@@ -6,7 +6,6 @@
 // Credit: https://stackoverflow.com/a/65590152/
 // Derived from answer by user Halt State, shared under CC BY-SA 4.0
 int **parse_frame(char *filename) {
-    printf("%s\n", filename);
     FILE *fp = fopen(filename, "rb");
     if (!fp) {
         perror("File opening failed");

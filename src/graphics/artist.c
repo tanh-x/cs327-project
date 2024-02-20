@@ -24,8 +24,8 @@ void prettyPrint(const char *str, bool isMapColored) {
         char c = str[i];
 
         if (isMapColored) {
-//            if (c == '%') printf("%s%s", GRAY_TEXT, WHITE_BACKGROUND);
             if (c == '%') printf("%s", WHITE_TEXT);
+            else if (c == '&') printf("%s%s", GRAY_TEXT, WHITE_BACKGROUND);
             else if (c == '.') printf("%s", FLAT_COLOR);
             else if (c == '~') printf("%s", BLUE_TEXT);
             else if (c == ':') printf("%s", GRASS_COLOR);
@@ -36,7 +36,7 @@ void prettyPrint(const char *str, bool isMapColored) {
                 continue;
             } else if (c == 'M') printf("%s", PURPLE_TEXT);
             else if (c == 'C') printf("%s", RED_TEXT);
-            else if (c == ')') printf("%s", JOULDER_COLOR);
+            else if (c == 'J') printf("%s", JOULDER_COLOR);
         } else {
             if (c == '=') {
                 printf("#");
@@ -57,6 +57,8 @@ char tileToChar(Tile *tile) {
         case BOULDER:
         case BORDER:
             return '%';
+        case MOUNTAIN:
+            return '&';
         case GATE:
         case ROAD:
             return '#';
@@ -73,9 +75,7 @@ char tileToChar(Tile *tile) {
         case POKEMART:
             return 'M';
         case JOULDER:
-            return ')';
-        default:
-            return ' ';
+            return 'J';
     }
 }
 
