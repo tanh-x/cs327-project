@@ -4,6 +4,8 @@
 typedef struct {
     int globalX;
     int globalY;
+    int mapX;
+    int mapY;
 } Player;
 
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "core/game.h"
 #include "graphics/artist.h"
 
@@ -12,11 +13,12 @@ void update(GameManager *game, GameOptions options) {
         if (quitFlag) break;
 
         // Start graphics
-        printf("%s", CLEAR_SCREEN);
+        printf(CLEAR_SCREEN);
+        char *promptOverride = NULL;
 
         // Print the map
         char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-        worldToString(map, mapStr);
+        worldToString(game, mapStr);
         prettyPrint(mapStr, options.doColoring);
 
         // First line
@@ -24,6 +26,7 @@ void update(GameManager *game, GameOptions options) {
         printf("\n");
 
         // Second line
+        printf("[ NOTE ] Use `h` for hiker map and `r` for rival map\n");
 
         // Third line
         char cmd[CMD_MAX_LENGTH];
@@ -35,42 +38,113 @@ void update(GameManager *game, GameOptions options) {
 
             // Process the input
             if (first == 'q') {
+                // q: Quit game
                 quitFlag = true;
                 break;
+
             } else if (first == 'n' || first == 'w' || first == 's' || first == 'e') {
-                map = moveInWorldDirection(game, cmd[0]);
-                if (map != NULL) break;  // NULL if invalid move
-                // Else, let it exit the if body
+                // nswe: Move along the world in cardinal directions
+                MapEntryProps entryProps;
+                map = moveInWorldDirection(game, cmd[0], &entryProps);
+                setupGameOnMapLoad(game, &entryProps);
+                if (map != NULL) break;  // NULL only if invalid move
+
+                // Else, it was an invalid move, so let it exit the if body,
+                promptOverride = "You reached the map border, try again: ";
+
             } else if (first == 'f') {
+                // f <x> <y>: Fly to a specific map
                 int x, y;
                 int parsedItems = sscanf(cmd, "f %d %d", &x, &y);
                 if (parsedItems == 2) {
-                    map = moveToMap(game, x, y);
+                    MapEntryProps entryProps;
+                    map = moveToMap(game, x, y, &entryProps);
+                    entryProps.playerSpawnX = 0;
+                    entryProps.playerSpawnY = hashWithMapCardinalDir(x, y, WEST, world->worldSeed);
+                    setupGameOnMapLoad(game, &entryProps);
                     if (map != NULL) break;  // NULL if invalid move
                     // Else, let it exit the if body
                 }
+
+            } else if (first == 'h') {
+                // h: Hiker distance map
+
+                char test[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
+                worldToString(game, test);
+                prettyPrint(test, false);
+                promptOverride = "Printed Hiker's distance map. Input command: ";
+
+            } else if (first == 'r') {
+                // r: Rival distance map
+
             }
-            // If we got here, it was an invalid command
-            printf("\033[A\r\033[K");
-            printf("Invalid command, try again: ");
+
+            // If we got here, it must have been an invalid command
+//            printf(CLEAR_PREV_LINE);
+            if (promptOverride == NULL) printf("Invalid command, try again: ");
+            else {
+                printf("%s", promptOverride);
+                promptOverride = NULL;
+            }
         }
     }
 }
 
-Map *moveInWorldDirection(GameManager *game, char dir) {
-    int dx = dir == 'e' ? 1 : (dir == 'w' ? -1 : 0);
-    int dy = dir == 's' ? 1 : (dir == 'n' ? -1 : 0);
-    return moveToMap(game, game->player->globalX + dx, game->player->globalY + dy);
+Map *moveInWorldDirection(GameManager *game, char dir, MapEntryProps *entryProps) {
+    int worldSeed = game->world->worldSeed;
+    int x = game->player->globalX;
+    int y = game->player->globalY;
+    int dx = 0;
+    int dy = 0;
+    int playerSpawnX = 0;
+    int playerSpawnY = 0;
+
+    switch (dir) {
+        case 'n':
+            dy = -1;
+            playerSpawnX = hashWithMapCardinalDir(x, y, NORTH, worldSeed);
+            playerSpawnY = MAP_HEIGHT - 1;
+            break;
+        case 's':
+            dy = 1;
+            playerSpawnX = hashWithMapCardinalDir(x, y, SOUTH, worldSeed);
+            playerSpawnY = 0;
+            break;
+        case 'w':
+            dx = -1;
+            playerSpawnX = MAP_WIDTH - 1;
+            playerSpawnY = hashWithMapCardinalDir(x, y, WEST, worldSeed);
+            break;
+        case 'e':
+            dx = 1;
+            playerSpawnX = 0;
+            playerSpawnY = hashWithMapCardinalDir(x, y, EAST, worldSeed);
+            break;
+        default:
+            printf("Something is very wrong [core/game.c->moveInWorldDirection()]");
+            exit(1);
+    }
+
+    Map *newMap = moveToMap(game, x + dx, y + dy, entryProps);
+    entryProps->playerSpawnX = playerSpawnX;
+    entryProps->playerSpawnY = playerSpawnY;
+    return newMap;
 }
 
-Map *moveToMap(GameManager *game, int globalX, int globalY) {
-    Map *newMap = getMap(game->world, globalX, globalY, true);
+Map *moveToMap(GameManager *game, int globalX, int globalY, MapEntryProps *entryProps) {
+    Map *newMap = getMap(game->world, entryProps, globalX, globalY, true);
     if (newMap != NULL) {
         game->player->globalX = globalX;
         game->player->globalY = globalY;
     }
 
     return newMap;
+}
+
+void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps) {
+    Player *player = game->player;
+    player->mapX = entryProps->playerSpawnX;
+    player->mapY = entryProps->playerSpawnY;
 }
 
 void printGameState(GameManager *game) {

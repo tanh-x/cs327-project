@@ -7,11 +7,11 @@
 
 typedef struct {
     int type;
-    Vec3 position;
+    Float3D position;
 } VoronoiPoint;
 
 void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int numTypes, float z, int seed);
 
-int sampleVoronoiNoise(VoronoiPoint points[], int numPoints, Vec3 position, float lacunarity);
+int sampleVoronoiNoise(VoronoiPoint points[], int numPoints, Float3D position, float lacunarity);
 
 #endif

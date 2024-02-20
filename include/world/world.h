@@ -1,4 +1,5 @@
 #include "mapbuilder.h"
+#include "utils/mathematics.h"
 
 #ifndef WORLD_H
 #define WORLD_H
@@ -17,9 +18,11 @@ typedef struct {
 
 void initializeWorld(World *world, int worldSeed);
 
-Map *getMap(World *world, int globalX, int globalY, bool generateIfNull);
+Map *getMap(World *world, MapEntryProps *entryProps, int globalX, int globalY, bool generateIfNull);
 
-int globalHashFunction(int globalX, int globalY, int worldSeed);
+int globalHashFunction(int x, int y, int worldSeed);
+
+int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed);
 
 void destroyWorld(World *world);
 

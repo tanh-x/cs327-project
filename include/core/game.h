@@ -17,9 +17,11 @@ typedef struct {
 
 void printGameState(GameManager *game);
 
-Map *moveInWorldDirection(GameManager *game, char cmd);
+Map *moveInWorldDirection(GameManager *game, char cmd, MapEntryProps *entryProps);
 
-Map *moveToMap(GameManager *game, int globalX, int globalY);
+Map *moveToMap(GameManager *game, int globalX, int globalY, MapEntryProps *entryProps);
+
+void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps);
 
 void update(GameManager *game, GameOptions options);
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "world/mapbuilder.h"
+#include "core/game.h"
 
 #define WHITE_BACKGROUND "\033[48;5;247m"
 #define DARK_BACKGROUND "\033[48;5;240m"
@@ -14,8 +15,10 @@
 #define GRAY_TEXT "\033[38;5;232m"
 #define BROWN_TEXT "\033[38;5;172m"
 #define PURPLE_TEXT "\033[38;5;165m"
-#define RED_TEXT "\033[38;5;196m"
 #define JOULDER_COLOR "\033[38;5;216m"
+#define RED_TEXT "\033[38;5;196m"
+#define BLACK_TEXT "\033[38;5;16m"
+#define INTENSE_RED_BACKGROUND "\033[48;5;196m"
 
 #define RESET_COLOR "\033[0m"
 
@@ -24,19 +27,49 @@ void prettyPrint(const char *str, bool isMapColored) {
         char c = str[i];
 
         if (isMapColored) {
-            if (c == '%') printf("%s", WHITE_TEXT);
-            else if (c == '&') printf("%s%s", GRAY_TEXT, WHITE_BACKGROUND);
-            else if (c == '.') printf("%s", FLAT_COLOR);
-            else if (c == '~') printf("%s", BLUE_TEXT);
-            else if (c == ':') printf("%s", GRASS_COLOR);
-            else if (c == '^') printf("%s", TREE_COLOR);
-            else if (c == '#') printf("%s", BROWN_TEXT);
-            else if (c == '=') {
-                printf("%s#%s", LIGHT_GRAY_TEXT, RESET_COLOR);
-                continue;
-            } else if (c == 'M') printf("%s", PURPLE_TEXT);
-            else if (c == 'C') printf("%s", RED_TEXT);
-            else if (c == 'J') printf("%s", JOULDER_COLOR);
+            switch (c) {
+                case '%':
+                    printf(WHITE_TEXT);
+                    break;
+                case '&':
+                    printf("%s%s", GRAY_TEXT, WHITE_BACKGROUND);
+                    break;
+                case '.':
+                    printf(FLAT_COLOR);
+                    break;
+                case '~':
+                    printf(BLUE_TEXT);
+                    break;
+                case ':':
+                    printf(GRASS_COLOR);
+                    break;
+                case '^':
+                    printf(TREE_COLOR);
+                    break;
+                case '#':
+                    printf(BROWN_TEXT);
+                    break;
+                case '=':
+                    printf("%s#%s", LIGHT_GRAY_TEXT, RESET_COLOR);
+                    continue;
+                case 'M':
+                    printf(PURPLE_TEXT);
+                    break;
+                case 'C':
+                    printf(RED_TEXT);
+                    break;
+                case '@':
+                    printf("%s%s", BLACK_TEXT, INTENSE_RED_BACKGROUND);
+                    break;
+                case 'J':
+                    printf(JOULDER_COLOR);
+                    break;
+                case ' ':
+                    printf(INTENSE_RED_BACKGROUND);
+                    break;
+                default:
+                    break;
+            }
         } else {
             if (c == '=') {
                 printf("#");
@@ -46,7 +79,7 @@ void prettyPrint(const char *str, bool isMapColored) {
 
         putchar(c);
 
-        printf("%s", RESET_COLOR);
+        printf(RESET_COLOR);
     }
 }
 
@@ -76,15 +109,27 @@ char tileToChar(Tile *tile) {
             return 'M';
         case JOULDER:
             return 'J';
+        default:
+            return ' ';
     }
 }
 
-void worldToString(Map *map, char *str) {
+void worldToString(GameManager *game, char *str) {
+    Player *player = game->player;
+    Map *currentMap = game->world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
+
     int idx = 0;
     for (int y = 0; y < MAP_HEIGHT; y++) {
-        for (int x = 0; x < MAP_WIDTH; x++) str[idx++] = tileToChar(&map->tileset[y][x]);
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            str[idx++] = tileToChar(&currentMap->tileset[y][x]);
+        }
         str[idx++] = '\n';
     }
+
+    // Place the player
+    // + 1 accounts for the \n at the end of every line
+    str[player->mapY * (MAP_WIDTH + 1) + player->mapX] = '@';
+
     str[idx] = '\0';
 }
 

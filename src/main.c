@@ -10,16 +10,19 @@
 
 int main(int argc, char *argv[]) {
     bool doColoring = true;
-    bool useBadApple = false;
+    bool doBadApple = false;
 
+    // Parse arguments
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--nocolor") == 0) doColoring = false;
-        else if (strcmp(argv[i], "--badapple") == 0) useBadApple = true;
+        else if (strcmp(argv[i], "--badapple") == 0) doBadApple = true;
     }
 
+    // Initialize options to reflect the parsed arguments
     GameOptions options;
     options.doColoring = doColoring;
 
+    // Get millisecond seed
     char *val = getenv("START");
     long long int invocationStartTime;
     if (val != NULL) invocationStartTime = strtol(val, NULL, 10) % 2190666 + 69820;
@@ -28,7 +31,7 @@ int main(int argc, char *argv[]) {
     timespec_get(&timeNano, TIME_UTC);
     int timeSeedMilli = (int) ((timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime);
 
-
+    // Initial set up
     GameManager game;
 
     Player player;
@@ -41,19 +44,22 @@ int main(int argc, char *argv[]) {
     game.world = &world;
 
     // Get and generate the central map
-    Map *map = getMap(&world, player.globalX, player.globalY, false);
+    MapEntryProps entryProps;
+    Map *map = getMap(&world, &entryProps, player.globalX, player.globalY, false);
+    map->isSpawnMap = true;
     // Override seed for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
-    generateMap(map, world.worldSeed, useBadApple);
+    generateMap(map, &entryProps, world.worldSeed, doBadApple);
+    setupGameOnMapLoad(&game, &entryProps);
 
-    // Initial print of the map
-    printf("%s", CLEAR_SCREEN);
-    char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-    worldToString(map, mapStr);
-    prettyPrint(mapStr, options.doColoring);
-
-    // Override gameloop
-    if (useBadApple) return 0;
+    // Override game loop if badapple
+    if (doBadApple) {
+        printf(CLEAR_SCREEN);
+        char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
+        worldToString(&game, mapStr);
+        prettyPrint(mapStr, options.doColoring);
+        return 0;
+    }
 
     // Enter game loop
     update(&game, options);

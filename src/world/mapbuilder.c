@@ -11,8 +11,6 @@
 #define MAX_FRAME_COUNT 6572
 #define MAX_ITER_MULTIPLIER 8
 
-#define PADDING 3
-#define GATE_PADDING 7
 #define FIRST_PASS_NUM_TYPES 4
 
 #define BUILDING_FALLOFF_FACTOR 63.85f
@@ -163,7 +161,7 @@ void placeKernelChunk(Map *map, TileType type, int x, int y, float kernelRadius)
     }
 }
 
-void generateMap(Map *map, int worldSeed, bool useBadApple) {
+void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBadApple) {
     int globalX = map->globalX;
     int globalY = map->globalY;
     int edgeBitmask = 0;
@@ -199,7 +197,7 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
     };
     for (int y = 1; y < MAP_HEIGHT - 1; y++) {
         for (int x = 1; x < MAP_WIDTH - 1; x++) {
-            Vec3 tilePosition = {
+            Float3D tilePosition = {
                 (float) x * NOISE_SCALE,
                 (float) y * NOISE_SCALE * VERTICAL_SCALING_FACTOR,
                 sliceZ
@@ -275,21 +273,19 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
     }
 
     // Define gate positions
-    int latticeX = 2 * globalX;
-    int latticeY = 2 * globalY;
-    int westGateY = globalHashFunction(latticeX - 1, latticeY, worldSeed);
-    int eastGateY = globalHashFunction(latticeX + 1, latticeY, worldSeed);
-    int northGateX = globalHashFunction(latticeX, latticeY - 1, worldSeed);
-    int southGateX = globalHashFunction(latticeX, latticeY + 1, worldSeed);
-    westGateY = positiveMod(westGateY, MAP_HEIGHT - 2 * GATE_PADDING) + GATE_PADDING;
-    eastGateY = positiveMod(eastGateY, MAP_HEIGHT - 2 * GATE_PADDING) + GATE_PADDING;
-    northGateX = positiveMod(northGateX, MAP_WIDTH - 4 * GATE_PADDING) + 2 * GATE_PADDING;
-    southGateX = positiveMod(southGateX, MAP_WIDTH - 4 * GATE_PADDING) + 2 * GATE_PADDING;
+    int westGateY = hashWithMapCardinalDir(globalX, globalY, WEST, worldSeed);
+    int eastGateY = hashWithMapCardinalDir(globalX, globalY, EAST, worldSeed);
+    int northGateX = hashWithMapCardinalDir(globalX, globalY, NORTH, worldSeed);
+    int southGateX = hashWithMapCardinalDir(globalX, globalY, SOUTH, worldSeed);
 
     bool pokeCenterOnVertical = randomInt(0, 1);
     float buildingProbability = calculateBuildingProbability(globalX, globalY);
-    int horizontalPlacement = proba() < buildingProbability ? randomInt(PADDING * 2, MAP_WIDTH - PADDING * 2) : -1;
-    int verticalPlacement = proba() < buildingProbability ? randomInt(PADDING * 2, MAP_HEIGHT - PADDING * 2) : -1;
+    int horizontalPlacementX = (proba() < buildingProbability || map->isSpawnMap)
+                               ? randomInt(PADDING * 2, MAP_WIDTH - PADDING * 2)
+                               : -1;
+    int verticalPlacementY = (proba() < buildingProbability || map->isSpawnMap)
+                             ? randomInt(PADDING * 2, MAP_HEIGHT - PADDING * 2)
+                             : -1;
 
     // Start placing roads
     srand(map->mapSeed);
@@ -309,7 +305,7 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
             dy = (int) drift;
         }
 
-        if (rx == horizontalPlacement) {
+        if (rx == horizontalPlacementX) {
             int dir = signum(dy);
             dir = (dir == 0 ? 1 : dir);
             placeRoad(map, rx, ry - dir, edgeBitmask);
@@ -318,6 +314,12 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
                 map, pokeCenterOnVertical ? POKEMART : POKECENTER,
                 rx, ry - 3 * dir, 2, 2
             );
+
+            // Make player spawn here, if it's the spawn map
+            if (map->isSpawnMap) {
+                entryProps->playerSpawnX = horizontalPlacementX;
+                entryProps->playerSpawnY = ry;
+            }
         }
 
         if (placeRoad(map, rx, ry, edgeBitmask) && remaining > 1) continue;
@@ -341,7 +343,7 @@ void generateMap(Map *map, int worldSeed, bool useBadApple) {
             dx = (int) drift;
         }
 
-        if (ry == verticalPlacement) {
+        if (ry == verticalPlacementY) {
             int dir = signum(dx);
             dir = (dir == 0 ? 1 : dir);
             placeRoad(map, rx - dir, ry, edgeBitmask);

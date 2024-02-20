@@ -3,6 +3,10 @@
 
 #define proba() randomFloat(0.0f, 1.0f)
 
+typedef enum __attribute__ ((__packed__)) {
+    NORTH, SOUTH, WEST, EAST
+} CardinalDir;
+
 int positiveMod(int x, int y);
 
 int min(int a, int b);
@@ -23,24 +27,29 @@ typedef struct {
     float x;
     float y;
     float z;
-} Vec3;
+} Float3D;
 
-Vec3 vec3_add(Vec3 v1, Vec3 v2);
+Float3D vec3_add(Float3D v1, Float3D v2);
 
-Vec3 vec3_mult(Vec3 v, float scalar);
+Float3D vec3_mult(Float3D v, float scalar);
 
-float vec3_dot(Vec3 v1, Vec3 v2);
+float vec3_dot(Float3D v1, Float3D v2);
 
-float vec3_norm(Vec3 v);
+float vec3_norm(Float3D v);
 
-Vec3 vec3_normalized(Vec3 v);
+Float3D vec3_normalized(Float3D v);
 
-void printVector(Vec3 v);
+void printVector(Float3D v);
 
-float distanceSq(Vec3 p1, Vec3 p2);
+float distanceSq(Float3D p1, Float3D p2);
 
 int signum(int x);
 
 float signumf(float x);
+
+typedef struct {
+    int x;
+    int y;
+} Int2D;
 
 #endif

@@ -9,7 +9,6 @@
 │  - Special boulder: J, light orange                                          │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
-
 Flags:
 --nocolor
     Disables tile coloring
@@ -24,9 +23,9 @@ Flags:
 
     Then, to play the full animation, run ./animate.sh.
 
-    ────────────────────────────────────────────────────────────────────────
+    ─────────────────────────<  Assignment 1.01  >──────────────────────────
 
-[ Generation algorithm documentation ]
+[ Generation Algorithm ]
 The generation consists of three phases:
 - Sampling from 3D voronoi noise
 - Blend and distort the terrain to make it more natural
@@ -64,7 +63,7 @@ The generation consists of three phases:
     keep the pivot type of the original one. This allows some chosen tiles to
     have a far-reaching influence. Repeat until we hit the ~20% stop condition.
 
-    Do this process for 64-80 pivot points, (chosen randomly with replacement).
+    Do this process for 50-300 pivot points, (chosen randomly with replacement).
 
 3. Third pass: Road and buildings
     Road traversal start from the left and top. For the horizontal road, every
@@ -80,9 +79,8 @@ The generation consists of three phases:
     so we place buildings 1-3 tiles away on the other direction, `-dy`, then we
     connect the building to the main road with a simple straight path.
 
-    ────────────────────────────────────────────────────────────────────────
 
-[ Biome blending rules ]
+[ Biome Blending Rules ]
 All these rules are applied for each of the 12 neighboring tiles independently.
 In other words, we reroll, check, and convert for each tile separately.
 
@@ -109,7 +107,7 @@ Tree pivot:
     be converted to a tree. Otherwise, it is converted to tall grass. So, while
     trees are rare, they can spread plants very well.
 
-    ────────────────────────────────────────────────────────────────────────
+    ─────────────────────────<  Assignment 1.02  >──────────────────────────
 
 [ Wilderness / Overgrowth ]
 Maps further away from the center of the map are use more iterations during the
@@ -119,4 +117,15 @@ has the effect of both impeding traversal and creating more threats against the
 player.
 
 
-    ────────────────────────────────────────────────────────────────────────
+[ Global Hashing ]
+A global hashing function is used to synchronize the gate positions between maps
+by evaluating the function at the map's global position. Conceptually, imagine
+the gate as living in a global position that is halfway through the positions of
+two adjacent maps. The maps occupy an integer lattice, and the halfway point
+between its 4 neighbors is where we evaluate the hash function at to compute the
+position of the gate. This allows a global coordination between maps without the
+need to pass data around.
+
+    ─────────────────────────<  Assignment 1.03  >──────────────────────────
+
+[]

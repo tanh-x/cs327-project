@@ -6,6 +6,9 @@
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21
 
+#define PADDING 3
+#define GATE_PADDING 7
+
 typedef enum __attribute__ ((__packed__)) {
     FLAT,       // .    <1st pass>
     BOULDER,    // %    <1st pass>
@@ -31,10 +34,17 @@ typedef struct {
     int mapSeed;
     int globalX;
     int globalY;
+    bool isSpawnMap;
 
     float overgrowth;
 } Map;
 
-void generateMap(Map *map, int worldSeed, bool useBadApple);
+
+typedef struct {
+    int playerSpawnX;
+    int playerSpawnY;
+} MapEntryProps;
+
+void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBadApple);
 
 #endif

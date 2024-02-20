@@ -1,4 +1,4 @@
-Assignment 1.01:
+--- Assignment 1.01 ---
 * Day 1 (2024-01-28)
     Evening:
     - Set up project
@@ -28,22 +28,31 @@ Assignment 1.01:
     - Placed Pokecenter and Pokemart
     - Finalized things
 
-Assignment 1.02:
-* Day 1 (2024-02-01)
-    Morning:
-    - Improved generation algorithm
-    - Added scaffolding for multiple maps
 
-* Day 2 (2024-02-06)
+--- Assignment 1.02 ---
+    * Day 1 (2024-02-01)
+        Morning:
+        - Improved generation algorithm
+        - Added scaffolding for multiple maps
+
+    * Day 2 (2024-02-06)
+        Evening:
+        - Improved Makefile
+
+    * Day 3 (2024-02-07)
+        Late night:
+        - Successful multiple map generation
+        - Added command prompt
+        - Implemented varying generation parameters depending on distance
+        - Added edge handling
+        - Finalized project
+        Morning:
+        - Finalized Makefile, README, and CHANGELOG for submission
+
+
+--- Assignment 1.03 ---
+* Day 1 (2024-02-19)
     Evening:
-    - Improved Makefile
-
-* Day 3 (2024-02-07)
-    Late night:
-    - Successful multiple map generation
-    - Added command prompt
-    - Implemented varying generation parameters depending on distance
-    - Added edge handling
-    - Finalized project
-    Morning:
-    - Finalized Makefile, README, and CHANGELOG for submission
+    - Random clean up
+    - Placed PC on maps.
+    - Ensured PC always spawns on the gate where they came from

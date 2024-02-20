@@ -36,33 +36,33 @@ float randomFloat(float low, float high) {
     return low + (float) rand() / (float) (RAND_MAX) * (high - low);
 }
 
-Vec3 vec3_add(Vec3 v1, Vec3 v2) {
-    Vec3 result = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
+Float3D vec3_add(Float3D v1, Float3D v2) {
+    Float3D result = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
     return result;
 }
 
-Vec3 vec3_mult(Vec3 v, float scalar) {
-    Vec3 result = {v.x * scalar, v.y * scalar, v.z * scalar};
+Float3D vec3_mult(Float3D v, float scalar) {
+    Float3D result = {v.x * scalar, v.y * scalar, v.z * scalar};
     return result;
 }
 
-float vec3_dot(Vec3 v1, Vec3 v2) {
+float vec3_dot(Float3D v1, Float3D v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-float vec3_norm(Vec3 v) {
+float vec3_norm(Float3D v) {
     return sqrtf(v.x * v.x + v.y * v.y + v.z + v.z);
 }
 
-Vec3 vec3_normalized(Vec3 v) {
+Float3D vec3_normalized(Float3D v) {
     return vec3_mult(v, vec3_norm(v));
 }
 
-void printVector(Vec3 v) {
+void printVector(Float3D v) {
     printf("(%f, %f, %f)\n", v.x, v.y, v.z);
 }
 
-float distanceSq(Vec3 p1, Vec3 p2) {
+float distanceSq(Float3D p1, Float3D p2) {
     float dx = p2.x - p1.x;
     float dy = p2.y - p1.y;
     float dz = p2.z - p1.z;

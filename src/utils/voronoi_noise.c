@@ -10,7 +10,7 @@ void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int nu
 
     for (int t = 0; t < numTypes; t++) {
         for (int i = 0; i < numPointsPerType; i++) {
-            Vec3 position = {
+            Float3D position = {
                 randomFloat(-RANDOM_VECTOR_PADDING, MAP_WIDTH + RANDOM_VECTOR_PADDING),
                 randomFloat(-RANDOM_VECTOR_PADDING, MAP_HEIGHT + RANDOM_VECTOR_PADDING) * VERTICAL_SCALING_FACTOR,
                 randomFloat(z - RANDOM_VECTOR_PADDING, z + RANDOM_VECTOR_PADDING)
@@ -21,7 +21,7 @@ void initializeVoronoiPoints(VoronoiPoint points[], int numPointsPerType, int nu
     }
 }
 
-int sampleVoronoiNoise(VoronoiPoint points[], int numPoints, Vec3 position, float lacunarity) {
+int sampleVoronoiNoise(VoronoiPoint points[], int numPoints, Float3D position, float lacunarity) {
     float minDist = FLT_MAX;
     int result = 0;
 

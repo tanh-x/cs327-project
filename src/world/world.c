@@ -21,7 +21,7 @@ void initializeWorld(World *world, int worldSeed) {
     world->worldSeed = worldSeed;
 }
 
-Map *getMap(World *world, int globalX, int globalY, bool generateIfNull) {
+Map *getMap(World *world, MapEntryProps *entryProps, int globalX, int globalY, bool generateIfNull) {
     int i = globalX + WORLD_X_SPAN;
     int j = globalY + WORLD_Y_SPAN;
     if (i < 0 || i >= WORLD_WIDTH || j < 0 || j >= WORLD_HEIGHT) return NULL;
@@ -32,15 +32,40 @@ Map *getMap(World *world, int globalX, int globalY, bool generateIfNull) {
         newMap->globalY = globalY;
         newMap->mapSeed = globalHashFunction(globalX, globalY, world->worldSeed + p4);
         newMap->overgrowth = OVERGROWTH_FACTOR * sqrt(abs(globalX) + abs(globalY));
-        if (generateIfNull) generateMap(newMap, world->worldSeed, false);
+        if (generateIfNull) generateMap(newMap, entryProps, world->worldSeed, false);
         world->maps[j][i] = newMap;
     }
 
     return world->maps[j][i];
 }
 
-int globalHashFunction(int globalX, int globalY, int worldSeed) {
-    return ((((globalX * worldSeed) ^ (globalY ^ b)) * p3 + ((globalX * p1) ^ (globalY * p2))) & 0xffffff) + worldSeed;
+int globalHashFunction(int x, int y, int worldSeed) {
+    return ((((x * worldSeed) ^ (y ^ b)) * p3 + ((x * p1) ^ (y * p2))) & 0xffffff) + worldSeed;
+}
+
+int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed) {
+    switch (dir) {
+        case NORTH:
+            return positiveMod(
+                globalHashFunction(2 * mapX, 2 * mapY - 1, worldSeed),
+                MAP_WIDTH - 4 * GATE_PADDING
+            ) + 2 * GATE_PADDING;
+        case SOUTH:
+            return positiveMod(
+                globalHashFunction(2 * mapX, 2 * mapY + 1, worldSeed),
+                MAP_WIDTH - 4 * GATE_PADDING
+            ) + 2 * GATE_PADDING;
+        case WEST:
+            return positiveMod(
+                globalHashFunction(2 * mapX - 1, 2 * mapY, worldSeed),
+                MAP_HEIGHT - 2 * GATE_PADDING
+            ) + GATE_PADDING;
+        case EAST:
+            return positiveMod(
+                globalHashFunction(2 * mapX + 1, 2 * mapY, worldSeed),
+                MAP_HEIGHT - 2 * GATE_PADDING
+            ) + GATE_PADDING;
+    }
 }
 
 void destroyWorld(World *world) {

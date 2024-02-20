@@ -1,0 +1,4 @@
+#ifndef ENTITIES_H
+#define ENTITIES_H
+
+#endif //PROJECT_ENTITIES_H
