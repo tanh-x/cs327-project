@@ -364,13 +364,13 @@ void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBad
 
     // Fill borders and place gates
     for (int x = 0; x < MAP_WIDTH; x++) {
-        map->tileset[0][x].type = MOUNTAIN;
-        map->tileset[MAP_HEIGHT - 1][x].type = MOUNTAIN;
+        map->tileset[0][x].type = BORDER;
+        map->tileset[MAP_HEIGHT - 1][x].type = BORDER;
     }
 
     for (int y = 0; y < MAP_HEIGHT; y++) {
-        map->tileset[y][0].type = MOUNTAIN;
-        map->tileset[y][MAP_WIDTH - 1].type = MOUNTAIN;
+        map->tileset[y][0].type = BORDER;
+        map->tileset[y][MAP_WIDTH - 1].type = BORDER;
     }
 
     if (!(edgeBitmask & EDGE_WEST_BITMASK)) map->tileset[westGateY][0].type = GATE;

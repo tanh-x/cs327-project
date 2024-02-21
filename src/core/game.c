@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "core/game.h"
 #include "graphics/artist.h"
+#include "world/pathfinding.h"
 
 void update(GameManager *game, GameOptions options) {
     World *world = game->world;
@@ -26,7 +28,7 @@ void update(GameManager *game, GameOptions options) {
         printf("\n");
 
         // Second line
-        printf("[ NOTE ] Use `h` for hiker map and `r` for rival map\n");
+        printf("[ NOTE ] Use `h` for hiker map and `r` for rival map. Or `hh`/`rr` for div 10\n");
 
         // Third line
         char cmd[CMD_MAX_LENGTH];
@@ -68,15 +70,27 @@ void update(GameManager *game, GameOptions options) {
 
             } else if (first == 'h') {
                 // h: Hiker distance map
+                int **distanceField = generateDistanceField(map, player->mapX, player->mapY, HIKER);
 
-                char test[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-                worldToString(game, test);
-                prettyPrint(test, false);
+                if (cmd[1] == 'h') {
+                    printDistanceFieldAlt(distanceField);
+                } else {
+                    printDistanceField(distanceField);
+                }
+
                 promptOverride = "Printed Hiker's distance map. Input command: ";
 
             } else if (first == 'r') {
                 // r: Rival distance map
+                int **distanceField = generateDistanceField(map, player->mapX, player->mapY, RIVAL);
 
+                if (cmd[1] == 'r') {
+                    printDistanceFieldAlt(distanceField);
+                } else {
+                    printDistanceField(distanceField);
+                }
+
+                promptOverride = "Printed Rival's distance map. Input command: ";
             }
 
             // If we got here, it must have been an invalid command
@@ -96,28 +110,28 @@ Map *moveInWorldDirection(GameManager *game, char dir, MapEntryProps *entryProps
     int y = game->player->globalY;
     int dx = 0;
     int dy = 0;
-    int playerSpawnX = 0;
-    int playerSpawnY = 0;
+    int playerSpawnX;
+    int playerSpawnY;
 
     switch (dir) {
         case 'n':
             dy = -1;
             playerSpawnX = hashWithMapCardinalDir(x, y, NORTH, worldSeed);
-            playerSpawnY = MAP_HEIGHT - 1;
+            playerSpawnY = MAP_HEIGHT - 2;
             break;
         case 's':
             dy = 1;
             playerSpawnX = hashWithMapCardinalDir(x, y, SOUTH, worldSeed);
-            playerSpawnY = 0;
+            playerSpawnY = 1;
             break;
         case 'w':
             dx = -1;
-            playerSpawnX = MAP_WIDTH - 1;
+            playerSpawnX = MAP_WIDTH - 2;
             playerSpawnY = hashWithMapCardinalDir(x, y, WEST, worldSeed);
             break;
         case 'e':
             dx = 1;
-            playerSpawnX = 0;
+            playerSpawnX = 1;
             playerSpawnY = hashWithMapCardinalDir(x, y, EAST, worldSeed);
             break;
         default:

@@ -56,3 +56,8 @@
     - Random clean up
     - Placed PC on maps.
     - Ensured PC always spawns on the gate where they came from
+* Day 2 (2024-02-21)
+    Afternoon:
+    - Implemented Dijkstra's algorithm
+    - Set up special commands to display the distance map
+    - Finalized for submission.

@@ -88,9 +88,9 @@ char tileToChar(Tile *tile) {
         case FLAT:
             return '.';
         case BOULDER:
-        case BORDER:
-            return '%';
         case MOUNTAIN:
+            return '%';
+        case BORDER:
             return '&';
         case GATE:
         case ROAD:

@@ -1,8 +1,7 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│  Generates a 401x401 world, maps will vary depending on distance from origin │
-│  for instance, maps further will be more overgrown and with less buildings.  │
-│  Roads leading to world edges are cut off by an ocean.                       │
+│  Generates the distance map to the player from each tile on the map. Use the │
+│  commands h, r, hh, rr to see these distance maps.                           │
 │                                                                              │
 │  Most tile types use standard display characters, with these exceptions:     │
 │  - Mountains: &, white background                                            │
