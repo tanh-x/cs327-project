@@ -301,7 +301,7 @@ int heap_decrease_key(heap_t *h, heap_node_t *n, void *v) {
 }
 
 int heap_decrease_key_no_replace(heap_t *h, heap_node_t *n) {
-    /* No tests that the value hasn't actually increased.  Change *
+    /* No tests that the map hasn't actually increased.  Change *
      * occurs in place, so the check is not possible here.  The   *
      * user is completely responsible for ensuring that they      *
      * don't fubar the queue.                                     */

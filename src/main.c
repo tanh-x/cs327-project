@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
     // Get and generate the central map
     MapEntryProps entryProps;
     Map *map = getMap(&world, &entryProps, player.globalX, player.globalY, false);
+    world.currentMap = map;
     map->isSpawnMap = true;
     // Override seed for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
@@ -67,5 +68,8 @@ int main(int argc, char *argv[]) {
 
     // Enter game loop
     update(&game, &options);
+
+    // Clean up
+    disposeWorld(&world);
     return 0;
 }

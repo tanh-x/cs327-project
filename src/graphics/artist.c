@@ -140,7 +140,7 @@ char entityToChar(Entity *entity) {
 
 void worldToString(GameManager *game, char *str) {
     Player *player = game->player;
-    Map *currentMap = game->world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
+    Map *currentMap = game->world->currentMap;
     EntityManager *entManager = game->entManager;
 
     int idx = 0;

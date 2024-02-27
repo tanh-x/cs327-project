@@ -6,11 +6,49 @@
 #include "entity/pathfinding.h"
 
 #define MAX_ITERATIONS 10000
+#define DISTANCE_FIELD_MEMOIZATION_SIZE 40
+#define AWAIT_PLAYER_INPUT true
+
+void invalidateMemoization(DistanceField *memoized[]) {
+    for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) {
+        DistanceField *field = memoized[i];
+        if (field != NULL) {
+            free(field->map);
+            free(field);
+            memoized[i] = NULL;
+        }
+    }
+}
+
+DistanceField *getOrComputeDistanceField(DistanceField *memoized[], EntityType entityType, Map *map, Player *player) {
+    int i = 0;
+    for (;; i++) {
+        if (i >= DISTANCE_FIELD_MEMOIZATION_SIZE) {
+            // Ran out of space on the memoization array, so invalidate everything to make space.
+            invalidateMemoization(memoized);
+            i = 0;
+            break;
+        }
+        // Grab the pointer at index i
+        DistanceField *field = memoized[i];
+        // NULL means that it's all NULLs past this index, so we can fill in a new field here
+        if (field == NULL) break;
+        // Otherwise, if we found a valid field, return it
+        if (field->entityType == entityType) return field;
+
+    }
+    // If we got here, it means we haven't computed this distance field yet
+    DistanceField *newField = generateDistanceField(map, player->mapX, player->mapY, entityType);
+    memoized[i] = newField;
+    return newField;
+}
 
 void update(GameManager *game, GameOptions *options) {
     World *world = game->world;
     Player *player = game->player;
-    Map *map = world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
+    Map *map = world->currentMap;
+    DistanceField *memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE];
+    for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) memoizedDistanceFields[i] = NULL;
 
     bool quitFlag = false;
     while (true) {
@@ -35,7 +73,7 @@ void update(GameManager *game, GameOptions *options) {
         char cmd[CMD_MAX_LENGTH];
         char first;
         printf("Input command: ");
-        while (true) {
+        while (AWAIT_PLAYER_INPUT) {
             fgets(cmd, CMD_MAX_LENGTH, stdin);
             first = cmd[0];
 
@@ -71,7 +109,7 @@ void update(GameManager *game, GameOptions *options) {
 
             } else if (first == 'h') {
                 // h: Hiker distance map
-                int **distanceField = generateDistanceField(map, player->mapX, player->mapY, HIKER);
+                DistanceField *distanceField = generateDistanceField(map, player->mapX, player->mapY, HIKER);
 
                 if (cmd[1] == 'h') {
                     printDistanceFieldAlt(distanceField);
@@ -83,7 +121,7 @@ void update(GameManager *game, GameOptions *options) {
 
             } else if (first == 'r') {
                 // r: Rival distance map
-                int **distanceField = generateDistanceField(map, player->mapX, player->mapY, RIVAL);
+                DistanceField *distanceField = generateDistanceField(map, player->mapX, player->mapY, RIVAL);
 
                 if (cmd[1] == 'r') {
                     printDistanceFieldAlt(distanceField);
@@ -151,27 +189,37 @@ Map *moveToMap(GameManager *game, int globalX, int globalY, MapEntryProps *entry
     if (newMap != NULL) {
         game->player->globalX = globalX;
         game->player->globalY = globalY;
+        game->world->currentMap = newMap;
     }
-
     return newMap;
 }
 
 void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOptions *options) {
     printf(CLEAR_SCREEN);
+    // Clean up previous EntityManager, if any
+    if (game->entManager != NULL) disposeEntityManager(game->entManager);
+
+    // Load useful pointers
     Player *player = game->player;
     player->mapX = entryProps->playerSpawnX;
     player->mapY = entryProps->playerSpawnY;
-    Map *map = game->world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
+    Map *map = game->world->currentMap;
+
+    // Load in new entity manager
     game->entManager = instantiateEntityManager(game);
     game->time = 0;
 
+    // Place trainers on the map
+    // Possible trainer types
     EntityType types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
     int numTypes = 6;
     for (int i = 0; i < options->numTrainers; i++) {
         EntityType entType;
         Entity *ent = NULL;
 
+        // Keep retrying to place the trainer if we didn't land on a valid spot
         for (int _ = 0; _ < MAX_ITERATIONS && ent == NULL; _++) {
+            // Get the type of the new trainer
             if (i == 0) entType = HIKER;
             else if (i == 1) entType = RIVAL;
             else entType = types[randomInt(0, numTypes - 1)];
@@ -179,19 +227,22 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
             int x = randomInt(1, MAP_WIDTH - 2);
             int y = randomInt(1, MAP_HEIGHT - 2);
 
+            // Check if the terrain cost was infinite
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
-            ent = constructEntity(
-                game->entManager,
-                entType,
-                x,
-                y
-            );
+            // constructEntity might return NULL, indicating an unsuccessful placement, so ent = NULL and we try again
+            ent = constructEntity(game->entManager, entType, x, y);
         }
 
+        // If we already went through MAX_ITERATIONS and ent is still NULL, give up
         if (ent == NULL) {
             printf("Failed to place the %d-th trainer, too crowded\n", i);
             return;
+        } else {
+            // Else, we got a successful trainer placement. Try queueing a new event.
+            Event *event = malloc(sizeof(Event));
+            event->type = MOVEMENT;
+            event->actor = ent;
         }
     }
 

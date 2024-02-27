@@ -35,17 +35,31 @@ EntityManager *instantiateEntityManager(GameManager *game) {
     return entManager;
 }
 
-void moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy) {
-    entManager->entMap[entity->mapY][entity->mapX] = NULL;
-    entity->mapX += dx;
-    entity->mapY += dy;
-    entManager->entMap[entity->mapY][entity->mapX] = entity;
+bool moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy) {
+    if (!entManager || !entity) return false;
 
+    // Boundary check for new position
+    int newX = entity->mapX + dx;
+    int newY = entity->mapY + dy;
+    if (newX <= 0 || newY <= 0 || newX >= MAP_WIDTH - 1 || newY >= MAP_HEIGHT - 1) return false;
+
+    // Check if the new position is occupied
+    if (entManager->entMap[newY][newX] != NULL) return false;
+
+    // Move entity in the entMap
+    entManager->entMap[entity->mapY][entity->mapX] = NULL;
+    entity->mapX = newX;
+    entity->mapY = newY;
+    entManager->entMap[newY][newX] = entity;
+
+    // Update player position if entity is a player
     if (entity->type == PLAYER && entity->soul != NULL) {
-        Player *player = entity->soul;
-        player->mapX = entity->mapX;
-        player->mapY = entity->mapY;
+        Player *player = (Player *) entity->soul;
+        player->mapX = newX;
+        player->mapY = newY;
     }
+
+    return true;
 }
 
 void disposeEntityManager(EntityManager *entManager) {
@@ -58,6 +72,5 @@ void disposeEntityManager(EntityManager *entManager) {
 
     heap_delete(entManager->eventQueue);
     free(entManager->entMap);
-    free(entManager);
 }
 

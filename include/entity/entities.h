@@ -37,7 +37,7 @@ Entity *constructEntity(EntityManager *entManager, EntityType type, int x, int y
 
 EntityManager *instantiateEntityManager(GameManager *game);
 
-void moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy);
+bool moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy);
 
 void disposeEntityManager(EntityManager *entManager);
 

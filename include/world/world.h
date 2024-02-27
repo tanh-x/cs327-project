@@ -13,6 +13,7 @@
 
 typedef struct {
     Map *maps[WORLD_HEIGHT][WORLD_WIDTH];
+    Map *currentMap;
     int worldSeed;
 } World;
 
@@ -24,6 +25,6 @@ int globalHashFunction(int x, int y, int worldSeed);
 
 int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed);
 
-void destroyWorld(World *world);
+void disposeWorld(World *world);
 
 #endif

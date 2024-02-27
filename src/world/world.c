@@ -70,7 +70,7 @@ int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed) {
     exit(1);
 }
 
-void destroyWorld(World *world) {
+void disposeWorld(World *world) {
     for (int i = 0; i < WORLD_HEIGHT; i++) {
         for (int j = 0; j < WORLD_WIDTH; j++) {
             if (world->maps[i][j] != NULL) {
