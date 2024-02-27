@@ -1,11 +1,23 @@
-#include <stdlib.h>
+#include "core/game.h"
 #include "entity/entities.h"
 #include "entity/event.h"
+#include "core/player.h"
+#include "entity/npc/pacer.h"
+//#include "entity/npc/wanderer.h"
 
-Entity *constructEntity(EntityManager *entManager, EntityType type, int x, int y) {
+void* getCharacterSoul(Entity* entity, GameManager* game) {
+    switch (entity->type) {
+        case PLAYER: return game->player;
+        case PACER: return constructPacerSoul();
+//        case WANDERER: return constructWandererSoul(game->world->currentMap->tileset[entity->mapY][entity->mapX].type);
+        default: return NULL;
+    }
+}
+
+Entity* constructEntity(EntityManager* entManager, EntityType type, int x, int y) {
     if (entManager->entMap[y][x] != NULL) return NULL;
 
-    Entity *entity = malloc(sizeof(Entity));
+    Entity* entity = malloc(sizeof(Entity));
     entity->type = type;
     entity->mapX = x;
     entity->mapY = y;
@@ -14,8 +26,8 @@ Entity *constructEntity(EntityManager *entManager, EntityType type, int x, int y
     return entity;
 }
 
-EntityManager *instantiateEntityManager(GameManager *game) {
-    EntityManager *entManager = malloc(sizeof(EntityManager));
+EntityManager* instantiateEntityManager(GameManager* game) {
+    EntityManager* entManager = malloc(sizeof(EntityManager));
 
     // Initialize the entity map
     for (int i = 0; i < MAP_HEIGHT; i++) {
@@ -29,13 +41,13 @@ EntityManager *instantiateEntityManager(GameManager *game) {
     heap_init(entManager->eventQueue, eventComparator, disposeEvent);
 
     // Add the player to the entManager
-    Entity *playerEnt = constructEntity(entManager, PLAYER, game->player->mapX, game->player->mapY);
+    Entity* playerEnt = constructEntity(entManager, PLAYER, game->player->mapX, game->player->mapY);
     playerEnt->soul = game->player;
 
     return entManager;
 }
 
-bool moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy) {
+bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
     if (!entManager || !entity) return false;
 
     // Boundary check for new position
@@ -54,7 +66,7 @@ bool moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy) {
 
     // Update player position if entity is a player
     if (entity->type == PLAYER && entity->soul != NULL) {
-        Player *player = (Player *) entity->soul;
+        Player* player = (Player*) entity->soul;
         player->mapX = newX;
         player->mapY = newY;
     }
@@ -62,10 +74,10 @@ bool moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy) {
     return true;
 }
 
-void disposeEntityManager(EntityManager *entManager) {
+void disposeEntityManager(EntityManager* entManager) {
     for (int i = 0; i < MAP_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH; j++) {
-            Entity *ent = entManager->entMap[i][j];
+            Entity* ent = entManager->entMap[i][j];
             if (ent != NULL) free(ent);
         }
     }

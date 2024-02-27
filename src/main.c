@@ -38,11 +38,13 @@ int main(int argc, char *argv[]) {
     // Initial set up
     GameManager game;
 
+    // Create a player struct
     Player player;
     player.globalX = 0;
     player.globalY = 0;
     game.player = &player;
 
+    // Initialize a world with all empty maps
     World world;
     initializeWorld(&world, timeSeedMilli);
     game.world = &world;
@@ -50,11 +52,23 @@ int main(int argc, char *argv[]) {
     // Get and generate the central map
     MapEntryProps entryProps;
     Map *map = getMap(&world, &entryProps, player.globalX, player.globalY, false);
+
+    // Set the current map to this map, allowing for convenient future reference
     world.currentMap = map;
+
+    // Initialize the memoized distance fields array
+    for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) map->memoizedDistanceFields[i] = NULL;
+
+    // spawnMap will allow for special case world generation
     map->isSpawnMap = true;
+
     // Override seed for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
+
+    // Generate the first map outside the gameloop, prevents it from regenerating in the game loop.
     generateMap(map, &entryProps, world.worldSeed, doBadApple);
+
+    // Also manually call the setup function on the spawn map instead of doing it in the game loop
     setupGameOnMapLoad(&game, &entryProps, &options);
 
     // Override game loop if badapple

@@ -1,9 +1,9 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "world/mapbuilder.h"
+#include <stdbool.h>
 #include "utils/heap.h"
-#include "core/game.h"
+#include "core/constants.h"
 
 typedef struct GameManager GameManager;
 
@@ -25,20 +25,23 @@ typedef struct Entity {
 
     // Coping mechanism with the lack of OOP constructs
     // Pointer to special entities' additional structs (e.g. Players)
-    void *soul;
+    void* soul;
 } Entity;
 
 typedef struct EntityManager {
-    Entity *entMap[MAP_HEIGHT][MAP_WIDTH];
-    heap_t *eventQueue;
+    Entity* entMap[MAP_HEIGHT][MAP_WIDTH];
+    heap_t* eventQueue;
 } EntityManager;
 
-Entity *constructEntity(EntityManager *entManager, EntityType type, int x, int y);
+void* getCharacterSoul(Entity* entity, GameManager* game);
 
-EntityManager *instantiateEntityManager(GameManager *game);
+Entity* constructEntity(EntityManager* entManager, EntityType type, int x, int y);
 
-bool moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy);
+EntityManager* instantiateEntityManager(GameManager* game);
 
-void disposeEntityManager(EntityManager *entManager);
+bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy);
+
+void disposeEntityManager(EntityManager* entManager);
+
 
 #endif

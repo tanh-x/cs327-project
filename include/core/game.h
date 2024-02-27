@@ -7,7 +7,6 @@
 
 typedef struct EntityManager EntityManager;
 
-
 #define CMD_MAX_LENGTH 64
 
 typedef struct GameManager {

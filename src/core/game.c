@@ -4,51 +4,17 @@
 #include "core/game.h"
 #include "graphics/artist.h"
 #include "entity/pathfinding.h"
+#include "entity/map_ai.h"
 
 #define MAX_ITERATIONS 10000
-#define DISTANCE_FIELD_MEMOIZATION_SIZE 40
+
 #define AWAIT_PLAYER_INPUT true
 
-void invalidateMemoization(DistanceField *memoized[]) {
-    for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) {
-        DistanceField *field = memoized[i];
-        if (field != NULL) {
-            free(field->map);
-            free(field);
-            memoized[i] = NULL;
-        }
-    }
-}
-
-DistanceField *getOrComputeDistanceField(DistanceField *memoized[], EntityType entityType, Map *map, Player *player) {
-    int i = 0;
-    for (;; i++) {
-        if (i >= DISTANCE_FIELD_MEMOIZATION_SIZE) {
-            // Ran out of space on the memoization array, so invalidate everything to make space.
-            invalidateMemoization(memoized);
-            i = 0;
-            break;
-        }
-        // Grab the pointer at index i
-        DistanceField *field = memoized[i];
-        // NULL means that it's all NULLs past this index, so we can fill in a new field here
-        if (field == NULL) break;
-        // Otherwise, if we found a valid field, return it
-        if (field->entityType == entityType) return field;
-
-    }
-    // If we got here, it means we haven't computed this distance field yet
-    DistanceField *newField = generateDistanceField(map, player->mapX, player->mapY, entityType);
-    memoized[i] = newField;
-    return newField;
-}
 
 void update(GameManager *game, GameOptions *options) {
     World *world = game->world;
     Player *player = game->player;
     Map *map = world->currentMap;
-    DistanceField *memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE];
-    for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) memoizedDistanceFields[i] = NULL;
 
     bool quitFlag = false;
     while (true) {
@@ -204,6 +170,7 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
     player->mapX = entryProps->playerSpawnX;
     player->mapY = entryProps->playerSpawnY;
     Map *map = game->world->currentMap;
+    invalidateMemoization(map->memoizedDistanceFields);
 
     // Load in new entity manager
     game->entManager = instantiateEntityManager(game);
@@ -215,10 +182,10 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
     int numTypes = 6;
     for (int i = 0; i < options->numTrainers; i++) {
         EntityType entType;
-        Entity *ent = NULL;
+        Entity *entity = NULL;
 
         // Keep retrying to place the trainer if we didn't land on a valid spot
-        for (int _ = 0; _ < MAX_ITERATIONS && ent == NULL; _++) {
+        for (int _ = 0; _ < MAX_ITERATIONS && entity == NULL; _++) {
             // Get the type of the new trainer
             if (i == 0) entType = HIKER;
             else if (i == 1) entType = RIVAL;
@@ -230,22 +197,25 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
             // Check if the terrain cost was infinite
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
-            // constructEntity might return NULL, indicating an unsuccessful placement, so ent = NULL and we try again
-            ent = constructEntity(game->entManager, entType, x, y);
+            // constructEntity might return NULL, indicating an unsuccessful placement, so entity = NULL and we try again
+            entity = constructEntity(game->entManager, entType, x, y);
         }
 
-        // If we already went through MAX_ITERATIONS and ent is still NULL, give up
-        if (ent == NULL) {
+        // If we already went through MAX_ITERATIONS and entity is still NULL, give up
+        if (entity == NULL) {
             printf("Failed to place the %d-th trainer, too crowded\n", i);
             return;
         } else {
-            // Else, we got a successful trainer placement. Try queueing a new event.
-            Event *event = malloc(sizeof(Event));
-            event->type = MOVEMENT;
-            event->actor = ent;
+            // Else, we got a successful trainer placement.
+
+            // First, try if we can add a "soul"
+
+
+            // Try making and queueing a new event.
+            Event *event = initializeEventOnTurn(map, player, entity);
+
         }
     }
-
 }
 
 void printGameState(GameManager *game) {

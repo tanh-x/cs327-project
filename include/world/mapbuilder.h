@@ -2,12 +2,11 @@
 #define MAPBUILDER_H
 
 #include <stdbool.h>
+#include "core/constants.h"
 
-#define MAP_WIDTH 80
-#define MAP_HEIGHT 21
+#define DISTANCE_FIELD_MEMOIZATION_SIZE 40
 
-#define PADDING 3
-#define GATE_PADDING 7
+struct DistanceField;
 
 typedef enum __attribute__ ((__packed__)) {
     FLAT,       // .    <1st pass>
@@ -31,6 +30,7 @@ typedef struct {
 
 typedef struct {
     Tile tileset[MAP_HEIGHT][MAP_WIDTH];
+    struct DistanceField *memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE];
 
     int mapSeed;
     int globalX;

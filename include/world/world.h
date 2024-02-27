@@ -1,15 +1,9 @@
-#include "mapbuilder.h"
-#include "utils/mathematics.h"
-
 #ifndef WORLD_H
 #define WORLD_H
 
-#define WORLD_X_SPAN 200
-#define WORLD_Y_SPAN 200
-
-// Coupled with above
-#define WORLD_WIDTH 401
-#define WORLD_HEIGHT 401
+#include "mapbuilder.h"
+#include "utils/mathematics.h"
+#include "core/constants.h"
 
 typedef struct {
     Map *maps[WORLD_HEIGHT][WORLD_WIDTH];

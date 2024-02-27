@@ -139,7 +139,6 @@ char entityToChar(Entity *entity) {
 }
 
 void worldToString(GameManager *game, char *str) {
-    Player *player = game->player;
     Map *currentMap = game->world->currentMap;
     EntityManager *entManager = game->entManager;
 

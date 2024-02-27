@@ -1,4 +1,3 @@
-
 #include "entity/event.h"
 
 int eventComparator(const void *this, const void *other) {
