@@ -5,6 +5,7 @@
 
 typedef struct {
     Int2D walk;
+    bool stuck;
 } PacerSoul;
 
 PacerSoul* constructPacerSoul();

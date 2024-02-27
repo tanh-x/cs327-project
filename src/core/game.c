@@ -14,7 +14,7 @@
 void update(GameManager* game, GameOptions* options) {
     World* world = game->world;
     Player* player = game->player;
-    Map* map = world->currentMap;
+    Map* map = world->current;
 
     bool quitFlag = false;
     while (true) {
@@ -150,7 +150,7 @@ Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entry
     if (newMap != NULL) {
         game->player->globalX = globalX;
         game->player->globalY = globalY;
-        game->world->currentMap = newMap;
+        game->world->current = newMap;
     }
     return newMap;
 }
@@ -164,7 +164,7 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
     Player* player = game->player;
     player->mapX = entryProps->playerSpawnX;
     player->mapY = entryProps->playerSpawnY;
-    Map* map = game->world->currentMap;
+    Map* map = game->world->current;
     invalidateMemoization(map->memoizedDistanceFields);
 
     // Load in new entity manager

@@ -7,7 +7,7 @@
 
 typedef struct {
     Map *maps[WORLD_HEIGHT][WORLD_WIDTH];
-    Map *currentMap;
+    Map *current;
     int worldSeed;
 } World;
 

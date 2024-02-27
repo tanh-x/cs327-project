@@ -33,7 +33,7 @@ typedef struct EntityManager {
     heap_t* eventQueue;
 } EntityManager;
 
-void* getCharacterSoul(Entity* entity, GameManager* game);
+void* getCharacterSoul(Entity* ent, GameManager* game);
 
 Entity* spawnEntity(GameManager* game, EntityType type, int x, int y);
 

@@ -11,7 +11,7 @@
 int main(int argc, char *argv[]) {
     bool doColoring = true;
     bool doBadApple = false;
-    int numTrainers = 10;
+    int numTrainers = 15;
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     Map *map = getMap(&world, &entryProps, player.globalX, player.globalY, false);
 
     // Set the current map to this map, allowing for convenient future reference
-    world.currentMap = map;
+    world.current = map;
 
     // Initialize the memoized distance fields array
     for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) map->memoizedDistanceFields[i] = NULL;

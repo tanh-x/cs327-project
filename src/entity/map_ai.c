@@ -1,5 +1,6 @@
 #include "entity/map_ai.h"
 #include "entity/pathfinding.h"
+#include "entity/npc/pacer.h"
 
 bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
     DistanceField* field = getOrComputeDistanceField(
@@ -47,7 +48,34 @@ bool rivalMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
 }
 
 bool pacerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
-    return false;
+    PacerSoul* soul = entity->soul;
+    Int2D* walk = &soul->walk;
+
+    // Check if the Pacer is stuck. If so, then don't do anything
+    if (soul->stuck) return false;
+
+    TileType nextTileType = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
+
+    int cost = getTerrainCost(nextTileType, PACER);
+    if (cost == UNCROSSABLE) {
+        // Reverse the walking direction
+        walk->y *= -1;
+        walk->x *= -1;
+        TileType tileBehind = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
+        cost = getTerrainCost(tileBehind, PACER);
+        if (cost == UNCROSSABLE) {
+            // We are stuck, so prevent any future pacer action.
+            soul->stuck = true;
+            walk->x = 0;
+            walk->y = 0;
+        } // Else, don't do anything, and let it escape the if
+    }
+
+    event->cost = cost;
+    event->dx = walk->x;
+    event->dy = walk->y;
+
+    return true;
 }
 
 bool wandererMovementAI(Event* event, Map* map, Player* player, Entity* entity) {

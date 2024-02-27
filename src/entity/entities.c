@@ -3,12 +3,13 @@
 #include "entity/event.h"
 #include "core/player.h"
 #include "entity/npc/pacer.h"
+#include "entity/npc/wanderer.h"
 
-void* getCharacterSoul(Entity* entity, GameManager* game) {
-    switch (entity->type) {
+void* getCharacterSoul(Entity* ent, GameManager* game) {
+    switch (ent->type) {
         case PLAYER: return game->player;
         case PACER: return constructPacerSoul();
-//        case WANDERER: return constructWandererSoul(game->world->currentMap->tileset[entity->mapY][entity->mapX].type);
+        case WANDERER: return constructWandererSoul(game->world->current->tileset[ent->mapY][ent->mapX].type);
         default: return NULL;
     }
 }

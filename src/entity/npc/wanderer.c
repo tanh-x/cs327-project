@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include "entity/npc/pacer.h"
+#include "entity/npc/wanderer.h"
 
-PacerSoul* constructPacerSoul() {
-    PacerSoul* soul = malloc(sizeof(PacerSoul));
-    soul->stuck = false;
+WandererSoul* constructWandererSoul(TileType birthplace) {
+    WandererSoul* soul = malloc(sizeof(WandererSoul));
+    soul->birthplace = birthplace;
     soul->walk.x = randomInt(-1, 1);
     soul->walk.y = randomInt(-1, 1);
     if (soul->walk.x == 0 && soul->walk.y == 0) soul->walk.x = 1;
