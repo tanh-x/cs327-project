@@ -25,14 +25,15 @@ bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
             event->dy = dy;
         }
     }
-    // Check if none of the 8 adjacent directions are traversable to the entity
-    if (gradient == UNCROSSABLE) return false;
 
     // Get the cost of this action
     event->cost = getTerrainCost(
         map->tileset[entity->mapY + event->dy][entity->mapX + event->dx].type,
         entity->type
     );
+
+    // Check if none of the 8 adjacent directions are traversable to the entity
+    if (event->cost == UNCROSSABLE) return false;
 
     return true;
 }

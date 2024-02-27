@@ -35,9 +35,9 @@ typedef struct EntityManager {
 
 void* getCharacterSoul(Entity* entity, GameManager* game);
 
-Entity* constructEntity(EntityManager* entManager, EntityType type, int x, int y);
+Entity* spawnEntity(GameManager* game, EntityType type, int x, int y);
 
-EntityManager* instantiateEntityManager(GameManager* game);
+void initializeEntityManager(GameManager* game);
 
 bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy);
 

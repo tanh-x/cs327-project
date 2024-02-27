@@ -4,7 +4,7 @@ INC_DIR := include
 CFLAGS := -Wall -g -I$(INC_DIR)
 LDFLAGS := -lm -lpng
 
-SRCS := $(wildcard $(SRC_DIR)/**/*.c $(SRC_DIR)/*.c)
+SRCS := $(wildcard $(SRC_DIR)/**/**/*.c $(SRC_DIR)/**/*.c $(SRC_DIR)/*.c)
 OBJS := $(SRCS:.c=.o)
 
 # Target binary

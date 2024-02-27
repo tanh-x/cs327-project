@@ -11,17 +11,17 @@
 #define AWAIT_PLAYER_INPUT true
 
 
-void update(GameManager *game, GameOptions *options) {
-    World *world = game->world;
-    Player *player = game->player;
-    Map *map = world->currentMap;
+void update(GameManager* game, GameOptions* options) {
+    World* world = game->world;
+    Player* player = game->player;
+    Map* map = world->currentMap;
 
     bool quitFlag = false;
     while (true) {
         if (quitFlag) break;
 
         // Start graphics
-        char *promptOverride = NULL;
+        char* promptOverride = NULL;
 
         // Print the map
         char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
@@ -75,7 +75,7 @@ void update(GameManager *game, GameOptions *options) {
 
             } else if (first == 'h') {
                 // h: Hiker distance map
-                DistanceField *distanceField = generateDistanceField(map, player->mapX, player->mapY, HIKER);
+                DistanceField* distanceField = generateDistanceField(map, player->mapX, player->mapY, HIKER);
 
                 if (cmd[1] == 'h') {
                     printDistanceFieldAlt(distanceField);
@@ -87,7 +87,7 @@ void update(GameManager *game, GameOptions *options) {
 
             } else if (first == 'r') {
                 // r: Rival distance map
-                DistanceField *distanceField = generateDistanceField(map, player->mapX, player->mapY, RIVAL);
+                DistanceField* distanceField = generateDistanceField(map, player->mapX, player->mapY, RIVAL);
 
                 if (cmd[1] == 'r') {
                     printDistanceFieldAlt(distanceField);
@@ -109,7 +109,7 @@ void update(GameManager *game, GameOptions *options) {
     }
 }
 
-Map *moveInWorldDirection(GameManager *game, char dir, MapEntryProps *entryProps) {
+Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps) {
     int worldSeed = game->world->worldSeed;
     int x = game->player->globalX;
     int y = game->player->globalY;
@@ -119,39 +119,34 @@ Map *moveInWorldDirection(GameManager *game, char dir, MapEntryProps *entryProps
     int playerSpawnY;
 
     switch (dir) {
-        case 'n':
-            dy = -1;
+        case 'n':dy = -1;
             playerSpawnX = hashWithMapCardinalDir(x, y, NORTH, worldSeed);
             playerSpawnY = MAP_HEIGHT - 2;
             break;
-        case 's':
-            dy = 1;
+        case 's':dy = 1;
             playerSpawnX = hashWithMapCardinalDir(x, y, SOUTH, worldSeed);
             playerSpawnY = 1;
             break;
-        case 'w':
-            dx = -1;
+        case 'w':dx = -1;
             playerSpawnX = MAP_WIDTH - 2;
             playerSpawnY = hashWithMapCardinalDir(x, y, WEST, worldSeed);
             break;
-        case 'e':
-            dx = 1;
+        case 'e':dx = 1;
             playerSpawnX = 1;
             playerSpawnY = hashWithMapCardinalDir(x, y, EAST, worldSeed);
             break;
-        default:
-            printf("Something is very wrong [core/game.c->moveInWorldDirection()]");
+        default:printf("Something is very wrong [core/game.c->moveInWorldDirection()]");
             exit(1);
     }
 
-    Map *newMap = moveToMap(game, x + dx, y + dy, entryProps);
+    Map* newMap = moveToMap(game, x + dx, y + dy, entryProps);
     entryProps->playerSpawnX = playerSpawnX;
     entryProps->playerSpawnY = playerSpawnY;
     return newMap;
 }
 
-Map *moveToMap(GameManager *game, int globalX, int globalY, MapEntryProps *entryProps) {
-    Map *newMap = getMap(game->world, entryProps, globalX, globalY, true);
+Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entryProps) {
+    Map* newMap = getMap(game->world, entryProps, globalX, globalY, true);
     if (newMap != NULL) {
         game->player->globalX = globalX;
         game->player->globalY = globalY;
@@ -160,20 +155,20 @@ Map *moveToMap(GameManager *game, int globalX, int globalY, MapEntryProps *entry
     return newMap;
 }
 
-void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOptions *options) {
+void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOptions* options) {
     printf(CLEAR_SCREEN);
     // Clean up previous EntityManager, if any
     if (game->entManager != NULL) disposeEntityManager(game->entManager);
 
     // Load useful pointers
-    Player *player = game->player;
+    Player* player = game->player;
     player->mapX = entryProps->playerSpawnX;
     player->mapY = entryProps->playerSpawnY;
-    Map *map = game->world->currentMap;
+    Map* map = game->world->currentMap;
     invalidateMemoization(map->memoizedDistanceFields);
 
     // Load in new entity manager
-    game->entManager = instantiateEntityManager(game);
+    initializeEntityManager(game);
     game->time = 0;
 
     // Place trainers on the map
@@ -182,7 +177,7 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
     int numTypes = 6;
     for (int i = 0; i < options->numTrainers; i++) {
         EntityType entType;
-        Entity *entity = NULL;
+        Entity* entity = NULL;
 
         // Keep retrying to place the trainer if we didn't land on a valid spot
         for (int _ = 0; _ < MAX_ITERATIONS && entity == NULL; _++) {
@@ -197,8 +192,8 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
             // Check if the terrain cost was infinite
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
-            // constructEntity might return NULL, indicating an unsuccessful placement, so entity = NULL and we try again
-            entity = constructEntity(game->entManager, entType, x, y);
+            // spawnEntity might return NULL, indicating an unsuccessful placement, so entity = NULL and we try again
+            entity = spawnEntity(game, entType, x, y);
         }
 
         // If we already went through MAX_ITERATIONS and entity is still NULL, give up
@@ -212,13 +207,17 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
 
 
             // Try making and queueing a new event.
-            Event *event = initializeEventOnTurn(map, player, entity);
+            Event* event = initializeEventOnTurn(map, player, entity);
+            if (event == NULL) continue;
+
+            event->resolveTime = game->time + event->cost;
+            enqueueEvent(game->entManager, event);
 
         }
     }
 }
 
-void printGameState(GameManager *game) {
+void printGameState(GameManager* game) {
 
 }
 

@@ -3,7 +3,6 @@
 #include "entity/event.h"
 #include "core/player.h"
 #include "entity/npc/pacer.h"
-//#include "entity/npc/wanderer.h"
 
 void* getCharacterSoul(Entity* entity, GameManager* game) {
     switch (entity->type) {
@@ -14,7 +13,8 @@ void* getCharacterSoul(Entity* entity, GameManager* game) {
     }
 }
 
-Entity* constructEntity(EntityManager* entManager, EntityType type, int x, int y) {
+Entity* spawnEntity(GameManager* game, EntityType type, int x, int y) {
+    EntityManager* entManager = game->entManager;
     if (entManager->entMap[y][x] != NULL) return NULL;
 
     Entity* entity = malloc(sizeof(Entity));
@@ -23,11 +23,14 @@ Entity* constructEntity(EntityManager* entManager, EntityType type, int x, int y
     entity->mapY = y;
     entManager->entMap[y][x] = entity;
 
+    entity->soul = getCharacterSoul(entity, game);
+
     return entity;
 }
 
-EntityManager* instantiateEntityManager(GameManager* game) {
+void initializeEntityManager(GameManager* game) {
     EntityManager* entManager = malloc(sizeof(EntityManager));
+    game->entManager = entManager;
 
     // Initialize the entity map
     for (int i = 0; i < MAP_HEIGHT; i++) {
@@ -41,10 +44,7 @@ EntityManager* instantiateEntityManager(GameManager* game) {
     heap_init(entManager->eventQueue, eventComparator, disposeEvent);
 
     // Add the player to the entManager
-    Entity* playerEnt = constructEntity(entManager, PLAYER, game->player->mapX, game->player->mapY);
-    playerEnt->soul = game->player;
-
-    return entManager;
+    spawnEntity(game, PLAYER, game->player->mapX, game->player->mapY);
 }
 
 bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
