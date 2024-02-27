@@ -15,7 +15,7 @@
 #define GRAY_TEXT "\033[38;5;232m"
 #define BROWN_TEXT "\033[38;5;172m"
 #define PURPLE_TEXT "\033[38;5;165m"
-#define JOULDER_COLOR "\033[38;5;216m"
+#define LIGHT_ORANGE_COLOR "\033[38;5;216m"
 #define RED_TEXT "\033[38;5;196m"
 #define BLACK_TEXT "\033[38;5;16m"
 #define INTENSE_RED_BACKGROUND "\033[48;5;196m"
@@ -58,16 +58,17 @@ void prettyPrint(const char *str, bool isMapColored) {
                 case 'C':
                     printf(RED_TEXT);
                     break;
+                case 'J':
+                    printf(LIGHT_ORANGE_COLOR);
+                    break;
                 case '@':
                     printf("%s%s", BLACK_TEXT, INTENSE_RED_BACKGROUND);
-                    break;
-                case 'J':
-                    printf(JOULDER_COLOR);
                     break;
                 case ' ':
                     printf(INTENSE_RED_BACKGROUND);
                     break;
                 default:
+                    printf("%s", LIGHT_ORANGE_COLOR);
                     break;
             }
         } else {
@@ -108,28 +109,51 @@ char tileToChar(Tile *tile) {
         case POKEMART:
             return 'M';
         case JOULDER:
-            return 'J';
+            return '%';
         default:
             return ' ';
+    }
+}
+
+char entityToChar(Entity *entity) {
+    switch (entity->type) {
+        case PLAYER:
+            return '@';
+        case HIKER:
+            return 'h';
+        case RIVAL:
+            return 'r';
+        case SWIMMER:
+            return 'm';
+        case PACER:
+            return 'p';
+        case WANDERER:
+            return 'w';
+        case SENTRY:
+            return 's';
+        case EXPLORER:
+            return 'e';
+        default:
+            return '?';
     }
 }
 
 void worldToString(GameManager *game, char *str) {
     Player *player = game->player;
     Map *currentMap = game->world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
+    EntityManager *entManager = game->entManager;
 
     int idx = 0;
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            str[idx++] = tileToChar(&currentMap->tileset[y][x]);
+            if (entManager->entMap[y][x] != NULL) {
+                str[idx++] = entityToChar(entManager->entMap[y][x]);
+            } else {
+                str[idx++] = tileToChar(&currentMap->tileset[y][x]);
+            }
         }
         str[idx++] = '\n';
     }
-
-    // Place the player
-    // + 1 accounts for the \n at the end of every line
-    str[player->mapY * (MAP_WIDTH + 1) + player->mapX] = '@';
-
     str[idx] = '\0';
 }
 

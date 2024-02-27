@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     // Override seed for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
     generateMap(map, &entryProps, world.worldSeed, doBadApple);
-    setupGameOnMapLoad(&game, &entryProps);
+    setupGameOnMapLoad(&game, &entryProps, &options);
 
     // Override game loop if badapple
     if (doBadApple) {
@@ -66,6 +66,6 @@ int main(int argc, char *argv[]) {
     }
 
     // Enter game loop
-    update(&game, options);
+    update(&game, &options);
     return 0;
 }

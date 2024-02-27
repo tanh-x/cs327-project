@@ -5,7 +5,9 @@
 #include "graphics/artist.h"
 #include "entity/pathfinding.h"
 
-void update(GameManager *game, GameOptions options) {
+#define MAX_ITERATIONS 10000
+
+void update(GameManager *game, GameOptions *options) {
     World *world = game->world;
     Player *player = game->player;
     Map *map = world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
@@ -15,13 +17,12 @@ void update(GameManager *game, GameOptions options) {
         if (quitFlag) break;
 
         // Start graphics
-        printf(CLEAR_SCREEN);
         char *promptOverride = NULL;
 
         // Print the map
         char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
         worldToString(game, mapStr);
-        prettyPrint(mapStr, options.doColoring);
+        prettyPrint(mapStr, options->doColoring);
 
         // First line
         printf("Map position: (%d, %d)", player->globalX, player->globalY);
@@ -48,7 +49,7 @@ void update(GameManager *game, GameOptions options) {
                 // nswe: Move along the world in cardinal directions
                 MapEntryProps entryProps;
                 map = moveInWorldDirection(game, cmd[0], &entryProps);
-                setupGameOnMapLoad(game, &entryProps);
+                setupGameOnMapLoad(game, &entryProps, options);
                 if (map != NULL) break;  // NULL only if invalid move
 
                 // Else, it was an invalid move, so let it exit the if body,
@@ -63,7 +64,7 @@ void update(GameManager *game, GameOptions options) {
                     map = moveToMap(game, x, y, &entryProps);
                     entryProps.playerSpawnX = 0;
                     entryProps.playerSpawnY = hashWithMapCardinalDir(x, y, WEST, world->worldSeed);
-                    setupGameOnMapLoad(game, &entryProps);
+                    setupGameOnMapLoad(game, &entryProps, options);
                     if (map != NULL) break;  // NULL if invalid move
                     // Else, let it exit the if body
                 }
@@ -155,10 +156,45 @@ Map *moveToMap(GameManager *game, int globalX, int globalY, MapEntryProps *entry
     return newMap;
 }
 
-void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps) {
+void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOptions *options) {
+    printf(CLEAR_SCREEN);
     Player *player = game->player;
     player->mapX = entryProps->playerSpawnX;
     player->mapY = entryProps->playerSpawnY;
+    Map *map = game->world->maps[player->globalY + WORLD_Y_SPAN][player->globalX + WORLD_X_SPAN];
+    game->entManager = instantiateEntityManager(game);
+    game->time = 0;
+
+    EntityType types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
+    int numTypes = 6;
+    for (int i = 0; i < options->numTrainers; i++) {
+        EntityType entType;
+        Entity *ent = NULL;
+
+        for (int _ = 0; _ < MAX_ITERATIONS && ent == NULL; _++) {
+            if (i == 0) entType = HIKER;
+            else if (i == 1) entType = RIVAL;
+            else entType = types[randomInt(0, numTypes - 1)];
+
+            int x = randomInt(1, MAP_WIDTH - 2);
+            int y = randomInt(1, MAP_HEIGHT - 2);
+
+            if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
+
+            ent = constructEntity(
+                game->entManager,
+                entType,
+                x,
+                y
+            );
+        }
+
+        if (ent == NULL) {
+            printf("Failed to place the %d-th trainer, too crowded\n", i);
+            return;
+        }
+    }
+
 }
 
 void printGameState(GameManager *game) {

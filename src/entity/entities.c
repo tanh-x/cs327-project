@@ -3,6 +3,8 @@
 #include "entity/event.h"
 
 Entity *constructEntity(EntityManager *entManager, EntityType type, int x, int y) {
+    if (entManager->entMap[y][x] != NULL) return NULL;
+
     Entity *entity = malloc(sizeof(Entity));
     entity->type = type;
     entity->mapX = x;
@@ -24,7 +26,7 @@ EntityManager *instantiateEntityManager(GameManager *game) {
 
     // Initialize the eventQueue heap
     entManager->eventQueue = malloc(sizeof(heap_t));
-    heap_init(entManager->eventQueue, eventComparator, NULL);
+    heap_init(entManager->eventQueue, eventComparator, disposeEvent);
 
     // Add the player to the entManager
     Entity *playerEnt = constructEntity(entManager, PLAYER, game->player->mapX, game->player->mapY);
@@ -44,5 +46,18 @@ void moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy) {
         player->mapX = entity->mapX;
         player->mapY = entity->mapY;
     }
+}
+
+void disposeEntityManager(EntityManager *entManager) {
+    for (int i = 0; i < MAP_HEIGHT; i++) {
+        for (int j = 0; j < MAP_WIDTH; j++) {
+            Entity *ent = entManager->entMap[i][j];
+            if (ent != NULL) free(ent);
+        }
+    }
+
+    heap_delete(entManager->eventQueue);
+    free(entManager->entMap);
+    free(entManager);
 }
 

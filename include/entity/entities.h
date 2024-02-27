@@ -1,14 +1,21 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "core/game.h"
+#include "world/mapbuilder.h"
 #include "utils/heap.h"
+#include "core/game.h"
+
+typedef struct GameManager GameManager;
 
 typedef enum __attribute__ ((__packed__)) {
     PLAYER,
     HIKER,
     RIVAL,
     SWIMMER,
+    PACER,
+    WANDERER,
+    SENTRY,
+    EXPLORER
 } EntityType;
 
 typedef struct Entity {
@@ -21,7 +28,7 @@ typedef struct Entity {
     void *soul;
 } Entity;
 
-typedef struct {
+typedef struct EntityManager {
     Entity *entMap[MAP_HEIGHT][MAP_WIDTH];
     heap_t *eventQueue;
 } EntityManager;
@@ -31,5 +38,7 @@ Entity *constructEntity(EntityManager *entManager, EntityType type, int x, int y
 EntityManager *instantiateEntityManager(GameManager *game);
 
 void moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy);
+
+void disposeEntityManager(EntityManager *entManager);
 
 #endif

@@ -1,8 +1,7 @@
-#include <stdbool.h>
-#include "entity/entities.h"
-
 #ifndef MAPBUILDER_H
 #define MAPBUILDER_H
+
+#include <stdbool.h>
 
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21

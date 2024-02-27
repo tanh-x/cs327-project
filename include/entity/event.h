@@ -1,9 +1,11 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <malloc.h>
 #include "entities.h"
 
 typedef struct Entity Entity;
+typedef struct EntityManager EntityManager;
 
 typedef enum __attribute__ ((__packed__)) {
     MOVEMENT,
@@ -20,7 +22,12 @@ typedef struct Event {
 
 int eventComparator(const void *this, const void *other);
 
+void enqueueEvent(EntityManager *entManager, Event *event);
+
 // Default implementation for Entity->onEvent
 void resolveEvent(EntityManager *entManager, Event *event);
+
+void disposeEvent(void *event);
+
 
 #endif
