@@ -1,6 +1,7 @@
 #include "entity/map_ai.h"
 #include "entity/pathfinding.h"
 #include "entity/npc/pacer.h"
+#include "entity/npc/wanderer.h"
 
 bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
     DistanceField* field = getOrComputeDistanceField(
@@ -79,7 +80,39 @@ bool pacerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
 }
 
 bool wandererMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
-    return false;
+    WandererSoul* soul = entity->soul;
+    Int2D* walk = &soul->walk;
+
+    TileType nextTileType = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
+
+    int dx;
+    int dy;
+    if (nextTileType != soul->birthplace || (walk->x == 0 && walk->y == 0)) {
+        for (int _ = 0;; _++) {
+            if (_ >= MAX_ITERATIONS_SMALL) {
+                // If we unluckily reached 32 rolls without a successful direction, stand still for now.
+                walk->x = 0;
+                walk->y = 0;
+                break;
+            }
+            // Roll a random direction, standing still for one turn is an option. You gotta take breaks sometimes.
+            dx = randomInt(-1, 1);
+            dy = randomInt(-1, 1);
+
+            // If we found a good direction, then start walking that way
+            if (map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type == soul->birthplace) {
+                walk->x = dx;
+                walk->y = dy;
+                break;
+            }
+        }
+    }  // Else, keep walking
+
+    event->cost = getTerrainCost(soul->birthplace, WANDERER);
+    event->dx = walk->x;
+    event->dy = walk->y;
+    
+    return true;
 }
 
 bool sentryMovementAI(Event* event, Map* map, Player* player, Entity* entity) {

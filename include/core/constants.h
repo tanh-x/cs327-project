@@ -1,6 +1,9 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#define MAX_ITERATIONS_SMALL 32
+#define MAX_ITERATIONS 16384
+
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21
 

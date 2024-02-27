@@ -6,7 +6,7 @@
 #include "entity/pathfinding.h"
 #include "entity/map_ai.h"
 
-#define MAX_ITERATIONS 10000
+
 
 #define AWAIT_PLAYER_INPUT true
 

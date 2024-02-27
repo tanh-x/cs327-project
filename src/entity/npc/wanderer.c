@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdbool.h>
 #include "entity/npc/wanderer.h"
 
 WandererSoul* constructWandererSoul(TileType birthplace) {
