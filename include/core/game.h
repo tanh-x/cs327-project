@@ -31,4 +31,8 @@ void setupGameOnMapLoad(GameManager *game, MapEntryProps *entryProps, GameOption
 
 void update(GameManager *game, GameOptions *options);
 
+void draw(GameManager *game, GameOptions *options);
+
+void update_old(GameManager *game, GameOptions *options);
+
 #endif

@@ -1,17 +1,169 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "core/game.h"
 #include "graphics/artist.h"
 #include "entity/pathfinding.h"
 #include "entity/map_ai.h"
 
-
-
 #define AWAIT_PLAYER_INPUT true
 
 
 void update(GameManager* game, GameOptions* options) {
+    World* world = game->world;
+    Player* player = game->player;
+    Map* map = world->current;
+    EntityManager* entManager = game->entManager;
+
+    // Draw once
+    draw(game, options);
+
+    Event* event;
+    while ((event = heap_remove_min(entManager->eventQueue))) {
+        // Time travelling is strictly prohibited
+        game->time = max(game->time, event->resolveTime);
+
+        // Delegate the event action to the entity manager
+        resolveEvent(entManager, event);
+
+        // Redraw if it was a player event
+        if (event->actor->type == PLAYER) {
+            draw(game, options);
+
+            // Special handling for player events
+            invalidateMemoization(map->memoizedDistanceFields);
+
+            usleep(125000);
+//            usleep(1000000);
+        }
+
+        // Queue next event for this entity
+        Event* newEvent = initializeEventOnTurn(map, player, event->actor);
+        if (newEvent != NULL) {
+            newEvent->resolveTime = game->time + newEvent->cost;
+            enqueueEvent(game->entManager, newEvent);
+        }
+    }
+}
+
+void draw(GameManager* game, GameOptions* options) {
+    printf(CLEAR_SCREEN);
+    // Print the map
+    char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
+    worldToString(game, mapStr);
+    prettyPrint(mapStr, options->doColoring);
+
+    // Print the 3 lines
+    printf("Map position: (%d, %d)\n", game->player->globalX, game->player->globalY);
+    printf("PC position: (%d, %d)\n", game->player->mapX, game->player->mapY);
+    printf("Event time: %d\n", game->time);
+}
+
+Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps) {
+    int worldSeed = game->world->worldSeed;
+    int x = game->player->globalX;
+    int y = game->player->globalY;
+    int dx = 0;
+    int dy = 0;
+    int playerSpawnX;
+    int playerSpawnY;
+
+    switch (dir) {
+        case 'n':dy = -1;
+            playerSpawnX = hashWithMapCardinalDir(x, y, NORTH, worldSeed);
+            playerSpawnY = MAP_HEIGHT - 2;
+            break;
+        case 's':dy = 1;
+            playerSpawnX = hashWithMapCardinalDir(x, y, SOUTH, worldSeed);
+            playerSpawnY = 1;
+            break;
+        case 'w':dx = -1;
+            playerSpawnX = MAP_WIDTH - 2;
+            playerSpawnY = hashWithMapCardinalDir(x, y, WEST, worldSeed);
+            break;
+        case 'e':dx = 1;
+            playerSpawnX = 1;
+            playerSpawnY = hashWithMapCardinalDir(x, y, EAST, worldSeed);
+            break;
+        default:printf("Something is very wrong [core/game.c->moveInWorldDirection()]");
+            exit(1);
+    }
+
+    Map* newMap = moveToMap(game, x + dx, y + dy, entryProps);
+    entryProps->playerSpawnX = playerSpawnX;
+    entryProps->playerSpawnY = playerSpawnY;
+    return newMap;
+}
+
+Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entryProps) {
+    Map* newMap = getMap(game->world, entryProps, globalX, globalY, true);
+    if (newMap != NULL) {
+        game->player->globalX = globalX;
+        game->player->globalY = globalY;
+        game->world->current = newMap;
+    }
+    return newMap;
+}
+
+void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOptions* options) {
+    // Clean up previous EntityManager, if any
+    if (game->entManager != NULL) disposeEntityManager(game->entManager);
+
+    // Load useful pointers
+    Player* player = game->player;
+    player->mapX = entryProps->playerSpawnX;
+    player->mapY = entryProps->playerSpawnY;
+    Map* map = game->world->current;
+    invalidateMemoization(map->memoizedDistanceFields);
+
+    // Load in new entity manager
+    initializeEntityManager(game);
+    game->time = 0;
+
+    // Place trainers on the map
+    // Possible trainer types
+    EntityType types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
+    int numTypes = 6;
+    for (int i = 0; i < options->numTrainers; i++) {
+        EntityType entType;
+        Entity* entity = NULL;
+
+        // Keep retrying to place the trainer if we didn't land on a valid spot
+        for (int _ = 0; _ < MAX_ITERATIONS && entity == NULL; _++) {
+            // Get the type of the new trainer
+            if (i == 0) entType = HIKER;
+            else if (i == 1) entType = RIVAL;
+            else entType = types[randomInt(0, numTypes - 1)];
+
+            int x = randomInt(2, MAP_WIDTH - 3);
+            int y = randomInt(2, MAP_HEIGHT - 3);
+
+            // Check if the terrain cost was infinite
+            if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
+
+            // spawnEntity might return NULL, indicating an unsuccessful placement, so entity = NULL and we try again
+            entity = spawnEntity(game, entType, x, y);
+        }
+
+        // If we already went through MAX_ITERATIONS and entity is still NULL, give up
+        if (entity == NULL) {
+//            printf("Failed to place the %d-th trainer, too crowded\n", i);
+            return;
+        } else {
+            // Else, we got a successful trainer placement.
+            // Try making and queueing a new event.
+            Event* event = initializeEventOnTurn(map, player, entity);
+            if (event == NULL) continue;
+
+            event->resolveTime = game->time + event->cost;
+            enqueueEvent(game->entManager, event);
+
+        }
+    }
+}
+
+void update_old(GameManager* game, GameOptions* options) {
     World* world = game->world;
     Player* player = game->player;
     Map* map = world->current;
@@ -105,114 +257,6 @@ void update(GameManager* game, GameOptions* options) {
                 printf("%s", promptOverride);
                 promptOverride = NULL;
             }
-        }
-    }
-}
-
-Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps) {
-    int worldSeed = game->world->worldSeed;
-    int x = game->player->globalX;
-    int y = game->player->globalY;
-    int dx = 0;
-    int dy = 0;
-    int playerSpawnX;
-    int playerSpawnY;
-
-    switch (dir) {
-        case 'n':dy = -1;
-            playerSpawnX = hashWithMapCardinalDir(x, y, NORTH, worldSeed);
-            playerSpawnY = MAP_HEIGHT - 2;
-            break;
-        case 's':dy = 1;
-            playerSpawnX = hashWithMapCardinalDir(x, y, SOUTH, worldSeed);
-            playerSpawnY = 1;
-            break;
-        case 'w':dx = -1;
-            playerSpawnX = MAP_WIDTH - 2;
-            playerSpawnY = hashWithMapCardinalDir(x, y, WEST, worldSeed);
-            break;
-        case 'e':dx = 1;
-            playerSpawnX = 1;
-            playerSpawnY = hashWithMapCardinalDir(x, y, EAST, worldSeed);
-            break;
-        default:printf("Something is very wrong [core/game.c->moveInWorldDirection()]");
-            exit(1);
-    }
-
-    Map* newMap = moveToMap(game, x + dx, y + dy, entryProps);
-    entryProps->playerSpawnX = playerSpawnX;
-    entryProps->playerSpawnY = playerSpawnY;
-    return newMap;
-}
-
-Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entryProps) {
-    Map* newMap = getMap(game->world, entryProps, globalX, globalY, true);
-    if (newMap != NULL) {
-        game->player->globalX = globalX;
-        game->player->globalY = globalY;
-        game->world->current = newMap;
-    }
-    return newMap;
-}
-
-void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOptions* options) {
-    printf(CLEAR_SCREEN);
-    // Clean up previous EntityManager, if any
-    if (game->entManager != NULL) disposeEntityManager(game->entManager);
-
-    // Load useful pointers
-    Player* player = game->player;
-    player->mapX = entryProps->playerSpawnX;
-    player->mapY = entryProps->playerSpawnY;
-    Map* map = game->world->current;
-    invalidateMemoization(map->memoizedDistanceFields);
-
-    // Load in new entity manager
-    initializeEntityManager(game);
-    game->time = 0;
-
-    // Place trainers on the map
-    // Possible trainer types
-    EntityType types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
-    int numTypes = 6;
-    for (int i = 0; i < options->numTrainers; i++) {
-        EntityType entType;
-        Entity* entity = NULL;
-
-        // Keep retrying to place the trainer if we didn't land on a valid spot
-        for (int _ = 0; _ < MAX_ITERATIONS && entity == NULL; _++) {
-            // Get the type of the new trainer
-            if (i == 0) entType = HIKER;
-            else if (i == 1) entType = RIVAL;
-            else entType = types[randomInt(0, numTypes - 1)];
-
-            int x = randomInt(1, MAP_WIDTH - 2);
-            int y = randomInt(1, MAP_HEIGHT - 2);
-
-            // Check if the terrain cost was infinite
-            if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
-
-            // spawnEntity might return NULL, indicating an unsuccessful placement, so entity = NULL and we try again
-            entity = spawnEntity(game, entType, x, y);
-        }
-
-        // If we already went through MAX_ITERATIONS and entity is still NULL, give up
-        if (entity == NULL) {
-            printf("Failed to place the %d-th trainer, too crowded\n", i);
-            return;
-        } else {
-            // Else, we got a successful trainer placement.
-
-            // First, try if we can add a "soul"
-
-
-            // Try making and queueing a new event.
-            Event* event = initializeEventOnTurn(map, player, entity);
-            if (event == NULL) continue;
-
-            event->resolveTime = game->time + event->cost;
-            enqueueEvent(game->entManager, event);
-
         }
     }
 }

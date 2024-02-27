@@ -188,8 +188,7 @@ DistanceField* getOrComputeDistanceField(DistanceField* memoized[], EntityType e
         // NULL means that it's all NULLs past this index, so we can fill in a new field here
         if (field == NULL) break;
         // Otherwise, if we found a valid field, return it
-        if (field->entityType == entityType) return field;
-
+        if (field->entityType == entityType) return memoized[i];
     }
     // If we got here, it means we haven't computed this distance field yet
     DistanceField* newField = generateDistanceField(map, player->mapX, player->mapY, entityType);

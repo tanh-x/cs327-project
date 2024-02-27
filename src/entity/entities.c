@@ -45,7 +45,12 @@ void initializeEntityManager(GameManager* game) {
     heap_init(entManager->eventQueue, eventComparator, disposeEvent);
 
     // Add the player to the entManager
-    spawnEntity(game, PLAYER, game->player->mapX, game->player->mapY);
+    Entity* playerEnt = spawnEntity(game, PLAYER, game->player->mapX, game->player->mapY);
+
+    // Add an empty event for the player
+    Event* event = constructIdleEvent(playerEnt, 0);
+    event->resolveTime = 0;
+    enqueueEvent(entManager, event);
 }
 
 bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {

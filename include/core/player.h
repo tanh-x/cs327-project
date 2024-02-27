@@ -8,5 +8,7 @@ typedef struct {
     int mapY;
 } Player;
 
+void playerWalk(Player* player, int dx, int dy);
+
 
 #endif

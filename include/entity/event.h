@@ -8,6 +8,7 @@ typedef struct Entity Entity;
 typedef struct EntityManager EntityManager;
 
 typedef enum __attribute__ ((__packed__)) {
+    IDLE,
     MOVEMENT,
 } EventType;
 
@@ -28,6 +29,8 @@ void enqueueEvent(EntityManager *entManager, Event *event);
 void resolveEvent(EntityManager *entManager, Event *event);
 
 void disposeEvent(void *event);
+
+Event* constructIdleEvent(Entity* entity, int cost);
 
 
 #endif

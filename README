@@ -8,6 +8,7 @@
 │  - Special boulder: J, light orange                                          │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
+
 Flags:
 --nocolor
     Disables tile coloring
@@ -21,6 +22,9 @@ Flags:
     assets/sequence/badapple-#####.png.
 
     Then, to play the full animation, run ./animate.sh.
+
+    In Bad Apple mode, it may segfault once every 700 frames or so. Run
+    ./animate.sh 2> /dev/null to suppress these.
 
     ─────────────────────────<  Assignment 1.01  >──────────────────────────
 
