@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "world/mapbuilder.h"
 #include "entity/entities.h"
-#include "world/pathfinding.h"
+#include "entity/pathfinding.h"
 #include "utils/heap.h"
 #include "utils/mathematics.h"
 

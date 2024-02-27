@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "entity/entities.h"
 
 #ifndef MAPBUILDER_H
 #define MAPBUILDER_H
@@ -31,6 +32,7 @@ typedef struct {
 
 typedef struct {
     Tile tileset[MAP_HEIGHT][MAP_WIDTH];
+
     int mapSeed;
     int globalX;
     int globalY;

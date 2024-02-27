@@ -3,7 +3,7 @@
 #include <string.h>
 #include "core/game.h"
 #include "graphics/artist.h"
-#include "world/pathfinding.h"
+#include "entity/pathfinding.h"
 
 void update(GameManager *game, GameOptions options) {
     World *world = game->world;

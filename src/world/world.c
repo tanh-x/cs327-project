@@ -66,6 +66,8 @@ int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed) {
                 MAP_HEIGHT - 2 * GATE_PADDING
             ) + GATE_PADDING;
     }
+    // TODO: test, remove later
+    exit(1);
 }
 
 void destroyWorld(World *world) {

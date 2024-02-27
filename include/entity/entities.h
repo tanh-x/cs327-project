@@ -1,11 +1,35 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include "core/game.h"
+#include "utils/heap.h"
+
 typedef enum __attribute__ ((__packed__)) {
     PLAYER,
     HIKER,
     RIVAL,
     SWIMMER,
 } EntityType;
+
+typedef struct Entity {
+    EntityType type;
+    int mapX;
+    int mapY;
+
+    // Coping mechanism with the lack of OOP constructs
+    // Pointer to special entities' additional structs (e.g. Players)
+    void *soul;
+} Entity;
+
+typedef struct {
+    Entity *entMap[MAP_HEIGHT][MAP_WIDTH];
+    heap_t *eventQueue;
+} EntityManager;
+
+Entity *constructEntity(EntityManager *entManager, EntityType type, int x, int y);
+
+EntityManager *instantiateEntityManager(GameManager *game);
+
+void moveEntity(EntityManager *entManager, Entity *entity, int dx, int dy);
 
 #endif

@@ -11,16 +11,20 @@
 int main(int argc, char *argv[]) {
     bool doColoring = true;
     bool doBadApple = false;
+    int numTrainers = 10;
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--nocolor") == 0) doColoring = false;
-        else if (strcmp(argv[i], "--badapple") == 0) doBadApple = true;
+        char *flag = argv[i];
+        if (strcmp(flag, "--nocolor") == 0) doColoring = false;
+        else if (strcmp(flag, "--badapple") == 0) doBadApple = true;
+        else if (strcmp(flag, "--numtrainers") == 0) numTrainers = (int) strtol(argv[i + 1], NULL, 10);
     }
 
     // Initialize options to reflect the parsed arguments
     GameOptions options;
     options.doColoring = doColoring;
+    options.numTrainers = max(0, numTrainers);
 
     // Get millisecond seed
     char *val = getenv("START");

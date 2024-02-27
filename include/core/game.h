@@ -9,10 +9,12 @@
 typedef struct {
     World *world;
     Player *player;
+    int time;
 } GameManager;
 
 typedef struct {
     bool doColoring;
+    int numTrainers;
 } GameOptions;
 
 void printGameState(GameManager *game);
