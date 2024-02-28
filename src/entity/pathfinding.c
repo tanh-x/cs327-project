@@ -141,7 +141,7 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
 
     // Initialize a new heap
     heap_t heap;
-    heap_init(&heap, compareTileNode, NULL);
+    heap_init(&heap, compareTileNode, free);
 
     // Malloc and add in the source node as the first element on the heap
     TileNode* source = malloc(sizeof(TileNode));
@@ -152,7 +152,10 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
     heap_insert(&heap, source);
 
     // Check if the player is standing on an inaccessible tile to the entity, if so, then give up
-    if (source->cost == UNCROSSABLE) return field;
+    if (source->cost == UNCROSSABLE) {
+        heap_delete(&heap);
+        return field;
+    }
 
     // Start carrying out Dijkstra's algorithm
     TileNode* u;
@@ -175,10 +178,10 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
                 heap_insert(&heap, v);
             }
         }
-
         free(u);
     }
 
+    heap_delete(&heap);
     return field;
 }
 
@@ -205,6 +208,7 @@ DistanceField* getOrComputeDistanceField(DistanceField* memoized[], EntityType e
 }
 
 void invalidateMemoization(DistanceField* memoized[]) {
+    if (memoized == NULL) return;
     for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) {
         DistanceField* field = memoized[i];
         if (field != NULL) {

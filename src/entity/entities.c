@@ -96,11 +96,21 @@ void disposeEntityManager(EntityManager* entManager) {
     for (int i = 0; i < MAP_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH; j++) {
             Entity* ent = entManager->entMap[i][j];
-            if (ent != NULL) free(ent);
+            if (ent != NULL) disposeEntity(ent);
         }
     }
 
     heap_delete(entManager->eventQueue);
+    free(entManager->eventQueue);
+    entManager->eventQueue = NULL;
     free(entManager->entMap);
 }
+
+
+void disposeEntity(Entity* entity) {
+    if (entity->soul != NULL && entity->type != PLAYER) free(entity->soul);
+    entity->soul = NULL;
+    free(entity);
+}
+
 

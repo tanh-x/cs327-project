@@ -2,11 +2,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "world/mapbuilder.h"
 #include "utils/mathematics.h"
 #include "graphics/parse_frame.h"
 #include "utils/voronoi_noise.h"
 #include "world/world.h"
+#include "entity/pathfinding.h"
 
 #define MAX_FRAME_COUNT 6572
 #define MAX_ITER_MULTIPLIER 8
@@ -60,11 +62,12 @@ float calculateBuildingProbability(int globalX, int globalY) {
            100.0f;
 }
 
-void applyBiomeBlending(Map *map, int tx, int ty, TileType biome) {
+void applyBiomeBlending(Map* map, int tx, int ty, TileType biome) {
     for (int cx = -2; cx <= 2; cx++) {
         for (int cy = -1; cy <= 1; cy++) {
             if ((float) (cx * cx + cy * cy) > DISTORTION_KERNEL_RADIUS_SQ) continue;
             TileType type = map->tileset[ty + cy][tx + cx].type;
+
             if (type == BOULDER && proba() < BLEND_BOULDER_EROSION_PROBABILITY) continue;
 
             TileType spread = type;
@@ -142,7 +145,7 @@ bool placeRoad(Map *map, int x, int y, int edgeBitmask) {
 }
 // @formatter:on
 
-void placeChunk(Map *map, TileType type, int x, int y, int sizeX, int sizeY) {
+void placeChunk(Map* map, TileType type, int x, int y, int sizeX, int sizeY) {
     for (int i = 0; i < sizeX; i++) {
         for (int j = 0; j < sizeY; j++) {
             map->tileset[y + j][x + i].type = type;
@@ -150,7 +153,7 @@ void placeChunk(Map *map, TileType type, int x, int y, int sizeX, int sizeY) {
     }
 }
 
-void placeKernelChunk(Map *map, TileType type, int x, int y, float kernelRadius) {
+void placeKernelChunk(Map* map, TileType type, int x, int y, float kernelRadius) {
     int rad = (int) floorf(kernelRadius);
     float kernelRadiusSq = kernelRadius * kernelRadius;
     for (int i = -rad; i < rad; i++) {
@@ -161,7 +164,7 @@ void placeKernelChunk(Map *map, TileType type, int x, int y, float kernelRadius)
     }
 }
 
-void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBadApple) {
+void generateMap(Map* map, MapEntryProps* entryProps, int worldSeed, bool useBadApple) {
     int globalX = map->globalX;
     int globalY = map->globalY;
     int edgeBitmask = 0;
@@ -210,7 +213,7 @@ void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBad
     if (useBadApple) {
         char filename[42];
         sprintf(filename, "assets/sequence/badapple-%05d.png", positiveMod(frameIdx, MAX_FRAME_COUNT));
-        int **frame = parse_frame(filename);
+        int** frame = parse_frame(filename);
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {
             for (int x = 1; x < MAP_WIDTH - 1; x++) {
                 if (frame[y - 1][x - 1] > 128) map->tileset[y][x].type = BOULDER;
@@ -377,4 +380,10 @@ void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBad
     if (!(edgeBitmask & EDGE_EAST_BITMASK)) map->tileset[eastGateY][MAP_WIDTH - 1].type = GATE;
     if (!(edgeBitmask & EDGE_NORTH_BITMASK)) map->tileset[0][northGateX].type = GATE;
     if (!(edgeBitmask & EDGE_SOUTH_BITMASK)) map->tileset[MAP_HEIGHT - 1][southGateX].type = GATE;
+}
+
+
+void disposeMap(Map* map) {
+    if (map == NULL) return;
+    invalidateMemoization(map->memoizedDistanceFields);
 }

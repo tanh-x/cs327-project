@@ -12,7 +12,7 @@
 
 #define OVERGROWTH_FACTOR 12.6277f
 
-void initializeWorld(World *world, int worldSeed) {
+void initializeWorld(World* world, int worldSeed) {
     for (int i = 0; i < WORLD_WIDTH; i++) {
         for (int j = 0; j < WORLD_HEIGHT; j++) {
             world->maps[j][i] = NULL;
@@ -21,13 +21,13 @@ void initializeWorld(World *world, int worldSeed) {
     world->worldSeed = worldSeed;
 }
 
-Map *getMap(World *world, MapEntryProps *entryProps, int globalX, int globalY, bool generateIfNull) {
+Map* getMap(World* world, MapEntryProps* entryProps, int globalX, int globalY, bool generateIfNull) {
     int i = globalX + WORLD_X_SPAN;
     int j = globalY + WORLD_Y_SPAN;
     if (i < 0 || i >= WORLD_WIDTH || j < 0 || j >= WORLD_HEIGHT) return NULL;
 
     if (world->maps[j][i] == NULL) {
-        Map *newMap = (Map *) malloc(sizeof(Map));
+        Map* newMap = (Map*) malloc(sizeof(Map));
         newMap->globalX = globalX;
         newMap->globalY = globalY;
         newMap->mapSeed = globalHashFunction(globalX, globalY, world->worldSeed + p4);
@@ -70,13 +70,13 @@ int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed) {
     exit(1);
 }
 
-void disposeWorld(World *world) {
+void disposeWorld(World* world) {
     for (int i = 0; i < WORLD_HEIGHT; i++) {
         for (int j = 0; j < WORLD_WIDTH; j++) {
-            if (world->maps[i][j] != NULL) {
-                free(world->maps[i][j]);
-                world->maps[i][j] = NULL;
-            }
+            Map* map = world->maps[i][j];
+            if (map == NULL) continue;
+            disposeMap(map);
+            world->maps[i][j] = NULL;
         }
     }
 }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+
 #include "utils/heap.h"
 
 struct heap_node {
@@ -42,7 +43,8 @@ struct heap_node {
 })
 
 void print_heap_node(heap_node_t *n, unsigned indent,
-                     char *(*print)(const void *v)) {
+                     char *(*print)(const void *v))
+{
     heap_node_t *nc;
 
     printf("%*s%s\n", indent, "", print(n->datum));
@@ -56,7 +58,8 @@ void print_heap_node(heap_node_t *n, unsigned indent,
     } while (nc != n->child);
 }
 
-void print_heap(heap_t *h, char *(*print)(const void *v)) {
+void print_heap(heap_t *h, char *(*print)(const void *v))
+{
     heap_node_t *n;
 
     if (h->min) {
@@ -72,7 +75,8 @@ void print_heap(heap_t *h, char *(*print)(const void *v)) {
     }
 }
 
-void print_heap_node_list(heap_node_t *n) {
+void print_heap_node_list(heap_node_t *n)
+{
     heap_node_t *hn;
 
     if (!n) {
@@ -89,14 +93,16 @@ void print_heap_node_list(heap_node_t *n) {
 
 void heap_init(heap_t *h,
                int32_t (*compare)(const void *key, const void *with),
-               void (*datum_delete)(void *)) {
+               void (*datum_delete)(void *))
+{
     h->min = NULL;
     h->size = 0;
     h->compare = compare;
     h->datum_delete = datum_delete;
 }
 
-void heap_node_delete(heap_t *h, heap_node_t *hn) {
+void heap_node_delete(heap_t *h, heap_node_t *hn)
+{
     heap_node_t *next;
 
     hn->prev->next = NULL;
@@ -113,7 +119,8 @@ void heap_node_delete(heap_t *h, heap_node_t *hn) {
     }
 }
 
-void heap_delete(heap_t *h) {
+void heap_delete(heap_t *h)
+{
     if (h->min) {
         heap_node_delete(h, h->min);
     }
@@ -123,10 +130,11 @@ void heap_delete(heap_t *h) {
     h->datum_delete = NULL;
 }
 
-heap_node_t *heap_insert(heap_t *h, void *v) {
+heap_node_t *heap_insert(heap_t *h, void *v)
+{
     heap_node_t *n;
 
-    assert((n = calloc(1, sizeof(*n))));
+    assert((n = calloc(1, sizeof (*n))));
     n->datum = v;
 
     if (h->min) {
@@ -142,11 +150,13 @@ heap_node_t *heap_insert(heap_t *h, void *v) {
     return n;
 }
 
-void *heap_peek_min(heap_t *h) {
+void *heap_peek_min(heap_t *h)
+{
     return h->min ? h->min->datum : NULL;
 }
 
-static void heap_link(heap_t *h, heap_node_t *node, heap_node_t *root) {
+static void heap_link(heap_t *h, heap_node_t *node, heap_node_t *root)
+{
     /*  remove_heap_node_from_list(node);*/
     if (root->child) {
         insert_heap_node_in_list(node, root->child);
@@ -159,14 +169,15 @@ static void heap_link(heap_t *h, heap_node_t *node, heap_node_t *root) {
     node->mark = 0;
 }
 
-static void heap_consolidate(heap_t *h) {
+static void heap_consolidate(heap_t *h)
+{
     uint32_t i;
     heap_node_t *x, *y, *n;
     heap_node_t *a[64]; /* Need ceil(lg(h->size)), so this is good  *
                        * to the limit of a 64-bit address space,  *
                        * and much faster than any lg calculation. */
 
-    memset(a, 0, sizeof(a));
+    memset(a, 0, sizeof (a));
 
     h->min->prev->next = NULL;
 
@@ -199,7 +210,8 @@ static void heap_consolidate(heap_t *h) {
     }
 }
 
-void *heap_remove_min(heap_t *h) {
+void *heap_remove_min(heap_t *h)
+{
     void *v;
     heap_node_t *n;
 
@@ -233,7 +245,8 @@ void *heap_remove_min(heap_t *h) {
     return v;
 }
 
-int heap_combine(heap_t *h, heap_t *h1, heap_t *h2) {
+int heap_combine(heap_t *h, heap_t *h1, heap_t *h2)
+{
     if (h1->compare != h2->compare ||
         h1->datum_delete != h2->datum_delete) {
         return 1;
@@ -250,18 +263,19 @@ int heap_combine(heap_t *h, heap_t *h1, heap_t *h2) {
         h->size = h1->size;
     } else {
         h->min = ((h->compare(h1->min->datum, h2->min->datum) < 0) ?
-                  h1->min :
+                  h1->min                                          :
                   h2->min);
         splice_heap_node_lists(h1->min, h2->min);
     }
 
-    memset(h1, 0, sizeof(*h1));
-    memset(h2, 0, sizeof(*h2));
+    memset(h1, 0, sizeof (*h1));
+    memset(h2, 0, sizeof (*h2));
 
     return 0;
 }
 
-static void heap_cut(heap_t *h, heap_node_t *n, heap_node_t *p) {
+static void heap_cut(heap_t *h, heap_node_t *n, heap_node_t *p)
+{
     if (!--p->degree) {
         p->child = NULL;
     }
@@ -274,7 +288,8 @@ static void heap_cut(heap_t *h, heap_node_t *n, heap_node_t *p) {
     insert_heap_node_in_list(n, h->min);
 }
 
-static void heap_cascading_cut(heap_t *h, heap_node_t *n) {
+static void heap_cascading_cut(heap_t *h, heap_node_t *n)
+{
     heap_node_t *p;
 
     if ((p = n->parent)) {
@@ -287,7 +302,8 @@ static void heap_cascading_cut(heap_t *h, heap_node_t *n) {
     }
 }
 
-int heap_decrease_key(heap_t *h, heap_node_t *n, void *v) {
+int heap_decrease_key(heap_t *h, heap_node_t *n, void *v)
+{
     if (h->compare(n->datum, v) <= 0) {
         return 1;
     }
@@ -300,8 +316,9 @@ int heap_decrease_key(heap_t *h, heap_node_t *n, void *v) {
     return heap_decrease_key_no_replace(h, n);
 }
 
-int heap_decrease_key_no_replace(heap_t *h, heap_node_t *n) {
-    /* No tests that the map hasn't actually increased.  Change *
+int heap_decrease_key_no_replace(heap_t *h, heap_node_t *n)
+{
+    /* No tests that the value hasn't actually increased.  Change *
      * occurs in place, so the check is not possible here.  The   *
      * user is completely responsible for ensuring that they      *
      * don't fubar the queue.                                     */

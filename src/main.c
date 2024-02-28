@@ -8,7 +8,7 @@
 #include "world/world.h"
 #include "core/game.h"
 
-int main(int argc, char* argv[]) {
+int entry(int argc, char* argv[]) {
     // Default game option arguments
     bool doColoring = true;
     bool doBadApple = false;
@@ -89,5 +89,13 @@ int main(int argc, char* argv[]) {
 
     // Clean up
     disposeWorld(&world);
+    disposeEntityManager(game.entManager);
+    free(map);
+    
     return 0;
+}
+
+
+int main(int argc, char* argv[]) {
+    return entry(argc, argv);
 }

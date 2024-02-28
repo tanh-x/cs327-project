@@ -71,4 +71,7 @@ bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy);
 // * The 2D Entity array
 void disposeEntityManager(EntityManager* entManager);
 
+// Frees the memory allocated to the given entity
+void disposeEntity(Entity* entity);
+
 #endif

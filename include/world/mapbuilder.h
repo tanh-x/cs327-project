@@ -48,4 +48,6 @@ typedef struct {
 
 void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBadApple);
 
+void disposeMap(Map *map);
+
 #endif

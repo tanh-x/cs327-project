@@ -5,3 +5,5 @@ cmake-build-debug/
 **.o
 main
 assets/sequence
+
+vgcore*
