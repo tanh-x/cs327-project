@@ -91,7 +91,6 @@ int getTerrainCostSwimmer(TileType tileType) {
     }
 }
 
-
 int getTerrainCost(TileType tileType, EntityType entityType) {
     switch (entityType) {
         case PLAYER:        return getTerrainCostPlayer(tileType);
@@ -113,6 +112,8 @@ int compareTileNode(const void* this, const void* other) {
     return ((TileNode*) this)->cost - ((TileNode*) other)->cost;
 }
 
+// Computes the distance field for a given entity type and source coordinates
+// Returns the pointer to a DistanceField object
 DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityType entityType) {
     DistanceField* field = malloc(sizeof(DistanceField));
     field->entityType = entityType;
@@ -185,6 +186,8 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
     return field;
 }
 
+// Checks the given memoized array for a matching distance field, if none is found, compute and put it in.
+// Returns the pointer to a DistanceField object
 DistanceField* getOrComputeDistanceField(DistanceField* memoized[], EntityType entityType, Map* map, Player* player) {
     int i = 0;
     for (;; i++) {
@@ -207,6 +210,7 @@ DistanceField* getOrComputeDistanceField(DistanceField* memoized[], EntityType e
     return newField;
 }
 
+// Clears and frees the memoization array
 void invalidateMemoization(DistanceField* memoized[]) {
     if (memoized == NULL) return;
     for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) {
@@ -240,6 +244,7 @@ void printDistanceFieldAlt(DistanceField* distanceField) {
     }
 }
 
+// Frees a distance field
 void disposeDistanceField(DistanceField* distanceField) {
     int** map = distanceField->map;
     for (int row = 0; row < MAP_HEIGHT; row++) {

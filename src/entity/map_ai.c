@@ -1,14 +1,19 @@
+
+#include "utils/mathematics.h"
 #include "entity/map_ai.h"
 #include "entity/pathfinding.h"
 #include "entity/npc/pacer.h"
 #include "entity/npc/wanderer.h"
+#include "entity/npc/explorer.h"
 
 #define DEFAULT_IDLE_COST 6
+#define TIE_BREAKING_PROBABILITY 0.3f
 
 // Gradient descent based movement AI
 // Gets or computes a distance field corresponding to the entity type, which is generated via Dijkstra's algorithm.
 // Then, find a direction that minimizes the distance to the source (the player), essentially making the entity follows
 // the shortest accessible path to the player one on every turn.
+// This algorithm is used by hikers and rivals.
 bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
     DistanceField* field = getOrComputeDistanceField(
         map->memoizedDistanceFields,
@@ -29,7 +34,10 @@ bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
             if (value == UNCROSSABLE || value == UNVISITED) continue;
 
             // If higher, then we're going further away.
-            if (value >= gradient) continue;
+            if (value > gradient) continue;
+
+            // If there is a tie, then take the new direction with 70% probability
+            if (value == gradient && proba() < TIE_BREAKING_PROBABILITY) continue;
 
             // Otherwise, this is a candidate direction
             gradient = value;
@@ -50,88 +58,14 @@ bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
     return true;
 }
 
-// Hikers use the gradient descent AI
-bool hikerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
-    return gradientDescentAI(event, map, player, entity);
-}
-
-// Rivals use the gradient descent AI
-bool rivalMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
-    return gradientDescentAI(event, map, player, entity);
-}
-
-// Pacers move back and forth, turning around whenever they encounter uncrossable terrain
-bool pacerMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
-    PacerSoul* soul = entity->soul;
-    Int2D* walk = &soul->walk;
-
-    TileType nextTileType = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
-
-    int cost = getTerrainCost(nextTileType, PACER);
-    if (cost == UNCROSSABLE) {
-        // Reverse the walking direction
-        walk->y *= -1;
-        walk->x *= -1;
-        TileType tileBehind = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
-        cost = getTerrainCost(tileBehind, PACER);
-        if (cost == UNCROSSABLE) {
-            // We are stuck, so try again next turn
-            return false;
-        } // Else, don't do anything, and let it escape the if
-    }
-
-    event->cost = cost;
-    event->dx = walk->x;
-    event->dy = walk->y;
-
-    return true;
-}
-
-// Wanderers move until they get to the edge of their "birthplace" terrain (stored in the soul), then they turn
-// random in a random direction.
-bool wandererMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
-    WandererSoul* soul = entity->soul;
-    Int2D* walk = &soul->walk;
-
-    TileType nextTileType = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
-
-    int dx;
-    int dy;
-    if (nextTileType != soul->birthplace || (walk->x == 0 && walk->y == 0)) {
-        for (int _ = 0;; _++) {
-            if (_ >= MAX_ITERATIONS_SMALL) {
-                // If we unluckily reached 32 rolls without a successful direction, stand still for now.
-                walk->x = 0;
-                walk->y = 0;
-                break;
-            }
-            // Roll a random direction, standing still for one turn is an option. You gotta take breaks sometimes.
-            dx = clamp(randomInt(-2, 2), -1, 1);
-            dy = randomInt(-1, 1);
-
-            // If we found a good direction, then start walking that way
-            if (map->tileset[entity->mapY + dy][entity->mapX + dx].type == soul->birthplace) {
-                walk->x = dx;
-                walk->y = dy;
-                break;
-            } // Else retry another roll
-        }
-    }  // Else, keep walking
-
-    event->cost = getTerrainCost(soul->birthplace, WANDERER);
-    event->dx = walk->x;
-    event->dy = walk->y;
-
-    return true;
-}
-
+// Sentries do nothing
 bool sentryMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
-    return false;
+    event->type = IDLE;
+    event->cost = 500;
+
+    return true;
 }
 
-bool explorerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
-    return false;
-}
 
 bool playerPlaceholderAI(Event* event, Map* map, Player* player, __attribute__((unused)) Entity* entity) {
     int dx;
@@ -195,12 +129,13 @@ bool (* dispatchMovementAIHandler(EntityType type))(
 ) {
     switch (type) {
         case PLAYER: return playerPlaceholderAI;
-        case HIKER: return hikerMovementAI;
-        case RIVAL: return rivalMovementAI;
+        case HIKER: return gradientDescentAI;
+        case RIVAL: return gradientDescentAI;
         case SWIMMER: return NULL;
         case PACER: return pacerMovementAI;
         case WANDERER: return wandererMovementAI;
         case SENTRY: return sentryMovementAI;
         case EXPLORER: return explorerMovementAI;
+        default: return NULL;
     }
 }

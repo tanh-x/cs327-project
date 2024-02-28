@@ -129,6 +129,8 @@ between its 4 neighbors is where we evaluate the hash function at to compute the
 position of the gate. This allows a global coordination between maps without the
 need to pass data around.
 
-    ─────────────────────────<  Assignment 1.03  >──────────────────────────
+    ─────────────────────────<  Assignment 1.04  >──────────────────────────
 
-[]
+[ Event System ]
+Instead of placing characters in the queue, instead, events are created every time
+a character wants to perform an action, then those events are enqueued in the heap.

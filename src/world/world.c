@@ -39,10 +39,12 @@ Map* getMap(World* world, MapEntryProps* entryProps, int globalX, int globalY, b
     return world->maps[j][i];
 }
 
+// Used to synchronize gate position between maps. See README for more info
 int globalHashFunction(int x, int y, int worldSeed) {
     return ((((x * worldSeed) ^ (y ^ b)) * p3 + ((x * p1) ^ (y * p2))) & 0xffffff) + worldSeed;
 }
 
+// Wrapper around the hash function for more convenient usage
 int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed) {
     switch (dir) {
         case NORTH:

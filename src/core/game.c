@@ -47,8 +47,6 @@ void update(GameManager* game, GameOptions* options) {
 
         // Dispose the old event
         disposeEvent(event);
-
-        if (game->time > 180) return;
     }
 }
 

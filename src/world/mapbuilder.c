@@ -72,21 +72,33 @@ void applyBiomeBlending(Map* map, int tx, int ty, TileType biome) {
 
             TileType spread = type;
             if (biome == BOULDER) {
+                // Boulders may sprout nearby tall grass or water tiles into trees, with a probability of
+                // BLEND_SPROUTING_PROBABILITY. Otherwise, it has a BLEND_BOULDER_SPREAD_PROBABILITY probability
+                // to convert any tile to another boulder.
                 if ((type == TALL_GRASS || type == WATER)
                     && proba() < BLEND_SPROUTING_PROBABILITY)
                     spread = TREE;
                 else if (proba() < BLEND_BOULDER_SPREAD_PROBABILITY) spread = BOULDER;
 
             } else if (biome == WATER) {
+                // Each nearby boulder tile has a BLEND_BOULDER_WATER_EROSION_PROBABILITY chance to become water.
                 if (type == BOULDER && proba() < BLEND_BOULDER_WATER_EROSION_PROBABILITY) spread = WATER;
 
             } else if (biome == TREE) {
+                // A tree can spread to any neighboring tiles, with BLEND_TREE_SPREAD_PROBABILITY,
+                // or a bonus factor of BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS if it's a short/tall grass tile.
+                // If this succeeds, the tile will be converted to a tree. Otherwise, it is converted to tall grass.
+                // So, while trees are rare, they can spread plants very well.
                 float p = proba();
                 if (type == TALL_GRASS || type == FLAT) p /= BLEND_TREE_SPREAD_ENVIRONMENTAL_BONUS;
                 if (p < BLEND_TREE_SPREAD_PROBABILITY) spread = TREE;
                 else spread = TALL_GRASS;
 
             } else if (biome == TALL_GRASS) {
+                // A tall grass have a BLEND_SPROUTING_PROBABILITY of converting neighboring tall grass or
+                // water tiles to sprout a new tree. If this fails, it is guaranteed to convert neighboring water
+                // or boulders tiles to tall grass. Neighboring short grass tiles might also be grown to tall grass,
+                // with BLEND_TALL_GRASS_GROWTH_FACTOR probability.
                 if ((type == TALL_GRASS || type == WATER) &&
                     proba() < BLEND_SPROUTING_PROBABILITY * 0.4)
                     spread = TREE;
@@ -94,6 +106,7 @@ void applyBiomeBlending(Map* map, int tx, int ty, TileType biome) {
                 else if (type == FLAT && proba() < BLEND_TALL_GRASS_GROWTH_FACTOR) spread = TALL_GRASS;
 
             } else if (biome == FLAT) {
+                // Short grass has a BLEND_FLAT_SPREAD_PROBABILITY to grow into nearby tall grass or water tiles.
                 if (type == WATER || (type == TALL_GRASS && proba() < BLEND_FLAT_SPREAD_PROBABILITY))
                     spread = FLAT;
                 else if (proba() < BLEND_TALL_GRASS_GROWTH_FACTOR * 0.11) {
@@ -176,6 +189,25 @@ void generateMap(Map* map, MapEntryProps* entryProps, int worldSeed, bool useBad
     int frameIdx = (int) floor(map->mapSeed * 30.0 / 1000.0);
     float sliceZ = (float) (map->mapSeed & 0xffff) / 17.477f;
 
+    //  1. First pass: Voronoi noise
+    //      NOISE_DENSITY points of each of the 4 types (short/tall grass, boulder, water)
+    //      scattered uniformly in 3D space. Initial terrain types are then generated
+    //      by sampling the corresponding voronoi diagram, i.e., the closest point will
+    //      determine the type of terrain at that cell. The sampling point has a small
+    //      random factor to make the terrain more natural.
+    //
+    //      The 3rd dimension allows for smooth tweaks of the terrain by sliding along
+    //      the z-axis, as opposed to using a new seed, which will always generate a
+    //      completely different terrain map.
+    //
+    //      Since the y-axis covers more space than the x-axis (text is tall, rather
+    //      than wide), the coordinate space is also scaled accordingly to minimize
+    //      distortion.
+    //
+    //      This first pass will define overall shape of the terrain, but the appearance
+    //      will be similar to that of a voronoi diagram, which is too geometric. We
+    //      need further processing to make the terrain more natural
+
     int numPoints = NOISE_DENSITY * FIRST_PASS_NUM_TYPES;
     int voronoiSeed = useBadApple ?
                       VORONOI_POINTS_BASE_SEED :
@@ -256,7 +288,22 @@ void generateMap(Map* map, MapEntryProps* entryProps, int worldSeed, bool useBad
         placeChunk(map, WATER, 1, MAP_HEIGHT - EDGE_STUB_PADDING_Y - 4, MAP_WIDTH, EDGE_STUB_PADDING_Y + 3);
     }
 
-    // Biome blending pass
+    // 2. Second pass: "Biome blending" / quasi cellular automaton
+    //    Choose one tile at random ("pivot point"), and consider the neighborhood of
+    //    12 adjacent points whose taxicab distance is less than 2 from the pivot.
+    //    These points have a chance to be converted to a different type, whose rules
+    //    depend on the type of the pivot and the type of the current point. This can
+    //    be thought of as a cellular automaton system. For more details, see the
+    //    biome blending rules section in the README.
+    //
+    //    Once we're done, with DISTORTION_EXP_PROBABILITY, continue the process by
+    //    moving the pivot along a random direction by a random amount (0-2 tiles).
+    //    However, we keep the pivot type of the original one. This allows some chosen
+    //    tiles to have a far-reaching influence. Repeat until we hit the stop condition.
+    //
+    //    The number of iterations is determined by the overgrowth factor of the map, which
+    //    allows for the number of iteratons to range from 50-300.
+
     int distortionEdgeX = MAP_WIDTH - DISTORTION_PADDING;
     int distortionEdgeY = MAP_HEIGHT - DISTORTION_PADDING;
     int iterations = DISTORTION_ITERATIONS_BASELINE + clamp((int) floorf(map->overgrowth), 0, 260);
@@ -274,6 +321,20 @@ void generateMap(Map* map, MapEntryProps* entryProps, int worldSeed, bool useBad
             p = proba();
         }
     }
+
+    // 3. Third pass: Road and buildings
+    //    Road traversal start from the left and top. For the horizontal road, every
+    //    step, the road traverses to the right by 1 tile, and goes up/down by `dy`
+    //    tiles. `dy` is initially 0, but for every step, a random "kick" is applied
+    //    to `dy`. We don't want our paths to be jagged, so `dy` has a "momentum"
+    //    factor. Finally, `dy` is also biased by a "drift" factor that pulls the path
+    //    towards the gate on the other side. The closer we are to the eastern border,
+    //    the stronger the drift factor. A similar process is done for the vertical.
+    //
+    //    For buildings, a random point on a road is chosen prior to road generation.
+    //    During generation, we know that the road will bend towards `dy` (or `dy`),
+    //    so we place buildings 1-3 tiles away on the other direction, `-dy`, then we
+    //    connect the building to the main road with a simple straight path.
 
     // Define gate positions
     int westGateY = hashWithMapCardinalDir(globalX, globalY, WEST, worldSeed);

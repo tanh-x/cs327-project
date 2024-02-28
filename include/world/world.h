@@ -15,8 +15,10 @@ void initializeWorld(World *world, int worldSeed);
 
 Map *getMap(World *world, MapEntryProps *entryProps, int globalX, int globalY, bool generateIfNull);
 
+// Used to synchronize gate position between maps. See README for more info
 int globalHashFunction(int x, int y, int worldSeed);
 
+// Wrapper around the hash function for more convenient usage
 int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed);
 
 void disposeWorld(World *world);

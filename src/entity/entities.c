@@ -5,6 +5,7 @@
 #include "core/player.h"
 #include "entity/npc/pacer.h"
 #include "entity/npc/wanderer.h"
+#include "entity/npc/explorer.h"
 
 // Creates a new entity of a specified type and place it on the map and the current EntityManager.
 // Returns the pointer to that Entity, or null if it failed. If a NULL is returned, no side effects have been made.
@@ -30,6 +31,7 @@ void* constructCharacterSoul(Entity* entity, GameManager* game) {
         case PLAYER: return game->player;
         case PACER: return constructPacerSoul();
         case WANDERER: return constructWandererSoul(game->world->current->tileset[entity->mapY][entity->mapX].type);
+        case EXPLORER: return constructExplorerSoul();
         default: return NULL;
     }
 }

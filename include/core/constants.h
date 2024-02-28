@@ -22,4 +22,8 @@
 #define PADDING 3
 #define GATE_PADDING 7
 
+// Used in pathfinding and distance fields
+#define UNCROSSABLE 8001001
+#define UNVISITED (-1)
+
 #endif

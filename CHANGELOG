@@ -61,3 +61,26 @@
     - Implemented Dijkstra's algorithm
     - Set up special commands to display the distance map
     - Finalized for submission.
+
+
+
+-- Assignment 1.04 --
+* Day 1 (2024-02-27)
+    Afternoon:
+    - Set up scaffolding for NPCs
+    - Defined some important header files
+    - Started implementing event system
+    Evening:
+    - Implemented movement AI
+    - Hooked up AI with event system and game systems
+    - Successful game loop
+    - Spent way too long debugging the AI
+    - Finished 4/6 AIs
+
+* Day 2 (2024-02-28)
+    Evening:
+    - Wrote lots of documentation
+    - Finished the other AIs
+    - Fixed some memory leaks
+    - Refactoring
+    - Finalized Makefile, README, and CHANGELOG for submission
