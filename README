@@ -1,17 +1,23 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│  Generates the distance map to the player from each tile on the map. Use the │
-│  commands h, r, hh, rr to see these distance maps.                           │
+│  Has players and characters moving around. The movement AI depends on the    │
+│  type of character. The game loop is ran on an event system, with a heap as  │
+│  the ticking clock of the game.                                              │
 │                                                                              │
 │  Most tile types use standard display characters, with these exceptions:     │
-│  - Mountains: &, white background                                            │
-│  - Special boulder: J, light orange                                          │
+│  - Borders: &, white background                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 Flags:
 --nocolor
     Disables tile coloring
+
+--numtrainers
+    The number of trainers to generate per map. Defaults to 15.
+
+--frametime
+    The time (in microseconds) to wait between drawing each frame. Defaults to 200ms.
 
 --badapple
     Generate a standard map, but initial boulder placement is determined
