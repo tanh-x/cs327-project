@@ -8,26 +8,30 @@
 #include "world/world.h"
 #include "core/game.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
+    // Default game option arguments
     bool doColoring = true;
     bool doBadApple = false;
     int numTrainers = 15;
+    int frameTimeMicros = 200000;
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
-        char *flag = argv[i];
+        char* flag = argv[i];
         if (strcmp(flag, "--nocolor") == 0) doColoring = false;
         else if (strcmp(flag, "--badapple") == 0) doBadApple = true;
         else if (strcmp(flag, "--numtrainers") == 0) numTrainers = (int) strtol(argv[i + 1], NULL, 10);
+        else if (strcmp(flag, "--frametime") == 0) frameTimeMicros = (int) strtol(argv[i + 1], NULL, 10);
     }
 
     // Initialize options to reflect the parsed arguments
     GameOptions options;
     options.doColoring = doColoring;
     options.numTrainers = max(0, numTrainers);
+    options.frameTimeMicros = frameTimeMicros;
 
     // Get millisecond seed
-    char *val = getenv("START");
+    char* val = getenv("START");
     long long int invocationStartTime;
     if (val != NULL) invocationStartTime = strtol(val, NULL, 10) % 2190666 + 69820;
     else invocationStartTime = 0;
@@ -51,7 +55,7 @@ int main(int argc, char *argv[]) {
 
     // Get and generate the central map
     MapEntryProps entryProps;
-    Map *map = getMap(&world, &entryProps, player.globalX, player.globalY, false);
+    Map* map = getMap(&world, &entryProps, player.globalX, player.globalY, false);
 
     // Set the current map to this map, allowing for convenient future reference
     world.current = map;

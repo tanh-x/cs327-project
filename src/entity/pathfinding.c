@@ -125,6 +125,7 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
     }
     field->map = distanceField;
 
+    // Malloc and initialize the 2nd dimension of the field
     for (int y = 0; y < MAP_HEIGHT; y++) {
         distanceField[y] = malloc(MAP_WIDTH * sizeof(int));
         if (distanceField[y] == NULL) {
@@ -133,31 +134,36 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
             free(distanceField);
             return NULL;
         }
+        // Set to unvisited
         for (int x = 0; x < MAP_WIDTH; x++) distanceField[y][x] = UNVISITED;
     }
-
     // Now, distanceField is a 2D array filled with the same map (`UNCROSSABLE`)
 
+    // Initialize a new heap
     heap_t heap;
     heap_init(&heap, compareTileNode, NULL);
 
+    // Malloc and add in the source node as the first element on the heap
     TileNode* source = malloc(sizeof(TileNode));
     source->tileX = sourceX;
     source->tileY = sourceY;
     source->cost = getTerrainCost(map->tileset[sourceY][sourceX].type, entityType);
-
-    if (source->cost == UNCROSSABLE) return field;
-
     distanceField[sourceY][sourceX] = source->cost;
     heap_insert(&heap, source);
 
+    // Check if the player is standing on an inaccessible tile to the entity, if so, then give up
+    if (source->cost == UNCROSSABLE) return field;
+
+    // Start carrying out Dijkstra's algorithm
     TileNode* u;
     while ((u = heap_remove_min(&heap))) {
         for (int vx = max(u->tileX - 1, 0); vx <= min(u->tileX + 1, MAP_WIDTH - 1); vx++) {
             for (int vy = max(u->tileY - 1, 0); vy <= min(u->tileY + 1, MAP_HEIGHT - 1); vy++) {
+                // Check if the neighboring tile is uncrossable
                 int tileCost = getTerrainCost(map->tileset[vy][vx].type, entityType);
                 if (tileCost == UNCROSSABLE) continue;
 
+                // Check if it's cheaper than the previous cost
                 int newCost = u->cost + tileCost;
                 if (distanceField[vy][vx] != UNVISITED && newCost >= distanceField[vy][vx]) continue;
 

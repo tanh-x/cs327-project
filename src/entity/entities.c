@@ -5,30 +5,37 @@
 #include "entity/npc/pacer.h"
 #include "entity/npc/wanderer.h"
 
-void* getCharacterSoul(Entity* ent, GameManager* game) {
-    switch (ent->type) {
-        case PLAYER: return game->player;
-        case PACER: return constructPacerSoul();
-        case WANDERER: return constructWandererSoul(game->world->current->tileset[ent->mapY][ent->mapX].type);
-        default: return NULL;
-    }
-}
 
+// Creates a new entity of a specified type and place it on the map and the current EntityManager.
+// Returns the pointer to that Entity, or null if it failed. If a NULL is returned, no side effects have been made.
 Entity* spawnEntity(GameManager* game, EntityType type, int x, int y) {
     EntityManager* entManager = game->entManager;
+    // Don't spawn the entity if the current cell is already occupied
     if (entManager->entMap[y][x] != NULL) return NULL;
 
+    // Else, create the entity and return it
     Entity* entity = malloc(sizeof(Entity));
     entity->type = type;
     entity->mapX = x;
     entity->mapY = y;
     entManager->entMap[y][x] = entity;
-
-    entity->soul = getCharacterSoul(entity, game);
-
+    entity->soul = constructCharacterSoul(entity, game);
     return entity;
 }
 
+// Instantiates a new soul for the corresponding Entity.
+// Should be called everytime an entity with a soul is spawned, as it handles the soul creation for us.
+void* constructCharacterSoul(Entity* entity, GameManager* game) {
+    switch (entity->type) {
+        case PLAYER: return game->player;
+        case PACER: return constructPacerSoul();
+        case WANDERER: return constructWandererSoul(game->world->current->tileset[entity->mapY][entity->mapX].type);
+        default: return NULL;
+    }
+}
+
+// Initializes a new EntityManager and assign it to the game->entManager pointer.
+// Should be called when loading a new map.
 void initializeEntityManager(GameManager* game) {
     EntityManager* entManager = malloc(sizeof(EntityManager));
     game->entManager = entManager;
@@ -53,6 +60,8 @@ void initializeEntityManager(GameManager* game) {
     enqueueEvent(entManager, event);
 }
 
+// Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
+// Returns a boolean indicating whether it was successful. If it was not, no side effects will have been made.
 bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
     if (!entManager || !entity) return false;
 
@@ -80,6 +89,9 @@ bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
     return true;
 }
 
+// Frees all dynamically allocated memory associated with the EntityManager, which includes:
+// * The eventQueue heap
+// * The 2D Entity array
 void disposeEntityManager(EntityManager* entManager) {
     for (int i = 0; i < MAP_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH; j++) {

@@ -5,7 +5,7 @@
 #include "world/mapbuilder.h"
 #include "core/player.h"
 
-Event *initializeEventOnTurn(Map *map, Player *player, Entity *entity);
+Event *constructEventOnTurn(Map *map, Player *player, Entity *entity);
 
 bool (*dispatchMovementAIHandler(EntityType type))(Event *event, Map *map, Player *player, Entity *entity);
 

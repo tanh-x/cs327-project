@@ -9,8 +9,9 @@
 
 #define AWAIT_PLAYER_INPUT true
 
-
+// The main game loop
 void update(GameManager* game, GameOptions* options) {
+    // Pointers to essential components
     World* world = game->world;
     Player* player = game->player;
     Map* map = world->current;
@@ -30,25 +31,24 @@ void update(GameManager* game, GameOptions* options) {
         // Redraw if it was a player event
         if (event->actor->type == PLAYER) {
             draw(game, options);
+            usleep(options->frameTimeMicros);
 
-            // Special handling for player events
+            // Special handling after every player event
             invalidateMemoization(map->memoizedDistanceFields);
-
-            usleep(125000);
-//            usleep(1000000);
         }
 
         // Queue next event for this entity
-        Event* newEvent = initializeEventOnTurn(map, player, event->actor);
-        if (newEvent != NULL) {
-            newEvent->resolveTime = game->time + newEvent->cost;
-            enqueueEvent(game->entManager, newEvent);
-        }
+        Event* newEvent = constructEventOnTurn(map, player, event->actor);
+        // newEvent is null-safe
+        newEvent->resolveTime = game->time + newEvent->cost;
+        enqueueEvent(game->entManager, newEvent);
     }
 }
 
+// (Re)draws the frame
 void draw(GameManager* game, GameOptions* options) {
     printf(CLEAR_SCREEN);
+
     // Print the map
     char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
     worldToString(game, mapStr);
@@ -60,52 +60,8 @@ void draw(GameManager* game, GameOptions* options) {
     printf("Event time: %d\n", game->time);
 }
 
-Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps) {
-    int worldSeed = game->world->worldSeed;
-    int x = game->player->globalX;
-    int y = game->player->globalY;
-    int dx = 0;
-    int dy = 0;
-    int playerSpawnX;
-    int playerSpawnY;
-
-    switch (dir) {
-        case 'n':dy = -1;
-            playerSpawnX = hashWithMapCardinalDir(x, y, NORTH, worldSeed);
-            playerSpawnY = MAP_HEIGHT - 2;
-            break;
-        case 's':dy = 1;
-            playerSpawnX = hashWithMapCardinalDir(x, y, SOUTH, worldSeed);
-            playerSpawnY = 1;
-            break;
-        case 'w':dx = -1;
-            playerSpawnX = MAP_WIDTH - 2;
-            playerSpawnY = hashWithMapCardinalDir(x, y, WEST, worldSeed);
-            break;
-        case 'e':dx = 1;
-            playerSpawnX = 1;
-            playerSpawnY = hashWithMapCardinalDir(x, y, EAST, worldSeed);
-            break;
-        default:printf("Something is very wrong [core/game.c->moveInWorldDirection()]");
-            exit(1);
-    }
-
-    Map* newMap = moveToMap(game, x + dx, y + dy, entryProps);
-    entryProps->playerSpawnX = playerSpawnX;
-    entryProps->playerSpawnY = playerSpawnY;
-    return newMap;
-}
-
-Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entryProps) {
-    Map* newMap = getMap(game->world, entryProps, globalX, globalY, true);
-    if (newMap != NULL) {
-        game->player->globalX = globalX;
-        game->player->globalY = globalY;
-        game->world->current = newMap;
-    }
-    return newMap;
-}
-
+// Set up the current map (as determined by player global position) for gameplay.
+// Must be called whenever the map changes
 void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOptions* options) {
     // Clean up previous EntityManager, if any
     if (game->entManager != NULL) disposeEntityManager(game->entManager);
@@ -125,17 +81,21 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
     // Possible trainer types
     EntityType types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
     int numTypes = 6;
+
+    // Start placing numTrainers NPCs, or until we stop prematurely if it got too crowded
     for (int i = 0; i < options->numTrainers; i++) {
         EntityType entType;
         Entity* entity = NULL;
 
-        // Keep retrying to place the trainer if we didn't land on a valid spot
+        // Keep retrying to place the trainer until we land on a valid spot
         for (int _ = 0; _ < MAX_ITERATIONS && entity == NULL; _++) {
             // Get the type of the new trainer
             if (i == 0) entType = HIKER;
             else if (i == 1) entType = RIVAL;
             else entType = types[randomInt(0, numTypes - 1)];
 
+            // Don't spawn the NPC on the border or right next to it
+            // While we can do (1, -2) instead, it's just my preference to leave a 1 tile padding
             int x = randomInt(2, MAP_WIDTH - 3);
             int y = randomInt(2, MAP_HEIGHT - 3);
 
@@ -147,22 +107,79 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
         }
 
         // If we already went through MAX_ITERATIONS and entity is still NULL, give up
-        if (entity == NULL) {
-//            printf("Failed to place the %d-th trainer, too crowded\n", i);
-            return;
-        } else {
-            // Else, we got a successful trainer placement.
-            // Try making and queueing a new event.
-            Event* event = initializeEventOnTurn(map, player, entity);
-            if (event == NULL) continue;
+        if (entity == NULL) break;
 
-            event->resolveTime = game->time + event->cost;
-            enqueueEvent(game->entManager, event);
-
-        }
+        // Else, we got a successful trainer placement.
+        // Try creating and queueing a new event.
+        Event* event = constructEventOnTurn(map, player, entity);
+        if (event == NULL) continue;
+        // Event initialization was successful, so we add it to the queue
+        event->resolveTime = game->time + event->cost;
+        enqueueEvent(game->entManager, event);
     }
 }
 
+// Moves the player to an adjacent map
+// Returns the pointer to that map
+Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps) {
+    int worldSeed = game->world->worldSeed;
+    int x = game->player->globalX;
+    int y = game->player->globalY;
+    int dx = 0;
+    int dy = 0;
+    int playerSpawnX;
+    int playerSpawnY;
+
+    // Calculates where to spawn the player, by considering the gate position.
+    // The gate positions are given by the global hash function
+    switch (dir) {
+        case 'n':dy = -1;
+            playerSpawnX = hashWithMapCardinalDir(x, y, NORTH, worldSeed);
+            playerSpawnY = MAP_HEIGHT - 2;
+            break;
+
+        case 's':dy = 1;
+            playerSpawnX = hashWithMapCardinalDir(x, y, SOUTH, worldSeed);
+            playerSpawnY = 1;
+            break;
+
+        case 'w':dx = -1;
+            playerSpawnX = MAP_WIDTH - 2;
+            playerSpawnY = hashWithMapCardinalDir(x, y, WEST, worldSeed);
+            break;
+
+        case 'e':dx = 1;
+            playerSpawnX = 1;
+            playerSpawnY = hashWithMapCardinalDir(x, y, EAST, worldSeed);
+            break;
+
+        default:printf("Something is very wrong [core/game.c->moveInWorldDirection()]");
+            exit(1);
+    }
+
+    // Move there
+    Map* newMap = moveToMap(game, x + dx, y + dy, entryProps);
+    entryProps->playerSpawnX = playerSpawnX;
+    entryProps->playerSpawnY = playerSpawnY;
+    return newMap;
+}
+
+// Moves the player to a map at the specified parameters (globalX, globalY)
+// Returns the pointer to that map
+Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entryProps) {
+    // Get the new map at the specified coordinates
+    Map* newMap = getMap(game->world, entryProps, globalX, globalY, true);
+
+    // Check if it's a valid map, if so then actually move there, otherwise a NULL will be returned.
+    if (newMap != NULL) {
+        game->player->globalX = globalX;
+        game->player->globalY = globalY;
+        game->world->current = newMap;
+    }
+    return newMap;
+}
+
+// Game loop for assignment 1.03 and before
 void update_old(GameManager* game, GameOptions* options) {
     World* world = game->world;
     Player* player = game->player;
@@ -259,9 +276,5 @@ void update_old(GameManager* game, GameOptions* options) {
             }
         }
     }
-}
-
-void printGameState(GameManager* game) {
-
 }
 

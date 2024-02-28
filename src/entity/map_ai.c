@@ -3,7 +3,6 @@
 #include "entity/npc/pacer.h"
 #include "entity/npc/wanderer.h"
 
-#define PLAYER_MOVEMENT_PROBABILITY 0.042f
 #define DEFAULT_IDLE_COST 6
 
 bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
@@ -99,10 +98,10 @@ bool wandererMovementAI(Event* event, Map* map, Player* player, Entity* entity) 
             }
             // Roll a random direction, standing still for one turn is an option. You gotta take breaks sometimes.
             dx = clamp(randomInt(-2, 2), -1, 1);
-            dy = clamp(randomInt(-2, 2), -1, 1);
+            dy = randomInt(-1, 1);
 
             // If we found a good direction, then start walking that way
-            if (map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type == soul->birthplace) {
+            if (map->tileset[entity->mapY + dy][entity->mapX + dx].type == soul->birthplace) {
                 walk->x = dx;
                 walk->y = dy;
                 break;
@@ -130,20 +129,19 @@ bool playerPlaceholderAI(Event* event, Map* map, Player* player, Entity* entity)
     int dy;
     int cost;
 
-    for (int _ = 0;; _++) {
-        if (_ >= MAX_ITERATIONS_SMALL) {
-            dx = 0;
-            dy = 0;
-            break;
-        }
+    for (int _ = 0; _ < MAX_ITERATIONS_SMALL; _++) {
         // Roll a random direction.
-        dx = randomInt(-1, 1);
+        dx = clamp(randomInt(-2, 2), -1, 1);
         dy = randomInt(-1, 1);
 
         cost = getTerrainCost(map->tileset[player->mapX + dx][player->mapY + dy].type, PLAYER);
+
         // If we found a good direction, then start walking that way
         if (cost != UNCROSSABLE) break;
     }
+
+    // If we couldn't find a valid move, idle for one turn
+    if (cost == UNCROSSABLE) return false;
 
     event->cost = cost;
     event->dx = dx;
@@ -171,7 +169,7 @@ bool (* dispatchMovementAIHandler(EntityType type))(
     }
 }
 
-Event* initializeEventOnTurn(Map* map, Player* player, Entity* entity) {
+Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
     // Initialize new event object
     Event* event = malloc(sizeof(Event));
     event->type = MOVEMENT;
@@ -179,9 +177,13 @@ Event* initializeEventOnTurn(Map* map, Player* player, Entity* entity) {
     event->dy = 0;
     event->actor = entity;
 
+    // Delegate the movement to the corresponding AI handler function
     bool (* handler)(Event*, Map*, Player*, Entity*) = dispatchMovementAIHandler(entity->type);
     bool success = handler(event, map, player, entity);
-    if (!success) return constructIdleEvent(entity, 3);
+
+    // If we didn't succeed, that mean the AI couldn't find a valid move for this turn.
+    // Just wait for a tiny bit if this is the case.
+    if (!success) return constructIdleEvent(entity, DEFAULT_IDLE_COST);
 
     return event;
 }
