@@ -1,29 +1,19 @@
+// Events indicate entity actions on the map, such as movement
 #include "entity/event.h"
 
+// Comparator for the event's resolveTime, for purposes of using the event queue
 int eventComparator(const void* this, const void* other) {
     return ((Event*) this)->resolveTime - ((Event*) other)->resolveTime;
 }
 
+// Adds the given event into the EntityManager's event queue.
 void enqueueEvent(EntityManager* entManager, Event* event) {
     heap_insert(entManager->eventQueue, event);
-//    printf("Enqueued event from %d (%d, %d), resolves at %d\n",
-//           event->actor->type,
-//           event->actor->mapX,
-//           event->actor->mapY,
-//           event->resolveTime
-//    );
 }
 
+// Resolves the event by carrying out the specified action.
+// Called on the event when it is polled from the event queue.
 void resolveEvent(EntityManager* entManager, Event* event) {
-//    printf("Resolving event from %d (%d, %d) + (%d, %d), resolves at %d, type is %d\n",
-//           event->actor->type,
-//           event->actor->mapX,
-//           event->actor->mapY,
-//           event->dx,
-//           event->dy,
-//           event->resolveTime,
-//           event->type
-//    );
     Entity* entity = event->actor;
     switch (event->type) {
         case MOVEMENT: moveEntity(entManager, entity, event->dx, event->dy);
@@ -32,10 +22,12 @@ void resolveEvent(EntityManager* entManager, Event* event) {
     }
 }
 
+// Frees the currently allocated memory for the event.
 void disposeEvent(void* event) {
-    free((Event*) event);
+    free(event);
 }
 
+// Instantiates an IDLE event.
 Event* constructIdleEvent(Entity* entity, int cost) {
     Event* event = malloc(sizeof(Event));
     event->type = IDLE;

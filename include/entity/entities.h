@@ -1,11 +1,13 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
+// This file holds functionalities related to Entities, which are characters on the map
 
 #include <stdbool.h>
 #include "utils/heap.h"
 #include "core/constants.h"
 
 typedef struct GameManager GameManager;
+
 
 // Enum for each character type, including the player
 typedef enum __attribute__ ((__packed__)) {
@@ -18,6 +20,7 @@ typedef enum __attribute__ ((__packed__)) {
     SENTRY,
     EXPLORER
 } EntityType;
+
 
 // An Entity is an object that lives only inside an EntityManager, and holds data for events on the map
 // Thus, the lifespan and existence of the entity object is bound to the map.
@@ -34,15 +37,15 @@ typedef struct Entity {
     void* soul;
 } Entity;
 
-// An EntityManager holds two pointers:
-// * A 2D array of nullable Entity pointers, which allows the game to know whether there's an entity at a specific
-// position on the map. The 2D array has the same size as the map.
-// * The eventQueue, a heap that contains queued Event objects, sorted by the time at which they will be resolved.
-//
-// An EntityManager bound to the GameManager object, but is cleared and disposed of every time we switch to a new map,
+
+// The EventManager stores the current state of entities on the map.
+// It is always bound to the GameManager singleton, but is cleared and disposed of every time we switch to a new map,
 // or whenever the current map gets disposed of.
 typedef struct EntityManager {
+    // A 2D array of nullable Entity pointers, which allows the game to know whether there's an entity at a specific
+    // position on the map. The 2D array has the same size as the map.
     Entity* entMap[MAP_HEIGHT][MAP_WIDTH];
+    // A heap that contains queued Event objects, sorted by the time at which they will be resolved.
     heap_t* eventQueue;
 } EntityManager;
 

@@ -69,13 +69,13 @@ int main(int argc, char* argv[]) {
     // Override seed for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
 
-    // Generate the first map outside the gameloop, prevents it from regenerating in the game loop.
+    // Generate the first map outside the game loop, prevents it from regenerating in the game loop.
     generateMap(map, &entryProps, world.worldSeed, doBadApple);
 
     // Also manually call the setup function on the spawn map instead of doing it in the game loop
     setupGameOnMapLoad(&game, &entryProps, &options);
 
-    // Override game loop if badapple
+    // Override game loop if using bad apple
     if (doBadApple) {
         printf(CLEAR_SCREEN);
         char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];

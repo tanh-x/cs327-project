@@ -175,6 +175,8 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
                 heap_insert(&heap, v);
             }
         }
+
+        free(u);
     }
 
     return field;
@@ -206,8 +208,7 @@ void invalidateMemoization(DistanceField* memoized[]) {
     for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) {
         DistanceField* field = memoized[i];
         if (field != NULL) {
-            free(field->map);
-            free(field);
+            disposeDistanceField(field);
             memoized[i] = NULL;
         }
     }
@@ -233,6 +234,15 @@ void printDistanceFieldAlt(DistanceField* distanceField) {
         }
         printf("\n");
     }
+}
+
+void disposeDistanceField(DistanceField* distanceField) {
+    int** map = distanceField->map;
+    for (int row = 0; row < MAP_HEIGHT; row++) {
+        free(map[row]);
+    }
+    free(map);
+    free(distanceField);
 }
 
 

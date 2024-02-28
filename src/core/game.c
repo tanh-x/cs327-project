@@ -1,3 +1,5 @@
+// This file has components that drive the game, or otherwise is a very centerpiece part of the project
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,6 +44,9 @@ void update(GameManager* game, GameOptions* options) {
         // newEvent is null-safe
         newEvent->resolveTime = game->time + newEvent->cost;
         enqueueEvent(game->entManager, newEvent);
+
+        // Dispose the old event
+        disposeEvent(event);
     }
 }
 
@@ -180,7 +185,7 @@ Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entry
 }
 
 // Game loop for assignment 1.03 and before
-void update_old(GameManager* game, GameOptions* options) {
+__attribute__((unused)) void update_old(GameManager* game, GameOptions* options) {
     World* world = game->world;
     Player* player = game->player;
     Map* map = world->current;
@@ -219,7 +224,7 @@ void update_old(GameManager* game, GameOptions* options) {
                 break;
 
             } else if (first == 'n' || first == 'w' || first == 's' || first == 'e') {
-                // nswe: Move along the world in cardinal directions
+                // n,s,w,e: Move along the world in cardinal directions
                 MapEntryProps entryProps;
                 map = moveInWorldDirection(game, cmd[0], &entryProps);
                 setupGameOnMapLoad(game, &entryProps, options);
@@ -231,7 +236,7 @@ void update_old(GameManager* game, GameOptions* options) {
             } else if (first == 'f') {
                 // f <x> <y>: Fly to a specific map
                 int x, y;
-                int parsedItems = sscanf(cmd, "f %d %d", &x, &y);
+                int parsedItems = sscanf(cmd, "f %d %d", &x, &y); // NOLINT(*-err34-c)
                 if (parsedItems == 2) {
                     MapEntryProps entryProps;
                     map = moveToMap(game, x, y, &entryProps);

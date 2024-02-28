@@ -26,4 +26,6 @@ void printDistanceFieldAlt(DistanceField *distanceField);
 
 void invalidateMemoization(DistanceField *memoized[]);
 
+void disposeDistanceField(DistanceField *distanceField);
+
 #endif

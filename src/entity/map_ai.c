@@ -5,6 +5,10 @@
 
 #define DEFAULT_IDLE_COST 6
 
+// Gradient descent based movement AI
+// Gets or computes a distance field corresponding to the entity type, which is generated via Dijkstra's algorithm.
+// Then, find a direction that minimizes the distance to the source (the player), essentially making the entity follows
+// the shortest accessible path to the player one on every turn.
 bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
     DistanceField* field = getOrComputeDistanceField(
         map->memoizedDistanceFields,
@@ -13,13 +17,13 @@ bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
         player
     );
 
-    // Iterate over 8 adjacent tiles to find where to move
+    // Iterate over 8 adjacent tiles to find where to MOVE
     int gradient = UNCROSSABLE;
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             if (dx == 0 && dy == 0) continue;
 
-            // Entity is at least 1 away from border, so this is safe
+            // Entity is at least 1 away from out of bounds, so this is safe
             int value = field->map[entity->mapY + dy][entity->mapX + dx];
 
             if (value == UNCROSSABLE || value == UNVISITED) continue;
@@ -46,15 +50,18 @@ bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
     return true;
 }
 
+// Hikers use the gradient descent AI
 bool hikerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
     return gradientDescentAI(event, map, player, entity);
 }
 
+// Rivals use the gradient descent AI
 bool rivalMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
     return gradientDescentAI(event, map, player, entity);
 }
 
-bool pacerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
+// Pacers move back and forth, turning around whenever they encounter uncrossable terrain
+bool pacerMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
     PacerSoul* soul = entity->soul;
     Int2D* walk = &soul->walk;
 
@@ -80,7 +87,9 @@ bool pacerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
     return true;
 }
 
-bool wandererMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
+// Wanderers move until they get to the edge of their "birthplace" terrain (stored in the soul), then they turn
+// random in a random direction.
+bool wandererMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
     WandererSoul* soul = entity->soul;
     Int2D* walk = &soul->walk;
 
@@ -105,7 +114,7 @@ bool wandererMovementAI(Event* event, Map* map, Player* player, Entity* entity) 
                 walk->x = dx;
                 walk->y = dy;
                 break;
-            } // Else loop again
+            } // Else retry another roll
         }
     }  // Else, keep walking
 
@@ -124,7 +133,7 @@ bool explorerMovementAI(Event* event, Map* map, Player* player, Entity* entity) 
     return false;
 }
 
-bool playerPlaceholderAI(Event* event, Map* map, Player* player, Entity* entity) {
+bool playerPlaceholderAI(Event* event, Map* map, Player* player, __attribute__((unused)) Entity* entity) {
     int dx;
     int dy;
     int cost;
@@ -150,7 +159,34 @@ bool playerPlaceholderAI(Event* event, Map* map, Player* player, Entity* entity)
     return true;
 }
 
+// Creates a new event according to the entity's AI
+Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
+    // Initialize new event object
+    Event* event = malloc(sizeof(Event));
+    event->type = MOVEMENT;
+    event->dx = 0;
+    event->dy = 0;
+    event->actor = entity;
 
+    // Delegate the movement to the corresponding AI handler function
+    bool (* handler)(Event*, Map*, Player*, Entity*) = dispatchMovementAIHandler(entity->type);
+    bool success = handler(event, map, player, entity);
+
+    // If we didn't succeed, that mean the AI couldn't find a valid move for this turn.
+    // Just wait for a tiny bit if this is the case.
+    if (!success) {
+        disposeEvent(event);
+        return constructIdleEvent(entity, DEFAULT_IDLE_COST);
+    }
+
+    return event;
+}
+
+// Takes in an EntityType, and returns a pointer to a function, called a movement AI handler, corresponding to the
+// given entity type's movement AI.
+// A movement AI handler is a function that takes in 4 arguments: event, map, player, entity; and returns a boolean
+// that indicates whether the event creation was successful or not.
+// The event will be of movement type, with dx, dy, and cost correctly written into.
 bool (* dispatchMovementAIHandler(EntityType type))(
     Event* event,
     Map* map,
@@ -167,23 +203,4 @@ bool (* dispatchMovementAIHandler(EntityType type))(
         case SENTRY: return sentryMovementAI;
         case EXPLORER: return explorerMovementAI;
     }
-}
-
-Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
-    // Initialize new event object
-    Event* event = malloc(sizeof(Event));
-    event->type = MOVEMENT;
-    event->dx = 0;
-    event->dy = 0;
-    event->actor = entity;
-
-    // Delegate the movement to the corresponding AI handler function
-    bool (* handler)(Event*, Map*, Player*, Entity*) = dispatchMovementAIHandler(entity->type);
-    bool success = handler(event, map, player, entity);
-
-    // If we didn't succeed, that mean the AI couldn't find a valid move for this turn.
-    // Just wait for a tiny bit if this is the case.
-    if (!success) return constructIdleEvent(entity, DEFAULT_IDLE_COST);
-
-    return event;
 }

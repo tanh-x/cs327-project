@@ -1,10 +1,10 @@
+// This file holds functionalities related to Entities, which are characters on the map
 #include "core/game.h"
 #include "entity/entities.h"
 #include "entity/event.h"
 #include "core/player.h"
 #include "entity/npc/pacer.h"
 #include "entity/npc/wanderer.h"
-
 
 // Creates a new entity of a specified type and place it on the map and the current EntityManager.
 // Returns the pointer to that Entity, or null if it failed. If a NULL is returned, no side effects have been made.
