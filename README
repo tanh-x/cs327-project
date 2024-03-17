@@ -21,7 +21,8 @@ Flags:
 
 --badapple
     Generate a standard map, but initial boulder placement is determined
-    by a frame from "Bad Apple".
+    by a frame from "Bad Apple". Watch it here:
+    https://youtu.be/AD9m8FOhdEg?si=c8DmWOf43goeiIzC
 
     !!IMPORTANT!! This requires assets/sequence.tar.gz to be unzipped. If
     done correctly, there should be exactly 6572 of 78x19 PNG images at

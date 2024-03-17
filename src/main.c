@@ -41,6 +41,7 @@ int entry(int argc, char* argv[]) {
 
     // Initial set up
     GameManager game;
+    game.entManager = NULL;
 
     // Create a player struct
     Player player;

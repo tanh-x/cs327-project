@@ -22,7 +22,7 @@ int max(int a, int b) {
 
 float maxf(float a, float b) {
     return (a > b) ? a : b;
-};
+}
 
 int clamp(int n, int low, int high) {
     return (n > low) ? ((n > high) ? high : n) : low;

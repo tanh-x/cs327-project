@@ -78,9 +78,6 @@ bool playerPlaceholderAI(Event* event, Map* map, Player* player, __attribute__((
         dy = randomInt(-1, 1);
 
         cost = getTerrainCost(map->tileset[player->mapY + dy][player->mapX + dx].type, PLAYER);
-        if (cost < 0) {
-            printf("BADDDD");
-        }
 
         // If we found a good direction, then start walking that way
         if (cost != UNCROSSABLE) break;

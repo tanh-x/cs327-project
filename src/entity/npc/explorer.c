@@ -12,7 +12,7 @@ ExplorerSoul* constructExplorerSoul() {
 }
 
 // Explorers walk in one direction, and turns in a random direction if they can't walk forward.
-bool explorerMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
+bool explorerMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
     ExplorerSoul* soul = entity->soul;
     Int2D* walk = &soul->walk;
 

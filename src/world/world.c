@@ -1,5 +1,4 @@
 #include <time.h>
-#include <malloc.h>
 #include <math.h>
 #include <stdlib.h>
 #include "world/world.h"

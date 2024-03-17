@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "world/mapbuilder.h"
 #include "core/player.h"
 #include "entity/event.h"
