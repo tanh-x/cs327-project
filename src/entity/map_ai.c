@@ -61,37 +61,11 @@ bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
 // Sentries do nothing
 bool sentryMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
     event->type = IDLE;
-    event->cost = 500;
+    event->cost = 500;  // Arbitrarily large value
 
     return true;
 }
 
-
-bool playerPlaceholderAI(Event* event, Map* map, Player* player, __attribute__((unused)) Entity* entity) {
-    int dx;
-    int dy;
-    int cost;
-
-    for (int _ = 0; _ < MAX_ITERATIONS_SMALL; _++) {
-        // Roll a random direction.
-        dx = clamp(randomInt(-2, 2), -1, 1);
-        dy = randomInt(-1, 1);
-
-        cost = getTerrainCost(map->tileset[player->mapY + dy][player->mapX + dx].type, PLAYER);
-
-        // If we found a good direction, then start walking that way
-        if (cost != UNCROSSABLE) break;
-    }
-
-    // If we couldn't find a valid move, idle for one turn
-    if (cost == UNCROSSABLE) return false;
-
-    event->cost = cost;
-    event->dx = dx;
-    event->dy = dy;
-
-    return true;
-}
 
 // Creates a new event according to the entity's AI
 Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
@@ -116,6 +90,7 @@ Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
     return event;
 }
 
+
 // Takes in an EntityType, and returns a pointer to a function, called a movement AI handler, corresponding to the
 // given entity type's movement AI.
 // A movement AI handler is a function that takes in 4 arguments: event, map, player, entity; and returns a boolean
@@ -128,7 +103,6 @@ bool (* dispatchMovementAIHandler(EntityType type))(
     Entity* entity
 ) {
     switch (type) {
-        case PLAYER: return playerPlaceholderAI;
         case HIKER: return gradientDescentAI;
         case RIVAL: return gradientDescentAI;
         case SWIMMER: return NULL;

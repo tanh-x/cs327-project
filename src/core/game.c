@@ -8,8 +8,11 @@
 #include "graphics/artist.h"
 #include "entity/pathfinding.h"
 #include "entity/map_ai.h"
+#include "graphics/renderer.h"
+#include "core/input.h"
 
 #define AWAIT_PLAYER_INPUT true
+#define RENDER_TIMER_INTERVAL 250
 
 // The main game loop
 void update(GameManager* game, GameOptions* options) {
@@ -19,50 +22,54 @@ void update(GameManager* game, GameOptions* options) {
     Map* map = world->current;
     EntityManager* entManager = game->entManager;
 
+    // Used to occasionally rerender the game, even if it's not the player's turn yet.
+    int renderTimeTarget = RENDER_TIMER_INTERVAL;
+
     // Draw once
-    draw(game, options);
-
+    renderGameUpdate(game, options);
     Event* event;
-    while ((event = heap_remove_min(entManager->eventQueue))) {
-        // Time travelling is strictly prohibited
-        game->time = max(game->time, event->resolveTime);
+    while (!game->quit_game) {
+        // Note: the first event ever (resolveTime = 0) is always the Player's first event
+        while ((event = heap_remove_min(entManager->eventQueue))) {
+            // Time travelling is strictly prohibited
+            game->time = max(game->time, event->resolveTime);
 
-        // Delegate the event action to the entity manager
-        resolveEvent(entManager, event);
+            // If it's a player event, break the event loop.
+            if (event->actor->type == PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;
 
-        // Redraw if it was a player event
-        if (event->actor->type == PLAYER) {
-            draw(game, options);
-            usleep(options->frameTimeMicros);
+            // Delegate the event action to the entity manager
+            resolveEvent(entManager, event);
 
-            // Special handling after every player event
-            invalidateMemoization(map->memoizedDistanceFields);
+            // Queue next event for this entity
+            Event* newEvent = constructEventOnTurn(map, player, event->actor);
+            newEvent->resolveTime = game->time + newEvent->cost;
+            enqueueEvent(game->entManager, newEvent);
+
+            // Dispose the old event
+            disposeEvent(event);
+
+            // Render it out every once in a while, in case the player did some "time-consuming" action
+            if (game->time >= renderTimeTarget) {
+                renderGameUpdate(game, options);
+                renderTimeTarget = (game->time / RENDER_TIMER_INTERVAL + 1) * RENDER_TIMER_INTERVAL;
+                usleep(options->frameTimeMicros);
+            }
         }
 
-        // Queue next event for this entity
-        Event* newEvent = constructEventOnTurn(map, player, event->actor);
-        // newEvent is null-safe
-        newEvent->resolveTime = game->time + newEvent->cost;
-        enqueueEvent(game->entManager, newEvent);
+        // If we got here, it must be the player's turn, so we await input and handle it
 
-        // Dispose the old event
+        // The input blocking event is no longer needed
         disposeEvent(event);
+
+        // Keep calling handlePlayerInput until it returns true
+        while (!handlePlayerInput(game, options));
+
+        // Render the game after handling the player event
+        renderGameUpdate(game, options);
+
+        // Also, the distance field cache must be invalidated in case the player moved or took some other action
+        invalidateMemoization(map->memoizedDistanceFields);
     }
-}
-
-// (Re)draws the frame
-void draw(GameManager* game, GameOptions* options) {
-    printf(CLEAR_SCREEN);
-
-    // Print the map
-    char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-    worldToString(game, mapStr);
-    prettyPrint(mapStr, options->doColoring);
-
-    // Print the 3 lines
-    printf("Map position: (%d, %d)\n", game->player->globalX, game->player->globalY);
-    printf("PC position: (%d, %d)\n", game->player->mapX, game->player->mapY);
-    printf("Event time: %d\n", game->time);
 }
 
 // Set up the current map (as determined by player global position) for gameplay.
@@ -75,11 +82,12 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
     Player* player = game->player;
     player->mapX = entryProps->playerSpawnX;
     player->mapY = entryProps->playerSpawnY;
+    player->currentEntity = NULL;  // Will soon be loaded
     Map* map = game->world->current;
     invalidateMemoization(map->memoizedDistanceFields);
 
-    // Load in new entity manager
-    initializeEntityManager(game);
+    // Load in new entity manager. It will also assign a new entity to the player
+    initializeEntityManager(game, options->numTrainers);
     game->time = 0;
 
     // Place trainers on the map

@@ -2,7 +2,7 @@ SRC_DIR := src
 INC_DIR := include
 
 CFLAGS := -Wall -g -I$(INC_DIR)
-LDFLAGS := -lm -lpng
+LDFLAGS := -lm -lpng -lncurses
 
 SRCS := $(wildcard $(SRC_DIR)/**/**/*.c $(SRC_DIR)/**/*.c $(SRC_DIR)/*.c)
 OBJS := $(SRCS:.c=.o)
@@ -28,11 +28,11 @@ build:
 	@echo -e "  │ Starting build..."
 	@echo -e "  └──"
 
-post_build:
+post_build: $(TARGET)
 	@echo -e "  ┌───────────"
 	@echo -e "  │ Finished compile jobs, cleaning object files..."
 	@echo -e "  └──"
-	make clean_objects
+	@make clean_objects
 	@echo -e "\n  ┌───────────"
 	@echo -e "  │ Finished all Makefile rules. Binary should be \"$(TARGET)\""
 	@echo -e "  │ "

@@ -63,7 +63,7 @@ void print_heap(heap_t *h, char *(*print)(const void *v))
     heap_node_t *n;
 
     if (h->min) {
-        printf("size = %u\n", h->size);
+        printf("capacity = %u\n", h->size);
         printf("min = ");
         n = h->min;
         do {
@@ -173,7 +173,7 @@ static void heap_consolidate(heap_t *h)
 {
     uint32_t i;
     heap_node_t *x, *y, *n;
-    heap_node_t *a[64]; /* Need ceil(lg(h->size)), so this is good  *
+    heap_node_t *a[64]; /* Need ceil(lg(h->capacity)), so this is good  *
                        * to the limit of a 64-bit address space,  *
                        * and much faster than any lg calculation. */
 

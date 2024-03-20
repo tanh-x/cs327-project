@@ -7,6 +7,8 @@
 #include "entity/npc/wanderer.h"
 #include "entity/npc/explorer.h"
 
+#define ENTITIES_INITIAL_CAPACITY_PADDING 6
+
 // Creates a new entity of a specified type and place it on the map and the current EntityManager.
 // Returns the pointer to that Entity, or null if it failed. If a NULL is returned, no side effects have been made.
 Entity* spawnEntity(GameManager* game, EntityType type, int x, int y) {
@@ -14,13 +16,16 @@ Entity* spawnEntity(GameManager* game, EntityType type, int x, int y) {
     // Don't spawn the entity if the current cell is already occupied
     if (entManager->entMap[y][x] != NULL) return NULL;
 
-    // Else, create the entity and return it
+    // Else, create the entity
     Entity* entity = malloc(sizeof(Entity));
     entity->type = type;
     entity->mapX = x;
     entity->mapY = y;
     entManager->entMap[y][x] = entity;
     entity->soul = constructCharacterSoul(entity, game);
+
+    // Add it to the entity list, and then return it
+    arrayList_insert(entManager->entities, entity);
     return entity;
 }
 
@@ -36,11 +41,14 @@ void* constructCharacterSoul(Entity* entity, GameManager* game) {
     }
 }
 
-// Initializes a new EntityManager and assign it to the game->entManager pointer.
+// Initializes a new EntityManager and assign it to the game->entManager pointer, and also returns it.
 // Should be called when loading a new map.
-void initializeEntityManager(GameManager* game) {
+EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities) {
     EntityManager* entManager = malloc(sizeof(EntityManager));
     game->entManager = entManager;
+
+    // Initialize the entity list
+    entManager->entities = constructArrayList(initialNumEntities + ENTITIES_INITIAL_CAPACITY_PADDING);
 
     // Initialize the entity map
     for (int i = 0; i < MAP_HEIGHT; i++) {
@@ -56,10 +64,16 @@ void initializeEntityManager(GameManager* game) {
     // Add the player to the entManager
     Entity* playerEnt = spawnEntity(game, PLAYER, game->player->mapX, game->player->mapY);
 
-    // Add an empty event for the player
+    // Add an input event for the player that resolves immediately
     Event* event = constructIdleEvent(playerEnt, 0);
+    event->type = PLAYER_INPUT_BLOCKING;
     event->resolveTime = 0;
     enqueueEvent(entManager, event);
+
+    // Point the entity field in the Player singleton towards this new entity
+    game->player->currentEntity = playerEnt;
+
+    return entManager;
 }
 
 // Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
@@ -74,6 +88,8 @@ bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
 
     // Check if the new position is occupied
     if (entManager->entMap[newY][newX] != NULL) return false;
+
+    // If we got here, it will be a valid move, nothing should've been mutated before this point
 
     // Move entity in the entMap
     entManager->entMap[entity->mapY][entity->mapX] = NULL;
@@ -95,23 +111,40 @@ bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
 // * The eventQueue heap
 // * The 2D Entity array
 void disposeEntityManager(EntityManager* entManager) {
-    for (int i = 0; i < MAP_HEIGHT; i++) {
-        for (int j = 0; j < MAP_WIDTH; j++) {
-            Entity* ent = entManager->entMap[i][j];
-            if (ent != NULL) disposeEntity(ent);
-        }
+    // Free every entity in the entity manager
+    for (int i = 0; i < entManager->entities->size; i++) {
+        Entity* ent = entManager->entities->array[i];
+        disposeEntity(ent);
     }
 
+    // Free the entity array list
+    arrayList_free(entManager->entities);
+    entManager->entities = NULL;
+
+    // Free the event queue
     heap_delete(entManager->eventQueue);
     free(entManager->eventQueue);
     entManager->eventQueue = NULL;
-    free(entManager->entMap);
+
+    // Free the entity map
+//    free(entManager->entMap);
+
+    free(entManager);
 }
 
 
 void disposeEntity(Entity* entity) {
-    if (entity->soul != NULL && entity->type != PLAYER) free(entity->soul);
-    entity->soul = NULL;
+    if (entity->type == PLAYER) {
+        // Remove the entity reference from the Player singleton
+        Player* player = entity->soul;
+        if (player != NULL) player->currentEntity = NULL;
+
+    } else if (entity->soul != NULL) {
+        // Otherwise, just free the entity's soul
+        free(entity->soul);
+        entity->soul = NULL;
+    }
+
     free(entity);
 }
 

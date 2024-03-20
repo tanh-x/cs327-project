@@ -63,7 +63,6 @@
     - Finalized for submission.
 
 
-
 -- Assignment 1.04 --
 * Day 1 (2024-02-27)
     Afternoon:
@@ -84,3 +83,12 @@
     - Fixed some memory leaks
     - Refactoring
     - Finalized Makefile, README, and CHANGELOG for submission
+
+
+-- Assignment 1.05 --
+* Day 1 (2024-03-19)
+    Evening:
+    - Set up ncurses
+    - Set up input handling
+    - Implemented a simple array list
+    - Handled player movement

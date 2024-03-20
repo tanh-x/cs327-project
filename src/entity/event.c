@@ -1,4 +1,5 @@
 // Events indicate entity actions on the map, such as movement
+#include <stdlib.h>
 #include "entity/event.h"
 
 // Comparator for the event's resolveTime, for purposes of using the event queue
@@ -19,6 +20,7 @@ void resolveEvent(EntityManager* entManager, Event* event) {
         case MOVEMENT: moveEntity(entManager, entity, event->dx, event->dy);
             break;
         case IDLE: break;
+        case PLAYER_INPUT_BLOCKING: exit(1);  // This event should not be delegated to the manager
     }
 }
 

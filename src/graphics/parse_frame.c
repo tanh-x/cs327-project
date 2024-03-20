@@ -22,7 +22,7 @@ int **parse_frame(char *filename) {
     int width = MAP_WIDTH - 2;
 
     if (png_get_image_width(png, info) != width || png_get_image_height(png, info) != height) {
-        fprintf(stderr, "Image dimensions do not match expected size of %dx%d.\n", width, height);
+        fprintf(stderr, "Image dimensions do not match expected capacity of %dx%d.\n", width, height);
         fclose(fp);
         png_destroy_read_struct(&png, &info, NULL);
         return NULL;

@@ -1,12 +1,10 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "bugprone-branch-clone"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "utils/mathematics.h"
 #include "world/mapbuilder.h"
 #include "entity/pathfinding.h"
 
+// NOLINTBEGIN
 // @formatter:off
 int getDefaultTerrainCost(TileType tileType) {
     switch (tileType) {
@@ -101,6 +99,7 @@ int getTerrainCost(TileType tileType, EntityType entityType) {
     }
 }
 // @formatter:on
+// NOLINTEND
 
 typedef struct {
     int tileX;
@@ -253,6 +252,3 @@ void disposeDistanceField(DistanceField* distanceField) {
     free(map);
     free(distanceField);
 }
-
-
-#pragma clang diagnostic pop

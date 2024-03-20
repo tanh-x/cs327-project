@@ -7,13 +7,14 @@
 #include "world/mapbuilder.h"
 #include "world/world.h"
 #include "core/game.h"
+#include "graphics/renderer.h"
 
-int entry(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     // Default game option arguments
     bool doColoring = true;
     bool doBadApple = false;
     int numTrainers = 15;
-    int frameTimeMicros = 200000;
+    int frameTimeMicros = 250000;
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
@@ -39,9 +40,15 @@ int entry(int argc, char* argv[]) {
     timespec_get(&timeNano, TIME_UTC);
     int timeSeedMilli = (int) ((timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime);
 
+    // Initialize ncurses
+    initializeRenderer(options.doColoring);
+
+    // TODO: Main menu?
+
     // Initial set up
     GameManager game;
     game.entManager = NULL;
+    game.quit_game = false;
 
     // Create a player struct
     Player player;
@@ -76,7 +83,7 @@ int entry(int argc, char* argv[]) {
     // Also manually call the setup function on the spawn map instead of doing it in the game loop
     setupGameOnMapLoad(&game, &entryProps, &options);
 
-    // Override game loop if using bad apple
+    // Override game loop if using bad apple, DON'T PORT TO NCURSES!
     if (doBadApple) {
         printf(CLEAR_SCREEN);
         char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
@@ -92,11 +99,6 @@ int entry(int argc, char* argv[]) {
     disposeWorld(&world);
     disposeEntityManager(game.entManager);
     free(map);
-    
+    cleanUpRenderer();
     return 0;
-}
-
-
-int main(int argc, char* argv[]) {
-    return entry(argc, argv);
 }

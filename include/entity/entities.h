@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "utils/heap.h"
 #include "core/constants.h"
+#include "utils/arraylist.h"
 
 typedef struct GameManager GameManager;
 
@@ -42,8 +43,10 @@ typedef struct Entity {
 // It is always bound to the GameManager singleton, but is cleared and disposed of every time we switch to a new map,
 // or whenever the current map gets disposed of.
 typedef struct EntityManager {
+    // An array list of entities currently in use
+    ArrayList* entities;
     // A 2D array of nullable Entity pointers, which allows the game to know whether there's an entity at a specific
-    // position on the map. The 2D array has the same size as the map.
+    // position on the map. The 2D array has the same capacity as the map.
     Entity* entMap[MAP_HEIGHT][MAP_WIDTH];
     // A heap that contains queued Event objects, sorted by the time at which they will be resolved.
     heap_t* eventQueue;
@@ -58,9 +61,9 @@ Entity* spawnEntity(GameManager* game, EntityType type, int x, int y);
 // Should be called everytime an entity with a soul is spawned, as it handles the soul creation for us.
 void* constructCharacterSoul(Entity* entity, GameManager* game);
 
-// Initializes a new EntityManager and assign it to the game->entManager pointer.
+// Initializes a new EntityManager and assign it to the game->entManager pointer, and also returns it.
 // Should be called when loading a new map.
-void initializeEntityManager(GameManager* game);
+EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities);
 
 // Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
 // Returns a boolean indicating whether it was successful. If it was not, no side effects will have been made.

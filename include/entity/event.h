@@ -15,6 +15,8 @@ typedef enum __attribute__ ((__packed__)) {
     IDLE,
     // MOVEMENT events move the entity in the direction specified by (dx, dy)
     MOVEMENT,
+    // PLAYER_INPUT BLOCKING events indicate when the player can take the next turn
+    PLAYER_INPUT_BLOCKING
 } EventType;
 
 

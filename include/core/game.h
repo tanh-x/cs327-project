@@ -9,7 +9,7 @@
 // Forward declarations
 typedef struct EntityManager EntityManager;
 
-// Maximum command length (assignment 1.03 and prior)
+// Maximum command size (assignment 1.03 and prior)
 #define CMD_MAX_LENGTH 64
 
 
@@ -20,6 +20,7 @@ typedef struct GameManager {
     Player* player;
     EntityManager* entManager;
     int time;
+    bool quit_game;
 } GameManager;
 
 
@@ -38,9 +39,6 @@ typedef struct {
 
 // The main game loop.
 void update(GameManager* game, GameOptions* options);
-
-// (Re)draws the frame.
-void draw(GameManager* game, GameOptions* options);
 
 // Set up the current map (as determined by player global position) for gameplay.
 // Must be called whenever the map changes
