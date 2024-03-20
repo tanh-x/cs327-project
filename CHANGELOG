@@ -92,3 +92,5 @@
     - Set up input handling
     - Implemented a simple array list
     - Handled player movement
+* Day 2 (2024-03-20)
+    - Vastly optimized rendering, can update at 14kHz without flickering

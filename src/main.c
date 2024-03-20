@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     bool doColoring = true;
     bool doBadApple = false;
     int numTrainers = 10;
-    int frameTimeMicros = 1000000 / 60;
+    int frameTimeMicros = 1000000 / 5000;
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
