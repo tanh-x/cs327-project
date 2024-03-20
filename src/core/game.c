@@ -12,7 +12,7 @@
 #include "core/input.h"
 
 #define AWAIT_PLAYER_INPUT true
-#define RENDER_TIMER_INTERVAL 250
+#define RENDER_TIMER_INTERVAL 5
 
 // The main game loop
 void update(GameManager* game, GameOptions* options) {

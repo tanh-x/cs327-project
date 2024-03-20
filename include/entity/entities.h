@@ -9,7 +9,6 @@
 
 typedef struct GameManager GameManager;
 
-
 // Enum for each character type, including the player
 typedef enum __attribute__ ((__packed__)) {
     PLAYER,
@@ -67,6 +66,10 @@ EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities
 
 // Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
 // Returns a boolean indicating whether it was successful. If it was not, no side effects will have been made.
+// If it was unsuccessful (false return), it will be one of the three following scenarios:
+// - The EntityManager or the Entity was falsy/null
+// - The specified position was out of bounds
+// - The tile is already occupied by another entity
 bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy);
 
 // Frees all dynamically allocated memory associated with the EntityManager, which includes:

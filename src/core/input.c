@@ -15,46 +15,53 @@ bool handlePlayerInput(GameManager* game, GameOptions* options) {
         case '7':
         case 'y':
             // PLAYER UP-LEFT
-            moveEntity(entManager, player->currentEntity, 1, -1);
+            attemptMovePlayer(game, -1, -1);
             break;
 
         case '8':
         case 'k':
         case 'w':   // WASD alias
             // PLAYER UP
+            attemptMovePlayer(game, 0, -1);
             break;
 
         case '9':
         case 'u':
             // PLAYER UP-RIGHT
+            attemptMovePlayer(game, 1, -1);
             break;
 
         case '6':
         case 'l':
         case 'd':   // WASD alias
             // PLAYER RIGHT
+            attemptMovePlayer(game, 1, 0);
             break;
 
         case '3':
         case 'n':
             // PLAYER DOWN-RIGHT
+            attemptMovePlayer(game, 1, 1);
             break;
 
         case '2':
         case 'j':
         case 's':   // WASD alias
             // PLAYER DOWN
+            attemptMovePlayer(game, 0, 1);
             break;
 
         case '1':
         case 'b':
             // PLAYER DOWN-LEFT
+            attemptMovePlayer(game, -1, 1);
             break;
 
         case '4':
         case 'h':
         case 'a':   // WASD alias
             // PLAYER LEFT
+            attemptMovePlayer(game, -1, 0);
             break;
 
 //        case '>':

@@ -4,6 +4,7 @@
 #include "world/mapbuilder.h"
 #include "entity/pathfinding.h"
 
+
 // NOLINTBEGIN
 // @formatter:off
 int getDefaultTerrainCost(TileType tileType) {
@@ -26,15 +27,33 @@ int getDefaultTerrainCost(TileType tileType) {
 }
 
 int getTerrainCostPlayer(TileType tileType) {
+//    switch (tileType) {
+//        case FLAT:          return 10;
+//        case BOULDER:       return UNCROSSABLE;
+//        case BORDER:        return UNCROSSABLE;
+//        case MOUNTAIN:      return UNCROSSABLE;
+//        case GATE:          return 10;
+//        case ROAD:          return 10;
+//        case BOULDER_ROAD:  return 10;
+//        case TALL_GRASS:    return 20;
+//        case WATER:         return UNCROSSABLE;
+//        case TREE:          return UNCROSSABLE;
+//        case POKECENTER:    return 10;
+//        case POKEMART:      return 10;
+//        case JOULDER:       return UNCROSSABLE;
+//        default:            return UNCROSSABLE;
+//    }
+
+    // Reduced costs, so the player can more easily outrun NPCs
     switch (tileType) {
-        case FLAT:          return 10;
+        case FLAT:          return 8;
         case BOULDER:       return UNCROSSABLE;
         case BORDER:        return UNCROSSABLE;
         case MOUNTAIN:      return UNCROSSABLE;
-        case GATE:          return 10;
-        case ROAD:          return 10;
-        case BOULDER_ROAD:  return 10;
-        case TALL_GRASS:    return 20;
+        case GATE:          return 5;
+        case ROAD:          return 5;
+        case BOULDER_ROAD:  return 8;
+        case TALL_GRASS:    return 15;
         case WATER:         return UNCROSSABLE;
         case TREE:          return UNCROSSABLE;
         case POKECENTER:    return 10;

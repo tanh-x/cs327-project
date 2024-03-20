@@ -57,5 +57,7 @@ void disposeEvent(void* event);
 // Instantiates an IDLE event.
 Event* constructIdleEvent(Entity* entity, int cost);
 
+// Instantiates a PLAYER_INPUT_BLOCKING event
+Event* constructInputBlockingEvent(Entity* entity, int cost);
 
 #endif

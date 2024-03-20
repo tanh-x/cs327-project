@@ -447,3 +447,13 @@ void disposeMap(Map* map) {
     if (map == NULL) return;
     invalidateMemoization(map->memoizedDistanceFields);
 }
+
+// Checks whether the position is inside the map, including the borders.
+bool isInsideMapBounds(int x, int y) {
+    return x >= 0 && y >= 0 && x <= MAP_WIDTH - 1 && y <= MAP_HEIGHT - 1;
+}
+
+// Checks whether the position is within the map borders, i.e. excluding the borders and the gate.
+bool isInsideMapBorders(int x, int y) {
+    return x > 0 && y > 0 && x < MAP_WIDTH - 1 && y < MAP_HEIGHT - 1;
+}

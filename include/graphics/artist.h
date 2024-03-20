@@ -12,4 +12,8 @@ void prettyPrint(const char *str, bool isMapColored);
 
 void worldToString(GameManager *game, char *str);
 
+char entityToChar(Entity *entity);
+
+char tileToChar(Tile *tile);
+
 #endif

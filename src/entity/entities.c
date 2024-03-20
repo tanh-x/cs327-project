@@ -65,7 +65,7 @@ EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities
     Entity* playerEnt = spawnEntity(game, PLAYER, game->player->mapX, game->player->mapY);
 
     // Add an input event for the player that resolves immediately
-    Event* event = constructIdleEvent(playerEnt, 0);
+    Event* event = constructInputBlockingEvent(playerEnt, 0);
     event->type = PLAYER_INPUT_BLOCKING;
     event->resolveTime = 0;
     enqueueEvent(entManager, event);
@@ -81,10 +81,11 @@ EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities
 bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
     if (!entManager || !entity) return false;
 
-    // Boundary check for new position
     int newX = entity->mapX + dx;
     int newY = entity->mapY + dy;
-    if (newX <= 0 || newY <= 0 || newX >= MAP_WIDTH - 1 || newY >= MAP_HEIGHT - 1) return false;
+
+    // Boundary check for new position
+    if (!isInsideMapBounds(newX, newY)) return false;
 
     // Check if the new position is occupied
     if (entManager->entMap[newY][newX] != NULL) return false;

@@ -30,7 +30,7 @@ typedef struct {
 
 typedef struct {
     Tile tileset[MAP_HEIGHT][MAP_WIDTH];
-    struct DistanceField *memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE];
+    struct DistanceField* memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE];
 
     int mapSeed;
     int globalX;
@@ -46,8 +46,14 @@ typedef struct {
     int playerSpawnY;
 } MapEntryProps;
 
-void generateMap(Map *map, MapEntryProps *entryProps, int worldSeed, bool useBadApple);
+void generateMap(Map* map, MapEntryProps* entryProps, int worldSeed, bool useBadApple);
 
-void disposeMap(Map *map);
+void disposeMap(Map* map);
+
+// Checks whether the position is inside the map, including the borders.
+bool isInsideMapBounds(int x, int y);
+
+// Checks whether the position is within the map borders, i.e. excluding the borders and the gate.
+bool isInsideMapBorders(int x, int y);
 
 #endif

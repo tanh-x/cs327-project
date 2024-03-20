@@ -39,3 +39,15 @@ Event* constructIdleEvent(Entity* entity, int cost) {
     event->actor = entity;
     return event;
 }
+
+
+// Instantiates a PLAYER_INPUT_BLOCKING event
+Event* constructInputBlockingEvent(Entity* entity, int cost) {
+    Event* event = malloc(sizeof(Event));
+    event->type = PLAYER_INPUT_BLOCKING;
+    event->dx = 0;
+    event->dy = 0;
+    event->cost = cost;
+    event->actor = entity;
+    return event;
+}
