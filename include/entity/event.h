@@ -58,6 +58,6 @@ void disposeEvent(void* event);
 Event* constructIdleEvent(Entity* entity, int cost);
 
 // Instantiates a PLAYER_INPUT_BLOCKING event
-Event* constructInputBlockingEvent(Entity* entity, int cost);
+void enqueueInputBlockingEvent(int delay);
 
 #endif

@@ -101,3 +101,4 @@
     - Implemented trainer list
     - Implemented placeholder battles interface
     - Implemented placeholder building interface
+    - Refactored to use globals GAME and OPTIONS

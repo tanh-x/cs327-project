@@ -69,18 +69,13 @@ bool worldContextInputHandler(int key) {
         case '5':
         case '.': {
             // REST
-            Event* event = constructInputBlockingEvent(player->currentEntity, PLAYER_REST_TIME);
-            event->resolveTime = GAME.time + event->cost;
-            enqueueEvent(event);
+            enqueueInputBlockingEvent(PLAYER_REST_TIME);
             return true;
         }
 
         case 't': {
             // LIST TRAINERS
-            Event* event = constructInputBlockingEvent(player->currentEntity, 1);
-            event->resolveTime = GAME.time + event->cost;
-            enqueueEvent(event);
-
+            enqueueInputBlockingEvent(0);
             startTrainerListWindow();
             break;
         }
@@ -90,9 +85,7 @@ bool worldContextInputHandler(int key) {
             TileType type = GAME.world->current->tileset[player->mapY][player->mapX].type;
             if (type != POKECENTER && type != POKEMART) return false;
 
-            Event* event = constructInputBlockingEvent(player->currentEntity, 1);
-            event->resolveTime = GAME.time + event->cost;
-            enqueueEvent(event);
+            enqueueInputBlockingEvent(1);
             enterPlaceholderBuilding(type);
             break;
         }

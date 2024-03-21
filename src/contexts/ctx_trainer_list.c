@@ -17,7 +17,7 @@ void startTrainerListWindow() {
 
     // Draw a box around the window
     box(window, 0, 0);
-    keypad(window, TRUE);
+    keypad(window, true);
 
     // We're done with initialization
     GAME.context = TRAINER_LIST_CONTEXT;

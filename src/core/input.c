@@ -24,7 +24,7 @@ bool handlePlayerInput() {
     if (globalInputHandler(key)) return true;
 
     // If uncaught, then propagate through the current context input handler
-    bool (* handler)(int) = dispatchContextInputHandler(GAME.context);
+    bool (* handler)(int) = dispatchContextInputHandler(GAME.context->type);
     if (handler(key)) return true;
 
     // If none of our input handlers caught the key, then return false

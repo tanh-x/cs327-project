@@ -10,6 +10,7 @@ int eventComparator(const void* this, const void* other) {
 
 // Adds the given event into the EntityManager's event queue.
 void enqueueEvent(Event* event) {
+    event->resolveTime = GAME.time + event->cost;
     heap_insert(GAME.entManager->eventQueue, event);
 }
 
@@ -43,12 +44,8 @@ Event* constructIdleEvent(Entity* entity, int cost) {
 
 
 // Instantiates a PLAYER_INPUT_BLOCKING event
-Event* constructInputBlockingEvent(Entity* entity, int cost) {
-    Event* event = malloc(sizeof(Event));
+void enqueueInputBlockingEvent(int delay) {
+    Event* event = constructIdleEvent(GAME.player->currentEntity, delay);
     event->type = PLAYER_INPUT_BLOCKING;
-    event->dx = 0;
-    event->dy = 0;
-    event->cost = cost;
-    event->actor = entity;
-    return event;
+    enqueueEvent(event);
 }

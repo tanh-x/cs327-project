@@ -64,14 +64,11 @@ EntityManager* initializeEntityManager(int initialNumEntities) {
     // Add the player to the entManager
     Entity* playerEnt = spawnEntity(PLAYER, GAME.player->mapX, GAME.player->mapY);
 
-    // Add an input event for the player that resolves immediately
-    Event* event = constructInputBlockingEvent(playerEnt, 0);
-    event->type = PLAYER_INPUT_BLOCKING;
-    event->resolveTime = 0;
-    enqueueEvent(event);
-
     // Point the entity field in the Player singleton towards this new entity
     GAME.player->currentEntity = playerEnt;
+
+    // Add an input event for the player that resolves immediately
+    enqueueInputBlockingEvent(0);
 
     return entManager;
 }

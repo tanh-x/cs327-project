@@ -4,7 +4,7 @@
 #include "world/world.h"
 #include "player.h"
 #include "game.h"
-#include "contexts/context_type.h"
+#include "contexts/context_facade.h"
 
 // Stores the game options, specified via arguments passed by the user.
 typedef struct {
@@ -22,7 +22,7 @@ typedef struct GameManager {
     World* world;
     Player* player;
     EntityManager* entManager;
-    ContextType context;
+    Context* context;
     int time;
     bool quit_game;
 } GameManager;

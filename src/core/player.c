@@ -25,9 +25,7 @@ PlayerEncounterScenario attemptMovePlayer(int dx, int dy) {
     if (moveEntity(playerEnt, dx, dy)) {
         // After this, the position will have been updated for both the Player and the corresponding entity
         // Next, we must add an PLAYER_INPUT_BLOCKING event to the event queue afterward with the cost.
-        Event* event = constructInputBlockingEvent(playerEnt, cost);
-        event->resolveTime = GAME.time + event->cost;
-        enqueueEvent(event);
+        enqueueInputBlockingEvent(cost);
 
         // The movement is successful, and nothing else needs to be done, so we return.
         return STANDARD;
@@ -51,9 +49,7 @@ void dispatchPlayerEncounter(PlayerEncounterScenario scenario) {
     if (scenario == STANDARD) return;
 
     // Otherwise, enqueue an idle event for the player, and continue with other scenarios
-    Event* event = constructInputBlockingEvent(player->currentEntity, PLAYER_SPECIAL_ACTION_IDLE_TIME);
-    event->resolveTime = GAME.time + event->cost;
-    enqueueEvent(event);
+    enqueueInputBlockingEvent(PLAYER_SPECIAL_ACTION_IDLE_TIME);
 
     // If we hit uncrossable terrain, just do nothing and wait.
     if (scenario == UNCROSSABLE_TERRAIN) return;

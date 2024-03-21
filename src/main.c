@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     // Initial set up
     GAME.entManager = NULL;
     GAME.quit_game = false;
-    GAME.context = WORLD_CONTEXT;
+    GAME.context = instantiateRootContext();
 
     // Create a player struct
     Player player;
