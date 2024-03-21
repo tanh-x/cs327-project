@@ -44,11 +44,18 @@ void returnToParentContext(Context* ctx) {
     free(ctx);
 }
 
+bool emptyInputHandler(int key) {
+    return false;
+}
 
+// Given the current context type, returns the pointer to a 3-ary function, called the input handler, corresponding
+// to the current context type. The input handler takes in the key from getch() to carry out the correct action
+// with respect to the current game context; returning whether the input was caught. If not, the key will be
+// propagated to the next input handler.
 bool (* dispatchContextInputHandler(ContextType type))(int key) {
     switch (type) {
         case WORLD_CONTEXT: return worldContextInputHandler;
         case TRAINER_LIST_CONTEXT: return trainerListInputHandler;
-        default: return NULL;
+        default: return emptyInputHandler;
     }
 }

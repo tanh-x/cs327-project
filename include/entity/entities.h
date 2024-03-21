@@ -31,6 +31,8 @@ typedef struct Entity {
     int mapX;
     int mapY;
 
+    char* name;
+
     // A soul is a pointer to a fragment of additional data that some entities may have.
     // This allows us to store additional states with the entities' own structs (e.g. Player)
     // [ This is a coping mechanism with the lack of OOP constructs. ]

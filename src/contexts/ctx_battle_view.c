@@ -6,8 +6,8 @@
 void enterPlaceholderBattle(Entity* opponent) {
     // Define dimensions of the new window
     Rect2D windowDimensions;
-    windowDimensions.width = WINDOW_WIDTH - 4;
-    windowDimensions.height = WINDOW_HEIGHT - 4;
+    windowDimensions.width = WINDOW_WIDTH - 6;
+    windowDimensions.height = WINDOW_HEIGHT - 6;
 
     // Find the center of the parent window
     windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
@@ -19,7 +19,8 @@ void enterPlaceholderBattle(Entity* opponent) {
     WINDOW* window = context->window;
 
     // Add a placeholder title
-    mvwprintw(window, 1, 1, "PLACEHOLDER BATTLE INTERFACE (type %c) [@ %p]", entityToChar(opponent), &opponent->soul);
+    mvwprintw(window, 1, 2, "PLACEHOLDER BATTLE INTERFACE");
+    mvwprintw(window, 2, 2, "Opponent: \"%s\" (type %c) [@ %p]", opponent->name, entityToChar(opponent), &opponent->soul);
 
     // We're done with initialization
     wrefresh(window);

@@ -33,4 +33,36 @@
 // Miscellaneous constants
 #define ESCAPE_KEY 27
 
+#define TRAINER_NAMES { \
+    "Misty", \
+    "Brock", \
+    "Lance", \
+    "Blue", \
+    "Cynthia", \
+    "Steven", \
+    "Giovanni", \
+    "Sabrina", \
+    "Erika", \
+    "Koga", \
+    "Lt. Surge", \
+    "Jessie", \
+    "James", \
+    "May", \
+    "Dawn", \
+    "Serena", \
+    "Lillie", \
+    "Gladion", \
+    "Hilda", \
+    "Hilbert", \
+    "Bianca", \
+    "Cheren", \
+    "Iris", \
+    "Calem", \
+    "Lysandre", \
+    "Leon", \
+    "Raihan" \
+}
+
+#define NUM_TRAINER_NAMES 27
+
 #endif

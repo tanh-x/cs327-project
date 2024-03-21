@@ -2,36 +2,32 @@
 #include "contexts/ctx_building.h"
 
 void enterPlaceholderBuilding(TileType type) {
-    WINDOW* parentWindow = stdscr;
-    int width = WINDOW_WIDTH - 4;
-    int height = WINDOW_HEIGHT - 4;
+    // Define dimensions of the new window
+    Rect2D windowDimensions;
+    windowDimensions.width = WINDOW_WIDTH - 6;
+    windowDimensions.height = WINDOW_HEIGHT - 6;
 
-    // Find the center of the window
-    int top = (WINDOW_HEIGHT - height) / 2;
-    int left = (WINDOW_WIDTH - width) / 2;
+    // Find the center of the parent window
+    windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
+    windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
 
-    // Instantiate new window
-    WINDOW* window = newwin(height, width, top, left);
-
-    // Draw a box around the window
-    box(window, 0, 0);
-    keypad(window, TRUE);
+    // Construct and switch to it
+    Context* context = constructChildWindowContext(BUILDING_CONTEXT, windowDimensions);
+    WINDOW* window = context->window;
 
     if (type == POKEMART) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMART INTERFACE");
     else if (type == POKECENTER) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMON CENTER INTERFACE");
 
     // We're done with initialization
-    GAME.context = BUILDING_CONTEXT;
     wrefresh(window);
 
-    // Only accepts ESC to exit, no other keys are handled.
+    // Only accepts </[ to exit, no other keys are handled.
     while (true) {
         int ch = getch();
         if (ch == '<' || ch == '[') break;
     }
 
-    // If we got here, ESC has been pressed
-    delwin(window);
-    wrefresh(parentWindow);
-    GAME.context = WORLD_CONTEXT;
+    // If we got here, </[ has been pressed
+    GAME.context = context->parent;
+    returnToParentContext(context);
 }

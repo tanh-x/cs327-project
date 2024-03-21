@@ -9,6 +9,8 @@
 
 #define ENTITIES_INITIAL_CAPACITY_PADDING 6
 
+char* trainerNames[] = TRAINER_NAMES;
+
 // Creates a new entity of a specified type and place it on the map and the current EntityManager.
 // Returns the pointer to that Entity, or null if it failed. If a NULL is returned, no side effects have been made.
 Entity* spawnEntity(EntityType type, int x, int y) {
@@ -23,6 +25,14 @@ Entity* spawnEntity(EntityType type, int x, int y) {
     entity->mapY = y;
     entManager->entMap[y][x] = entity;
     entity->soul = constructCharacterSoul(entity);
+
+    // If they're an NPC, give them a random name
+    if (type != PLAYER) {
+        entity->name = trainerNames[randomInt(0, NUM_TRAINER_NAMES - 1)];
+    } else {
+        // TODO: forgor
+        entity->name = "Player";
+    }
 
     // Add it to the entity list, and then return it
     arrayList_insert(entManager->entities, entity);

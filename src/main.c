@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     // Default game option arguments
     bool doColoring = true;
     bool doBadApple = false;
-    int numTrainers = 16;
+    int numTrainers = 10;
     int frameTimeMicros = 1000000 / 60;
 
     // Parse arguments

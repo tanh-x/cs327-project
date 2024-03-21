@@ -5,7 +5,7 @@
 #include "core/game.h"
 
 #define TRAINER_LIST_WINDOW_WIDTH 48
-#define TRAINER_LIST_WINDOW_HEIGHT 12
+#define TRAINER_LIST_WINDOW_HEIGHT 10
 
 void startTrainerListWindow();
 
