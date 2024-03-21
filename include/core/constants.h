@@ -6,6 +6,10 @@
 #define MAX_ITERATIONS_SMALL 32
 #define MAX_ITERATIONS 8192
 
+// Dimensions of the window
+#define WINDOW_WIDTH 80
+#define WINDOW_HEIGHT 24
+
 // Dimensions of the map
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21
@@ -25,5 +29,8 @@
 // Used in pathfinding and distance fields
 #define UNCROSSABLE 8001001
 #define UNVISITED (-1)
+
+// Miscellaneous constants
+#define ESCAPE_KEY 27
 
 #endif

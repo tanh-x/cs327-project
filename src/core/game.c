@@ -78,6 +78,9 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
     // Clean up previous EntityManager, if any
     if (game->entManager != NULL) disposeEntityManager(game->entManager);
 
+    // Switch back to the world context
+    game->context = WORLD_CONTEXT;
+
     // Load useful pointers
     Player* player = game->player;
     player->mapX = entryProps->playerSpawnX;

@@ -1,6 +1,7 @@
-
-#include "contexts/context.h"
+#include <ncurses.h>
+#include "contexts/ctx_world.h"
 #include "entity/event.h"
+#include "contexts/ctx_trainer_list.h"
 
 PlayerEncounterScenario tryPlayerMovementInput(GameManager* game, int key) {
     switch (key) {
@@ -72,12 +73,17 @@ bool worldContextInputHandler(GameManager* game, __attribute__((unused)) GameOpt
             Event* event = constructInputBlockingEvent(player->currentEntity, PLAYER_REST_TIME);
             event->resolveTime = game->time + event->cost;
             enqueueEvent(entManager, event);
-            break;
+            return true;
         }
 
         case 't': {
-            break;
             // LIST TRAINERS
+            Event* event = constructInputBlockingEvent(player->currentEntity, 1);
+            event->resolveTime = game->time + event->cost;
+            enqueueEvent(entManager, event);
+
+            startTrainerListWindow(game, stdscr);
+            break;
         }
 
         case '>':
@@ -96,11 +102,4 @@ bool worldContextInputHandler(GameManager* game, __attribute__((unused)) GameOpt
     }
     // We can only get here if it wasn't the no-op case, so we have handled the input
     return true;
-}
-
-bool (* dispatchContextInputHandler(ContextType type))(GameManager* game, GameOptions* options, int key) {
-    switch (type) {
-        case WORLD_CONTEXT: return worldContextInputHandler;
-        default: return NULL;
-    }
 }

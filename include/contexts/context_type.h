@@ -6,6 +6,7 @@ typedef enum __attribute__ ((__packed__)) {
     MAIN_MENU_CONTEXT,
     WORLD_CONTEXT,
     BATTLE_CONTEXT,
+    BUILDING_CONTEXT,
     TRAINER_LIST_CONTEXT
 } ContextType;
 
