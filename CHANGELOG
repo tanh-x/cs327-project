@@ -99,3 +99,5 @@
     Evening:
     - Implemented context switching
     - Implemented trainer list
+    - Implemented placeholder battles interface
+    - Implemented placeholder building interface

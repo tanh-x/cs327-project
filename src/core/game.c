@@ -126,6 +126,10 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
         if (entity == NULL) break;
 
         // Else, we got a successful trainer placement.
+
+        // Make them follow and try to fight the player
+        entity->activeBattle = true;
+
         // Try creating and queueing a new event.
         Event* event = constructEventOnTurn(map, player, entity);
         if (event == NULL) continue;

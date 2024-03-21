@@ -4,6 +4,7 @@
 #include "entity/pathfinding.h"
 #include "core/game.h"
 #include "entity/event.h"
+#include "contexts/ctx_battle_view.h"
 
 // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE or out of bounds.
 PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
@@ -33,11 +34,17 @@ PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
         return STANDARD;
     } else {
         // If the return was false, it means we have encountered another entity at this location.
+        // Set the player to be at this location, but not the player entity
+        player->mapX = newX;
+        player->mapY = newY;
         return ENTITY_ENCOUNTER;
     }
 }
 
 void dispatchPlayerEncounter(GameManager* game, PlayerEncounterScenario scenario) {
+    // This shouldn't happen, as the call location is inside a if-statement guarding against this.
+    if (scenario == INVALID) return;
+
     Player* player = game->player;
     EntityManager* entManager = game->entManager;
 
@@ -51,4 +58,16 @@ void dispatchPlayerEncounter(GameManager* game, PlayerEncounterScenario scenario
 
     // If we hit uncrossable terrain, just do nothing and wait.
     if (scenario == UNCROSSABLE_TERRAIN) return;
+
+    // If we get an entity encounter, try start a battle
+    if (scenario == ENTITY_ENCOUNTER) {
+        Entity* opponent = entManager->entMap[player->mapY][player->mapX];
+
+        if (opponent != NULL && opponent->activeBattle) {
+            enterPlaceholderBattle(game, opponent);
+        }
+        
+        player->mapX = player->currentEntity->mapX;
+        player->mapY = player->currentEntity->mapY;
+    }
 }

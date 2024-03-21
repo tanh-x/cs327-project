@@ -1,7 +1,7 @@
-#include <ncurses.h>
 #include "contexts/ctx_world.h"
 #include "entity/event.h"
 #include "contexts/ctx_trainer_list.h"
+#include "contexts/ctx_building.h"
 
 PlayerEncounterScenario tryPlayerMovementInput(GameManager* game, int key) {
     switch (key) {
@@ -82,19 +82,19 @@ bool worldContextInputHandler(GameManager* game, __attribute__((unused)) GameOpt
             event->resolveTime = game->time + event->cost;
             enqueueEvent(entManager, event);
 
-            startTrainerListWindow(game, stdscr);
+            startTrainerListWindow(game);
             break;
         }
 
         case '>':
         case ']': {  // [ ] alias
-            // ENTER BUILDING
-            break;
-        }
+            TileType type = game->world->current->tileset[player->mapY][player->mapX].type;
+            if (type != POKECENTER && type != POKEMART) return false;
 
-        case '<':
-        case '[': {  // [ ] alias
-            // EXIT BUILDING
+            Event* event = constructInputBlockingEvent(player->currentEntity, 1);
+            event->resolveTime = game->time + event->cost;
+            enqueueEvent(entManager, event);
+            enterPlaceholderBuilding(game, type);
             break;
         }
 

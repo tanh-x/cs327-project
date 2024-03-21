@@ -3,6 +3,7 @@
 │  The game is now rendered using ncurses library, with a new input handling   │
 │  and context switching system to handle the increased complexity of the new  │
 │  features. Players can move in the world with the specified keys or WASD.    │
+│  Interfaces like trainer list, battles, and buildings have also been added   │
 │                                                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘

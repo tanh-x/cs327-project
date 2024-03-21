@@ -3,7 +3,8 @@
 #include "graphics/artist.h"
 #include "utils/string_helpers.h"
 
-void startTrainerListWindow(GameManager* game, WINDOW* parentWindow) {
+void startTrainerListWindow(GameManager* game) {
+    WINDOW* parentWindow = stdscr;
     int width = TRAINER_LIST_WINDOW_WIDTH;
     int height = TRAINER_LIST_WINDOW_HEIGHT;
 
@@ -43,8 +44,8 @@ void trainerListEntry(GameManager* game, WINDOW* window, WINDOW* parentWindow) {
 
             // Format the string
             char entityString[TRAINER_LIST_WINDOW_WIDTH - 1];
-            char dxString[8];
-            char indexString[5];
+            char dxString[11];
+            char indexString[13];
             sprintf(dxString, "dx=%d,", ent->mapX - player->mapX);
             rightPad(dxString, 7);
             sprintf(indexString, "%d.", i + scroll);

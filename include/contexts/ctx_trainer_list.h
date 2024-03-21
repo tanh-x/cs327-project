@@ -7,7 +7,7 @@
 #define TRAINER_LIST_WINDOW_WIDTH 36
 #define TRAINER_LIST_WINDOW_HEIGHT 12
 
-void startTrainerListWindow(GameManager* game, WINDOW* parentWindow);
+void startTrainerListWindow(GameManager* game);
 
 void trainerListEntry(GameManager* game, WINDOW* window, WINDOW* parentWindow);
 

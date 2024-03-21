@@ -6,7 +6,7 @@
 #include "entity/npc/wanderer.h"
 #include "entity/npc/explorer.h"
 
-#define DEFAULT_IDLE_COST 6
+#define DEFAULT_IDLE_COST 8
 #define TIE_BREAKING_PROBABILITY 0.3f
 
 // Gradient descent based movement AI
@@ -76,11 +76,18 @@ Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
     event->dy = 0;
     event->actor = entity;
 
-    // Delegate the movement to the corresponding AI handler function
-    bool (* handler)(Event*, Map*, Player*, Entity*) = dispatchMovementAIHandler(entity->type);
-    bool success = handler(event, map, player, entity);
+    bool success = false;
+    // Check if the entity wants to fight the player or not
+    if (entity->activeBattle) {
+        // Delegate the movement to the corresponding AI handler function
+        bool (* handler)(Event*, Map*, Player*, Entity*) = dispatchMovementAIHandler(entity->type);
+        success = handler(event, map, player, entity);
+    } else {
+        // If the entity doesn't want to fight the player, don't pathfind towards them
+        success = false;
+    }
 
-    // If we didn't succeed, that mean the AI couldn't find a valid move for this turn.
+    // If we didn't succeed, that mean the AI couldn't find a valid move for this turn, or activeBattle is false
     // Just wait for a tiny bit if this is the case.
     if (!success) {
         disposeEvent(event);
