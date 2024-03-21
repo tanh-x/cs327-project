@@ -3,6 +3,6 @@
 
 #include "core/game_manager.h"
 
-void enterPlaceholderBattle(GameManager* game, Entity* opponent);
+void enterPlaceholderBattle(Entity* opponent);
 
 #endif

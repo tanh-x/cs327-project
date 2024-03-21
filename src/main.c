@@ -3,11 +3,13 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdio.h>
-#include "graphics/artist.h"
-#include "world/mapbuilder.h"
-#include "world/world.h"
-#include "core/game.h"
+#include "core/game_manager.h"
 #include "graphics/renderer.h"
+#include "graphics/artist.h"
+
+
+GameManager GAME;
+GameOptions OPTIONS;
 
 int main(int argc, char* argv[]) {
     // Default game option arguments
@@ -26,10 +28,9 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize options to reflect the parsed arguments
-    GameOptions options;
-    options.doColoring = doColoring;
-    options.numTrainers = max(0, numTrainers);
-    options.frameTimeMicros = frameTimeMicros;
+    OPTIONS.doColoring = doColoring;
+    OPTIONS.numTrainers = max(0, numTrainers);
+    OPTIONS.frameTimeMicros = frameTimeMicros;
 
     // Get millisecond seed
     char* val = getenv("START");
@@ -41,26 +42,25 @@ int main(int argc, char* argv[]) {
     int timeSeedMilli = (int) ((timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime);
 
     // Initialize ncurses
-    initializeRenderer(options.doColoring);
+    initializeRenderer(OPTIONS.doColoring);
 
     // TODO: Main menu?
 
     // Initial set up
-    GameManager game;
-    game.entManager = NULL;
-    game.quit_game = false;
-    game.context = WORLD_CONTEXT;
+    GAME.entManager = NULL;
+    GAME.quit_game = false;
+    GAME.context = WORLD_CONTEXT;
 
     // Create a player struct
     Player player;
     player.globalX = 0;
     player.globalY = 0;
-    game.player = &player;
+    GAME.player = &player;
 
     // Initialize a world with all empty maps
     World world;
     initializeWorld(&world, timeSeedMilli);
-    game.world = &world;
+    GAME.world = &world;
 
     // Get and generate the central map
     MapEntryProps entryProps;
@@ -82,23 +82,23 @@ int main(int argc, char* argv[]) {
     generateMap(map, &entryProps, world.worldSeed, doBadApple);
 
     // Also manually call the setup function on the spawn map instead of doing it in the game loop
-    setupGameOnMapLoad(&game, &entryProps, &options);
+    setupGameOnMapLoad(&entryProps);
 
     // Override game loop if using bad apple, DON'T PORT TO NCURSES!
     if (doBadApple) {
         printf(CLEAR_SCREEN);
         char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-        worldToString(&game, mapStr);
-        prettyPrint(mapStr, options.doColoring);
+        worldToString(mapStr);
+        prettyPrint(mapStr, OPTIONS.doColoring);
         return 0;
     }
 
     // Enter game loop
-    update(&game, &options);
+    gameLoop();
 
     // Clean up
     disposeWorld(&world);
-    disposeEntityManager(game.entManager);
+    disposeEntityManager(GAME.entManager);
     free(map);
     cleanUpRenderer();
     return 0;

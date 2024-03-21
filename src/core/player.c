@@ -7,9 +7,8 @@
 #include "contexts/ctx_battle_view.h"
 
 // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE or out of bounds.
-PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
-    Player* player = game->player;
-    EntityManager* entManager = game->entManager;
+PlayerEncounterScenario attemptMovePlayer(int dx, int dy) {
+    Player* player = GAME.player;
     Entity* playerEnt = player->currentEntity;
     int newX = player->mapX + dx;
     int newY = player->mapY + dy;
@@ -18,17 +17,17 @@ PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
     if (!isInsideMapBorders(newX, newY)) return UNCROSSABLE_TERRAIN;
 
     // Check if the terrain we're moving towards is traversable to the player
-    int cost = getTerrainCost(game->world->current->tileset[newY][newX].type, PLAYER);
+    int cost = getTerrainCost(GAME.world->current->tileset[newY][newX].type, PLAYER);
     if (cost == UNCROSSABLE || cost < -1) return UNCROSSABLE_TERRAIN;
 
     // If we got here, it must be a valid move, so immediately move the player and its entity, bypassing the
     // event queue system. We also skip moveEntity's check.
-    if (moveEntity(game->entManager, playerEnt, dx, dy)) {
+    if (moveEntity(playerEnt, dx, dy)) {
         // After this, the position will have been updated for both the Player and the corresponding entity
         // Next, we must add an PLAYER_INPUT_BLOCKING event to the event queue afterward with the cost.
         Event* event = constructInputBlockingEvent(playerEnt, cost);
-        event->resolveTime = game->time + event->cost;
-        enqueueEvent(entManager, event);
+        event->resolveTime = GAME.time + event->cost;
+        enqueueEvent(event);
 
         // The movement is successful, and nothing else needs to be done, so we return.
         return STANDARD;
@@ -41,20 +40,20 @@ PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
     }
 }
 
-void dispatchPlayerEncounter(GameManager* game, PlayerEncounterScenario scenario) {
+void dispatchPlayerEncounter(PlayerEncounterScenario scenario) {
     // This shouldn't happen, as the call location is inside a if-statement guarding against this.
     if (scenario == INVALID) return;
 
-    Player* player = game->player;
-    EntityManager* entManager = game->entManager;
+    Player* player = GAME.player;
+    EntityManager* entManager = GAME.entManager;
 
     // Normal movement is already handled within attemptMovePlayer()
     if (scenario == STANDARD) return;
 
     // Otherwise, enqueue an idle event for the player, and continue with other scenarios
     Event* event = constructInputBlockingEvent(player->currentEntity, PLAYER_SPECIAL_ACTION_IDLE_TIME);
-    event->resolveTime = game->time + event->cost;
-    enqueueEvent(entManager, event);
+    event->resolveTime = GAME.time + event->cost;
+    enqueueEvent(event);
 
     // If we hit uncrossable terrain, just do nothing and wait.
     if (scenario == UNCROSSABLE_TERRAIN) return;
@@ -64,9 +63,9 @@ void dispatchPlayerEncounter(GameManager* game, PlayerEncounterScenario scenario
         Entity* opponent = entManager->entMap[player->mapY][player->mapX];
 
         if (opponent != NULL && opponent->activeBattle) {
-            enterPlaceholderBattle(game, opponent);
+            enterPlaceholderBattle(opponent);
         }
-        
+
         player->mapX = player->currentEntity->mapX;
         player->mapY = player->currentEntity->mapY;
     }

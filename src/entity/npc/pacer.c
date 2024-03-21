@@ -3,6 +3,7 @@
 #include "entity/event.h"
 #include "entity/pathfinding.h"
 #include "entity/npc/pacer.h"
+#include "core/game_manager.h"
 
 PacerSoul* constructPacerSoul() {
     PacerSoul* soul = malloc(sizeof(PacerSoul));
@@ -13,7 +14,8 @@ PacerSoul* constructPacerSoul() {
 }
 
 // Pacers move back and forth, turning around whenever they encounter uncrossable terrain
-bool pacerMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
+bool pacerMovementAI(Event* event, Entity* entity) {
+    Map* map = GAME.world->current;
     PacerSoul* soul = entity->soul;
     Int2D* walk = &soul->walk;
 

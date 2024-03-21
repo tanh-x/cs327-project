@@ -18,6 +18,6 @@ WandererSoul* constructWandererSoul(TileType birthplace);
 
 // Wanderers move until they get to the edge of their "birthplace" terrain (stored in the soul), then they turn
 // in a random direction.
-bool wandererMovementAI(Event* event, Map* map, Player* player, Entity* entity);
+bool wandererMovementAI(Event* event, Entity* entity);
 
 #endif

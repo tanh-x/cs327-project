@@ -58,15 +58,15 @@ typedef struct EntityManager {
 
 // Creates a new entity of a specified type and place it on the map and the current EntityManager.
 // Returns the pointer to that Entity, or null if it failed. If a NULL is returned, no side effects have been made.
-Entity* spawnEntity(GameManager* game, EntityType type, int x, int y);
+Entity* spawnEntity(EntityType type, int x, int y);
 
 // Instantiates a new soul for the corresponding Entity.
 // Should be called everytime an entity with a soul is spawned, as it handles the soul creation for us.
-void* constructCharacterSoul(Entity* entity, GameManager* game);
+void* constructCharacterSoul(Entity* entity);
 
 // Initializes a new EntityManager and assign it to the game->entManager pointer, and also returns it.
 // Should be called when loading a new map.
-EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities);
+EntityManager* initializeEntityManager(int initialNumEntities);
 
 // Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
 // Returns a boolean indicating whether it was successful. If it was not, no side effects will have been made.
@@ -74,7 +74,7 @@ EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities
 // - The EntityManager or the Entity was falsy/null
 // - The specified position was out of bounds
 // - The tile is already occupied by another entity
-bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy);
+bool moveEntity(Entity* entity, int dx, int dy);
 
 // Frees all dynamically allocated memory associated with the EntityManager, which includes:
 // * The eventQueue heap

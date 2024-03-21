@@ -1,3 +1,4 @@
+#include "core/game_manager.h"
 #include "core/player.h"
 #include "entity/event.h"
 #include "entity/pathfinding.h"
@@ -14,7 +15,8 @@ WandererSoul* constructWandererSoul(TileType birthplace) {
 
 // Wanderers move until they get to the edge of their "birthplace" terrain (stored in the soul), then they turn
 // in a random direction.
-bool wandererMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
+bool wandererMovementAI(Event* event, Entity* entity) {
+    Map* map = GAME.world->current;
     WandererSoul* soul = entity->soul;
     Int2D* walk = &soul->walk;
 

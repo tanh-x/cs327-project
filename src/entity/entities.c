@@ -11,8 +11,8 @@
 
 // Creates a new entity of a specified type and place it on the map and the current EntityManager.
 // Returns the pointer to that Entity, or null if it failed. If a NULL is returned, no side effects have been made.
-Entity* spawnEntity(GameManager* game, EntityType type, int x, int y) {
-    EntityManager* entManager = game->entManager;
+Entity* spawnEntity(EntityType type, int x, int y) {
+    EntityManager* entManager = GAME.entManager;
     // Don't spawn the entity if the current cell is already occupied
     if (entManager->entMap[y][x] != NULL) return NULL;
 
@@ -22,7 +22,7 @@ Entity* spawnEntity(GameManager* game, EntityType type, int x, int y) {
     entity->mapX = x;
     entity->mapY = y;
     entManager->entMap[y][x] = entity;
-    entity->soul = constructCharacterSoul(entity, game);
+    entity->soul = constructCharacterSoul(entity);
 
     // Add it to the entity list, and then return it
     arrayList_insert(entManager->entities, entity);
@@ -31,21 +31,21 @@ Entity* spawnEntity(GameManager* game, EntityType type, int x, int y) {
 
 // Instantiates a new soul for the corresponding Entity.
 // Should be called everytime an entity with a soul is spawned, as it handles the soul creation for us.
-void* constructCharacterSoul(Entity* entity, GameManager* game) {
+void* constructCharacterSoul(Entity* entity) {
     switch (entity->type) {
-        case PLAYER: return game->player;
+        case PLAYER: return GAME.player;
         case PACER: return constructPacerSoul();
-        case WANDERER: return constructWandererSoul(game->world->current->tileset[entity->mapY][entity->mapX].type);
+        case WANDERER: return constructWandererSoul(GAME.world->current->tileset[entity->mapY][entity->mapX].type);
         case EXPLORER: return constructExplorerSoul();
         default: return NULL;
     }
 }
 
-// Initializes a new EntityManager and assign it to the game->entManager pointer, and also returns it.
+// Initializes a new EntityManager and assign it to the GAME.entManager pointer, and also returns it.
 // Should be called when loading a new map.
-EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities) {
+EntityManager* initializeEntityManager(int initialNumEntities) {
     EntityManager* entManager = malloc(sizeof(EntityManager));
-    game->entManager = entManager;
+    GAME.entManager = entManager;
 
     // Initialize the entity list
     entManager->entities = constructArrayList(initialNumEntities + ENTITIES_INITIAL_CAPACITY_PADDING);
@@ -62,23 +62,28 @@ EntityManager* initializeEntityManager(GameManager* game, int initialNumEntities
     heap_init(entManager->eventQueue, eventComparator, disposeEvent);
 
     // Add the player to the entManager
-    Entity* playerEnt = spawnEntity(game, PLAYER, game->player->mapX, game->player->mapY);
+    Entity* playerEnt = spawnEntity(PLAYER, GAME.player->mapX, GAME.player->mapY);
 
     // Add an input event for the player that resolves immediately
     Event* event = constructInputBlockingEvent(playerEnt, 0);
     event->type = PLAYER_INPUT_BLOCKING;
     event->resolveTime = 0;
-    enqueueEvent(entManager, event);
+    enqueueEvent(event);
 
     // Point the entity field in the Player singleton towards this new entity
-    game->player->currentEntity = playerEnt;
+    GAME.player->currentEntity = playerEnt;
 
     return entManager;
 }
 
 // Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
 // Returns a boolean indicating whether it was successful. If it was not, no side effects will have been made.
-bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
+// If it was unsuccessful (false return), it will be one of the three following scenarios:
+// - The EntityManager or the Entity was falsy/null
+// - The specified position was out of bounds
+// - The tile is already occupied by another entity
+bool moveEntity(Entity* entity, int dx, int dy) {
+    EntityManager* entManager = GAME.entManager;
     if (!entManager || !entity) return false;
 
     int newX = entity->mapX + dx;
@@ -88,7 +93,9 @@ bool moveEntity(EntityManager* entManager, Entity* entity, int dx, int dy) {
     if (!isInsideMapBounds(newX, newY)) return false;
 
     // Check if the new position is occupied
-    if (entManager->entMap[newY][newX] != NULL) return false;
+    if (entManager->entMap[newY][newX] != NULL) {
+        return false;
+    }
 
     // If we got here, it will be a valid move, nothing should've been mutated before this point
 
@@ -148,5 +155,3 @@ void disposeEntity(Entity* entity) {
 
     free(entity);
 }
-
-

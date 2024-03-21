@@ -14,6 +14,6 @@ typedef struct {
 PacerSoul* constructPacerSoul();
 
 // Pacers move back and forth, turning around whenever they encounter uncrossable terrain
-bool pacerMovementAI(Event* event, Map* map, Player* player, Entity* entity);
+bool pacerMovementAI(Event* event, Entity* entity);
 
 #endif

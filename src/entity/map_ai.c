@@ -5,6 +5,7 @@
 #include "entity/npc/pacer.h"
 #include "entity/npc/wanderer.h"
 #include "entity/npc/explorer.h"
+#include "core/game_manager.h"
 
 #define DEFAULT_IDLE_COST 8
 #define TIE_BREAKING_PROBABILITY 0.3f
@@ -14,7 +15,10 @@
 // Then, find a direction that minimizes the distance to the source (the player), essentially making the entity follows
 // the shortest accessible path to the player one on every turn.
 // This algorithm is used by hikers and rivals.
-bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
+bool gradientDescentAI(Event* event, Entity* entity) {
+    Map* map = GAME.world->current;
+    Player* player = GAME.player;
+
     DistanceField* field = getOrComputeDistanceField(
         map->memoizedDistanceFields,
         entity->type,
@@ -59,7 +63,7 @@ bool gradientDescentAI(Event* event, Map* map, Player* player, Entity* entity) {
 }
 
 // Sentries do nothing
-bool sentryMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
+bool sentryMovementAI(Event* event, Entity* entity) {
     event->type = IDLE;
     event->cost = 500;  // Arbitrarily large value
 
@@ -68,7 +72,7 @@ bool sentryMovementAI(Event* event, Map* map, Player* player, Entity* entity) {
 
 
 // Creates a new event according to the entity's AI
-Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
+Event* constructEventOnTurn(Entity* entity) {
     // Initialize new event object
     Event* event = malloc(sizeof(Event));
     event->type = MOVEMENT;
@@ -80,8 +84,8 @@ Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
     // Check if the entity wants to fight the player or not
     if (entity->activeBattle) {
         // Delegate the movement to the corresponding AI handler function
-        bool (* handler)(Event*, Map*, Player*, Entity*) = dispatchMovementAIHandler(entity->type);
-        success = handler(event, map, player, entity);
+        bool (* handler)(Event*, Entity*) = dispatchMovementAIHandler(entity->type);
+        success = handler(event, entity);
     } else {
         // If the entity doesn't want to fight the player, don't pathfind towards them
         success = false;
@@ -103,7 +107,7 @@ Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
 // A movement AI handler is a function that takes in 4 arguments: event, map, player, entity; and returns a boolean
 // that indicates whether the event creation was successful or not.
 // The event will be of movement type, with dx, dy, and cost correctly written into.
-bool (* dispatchMovementAIHandler(EntityType type))(Event* event, Map* map, Player* player, Entity* entity) {
+bool (* dispatchMovementAIHandler(EntityType type))(Event* event, Entity* entity) {
     switch (type) {
         case HIKER: return gradientDescentAI;
         case RIVAL: return gradientDescentAI;

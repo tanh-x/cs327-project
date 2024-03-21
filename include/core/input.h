@@ -5,6 +5,6 @@
 #include "game.h"
 
 // Returns whether the input was actually handled or not
-bool handlePlayerInput(GameManager* game, GameOptions* options);
+bool handlePlayerInput();
 
 #endif

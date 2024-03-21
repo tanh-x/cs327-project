@@ -3,65 +3,64 @@
 #include "contexts/ctx_trainer_list.h"
 #include "contexts/ctx_building.h"
 
-PlayerEncounterScenario tryPlayerMovementInput(GameManager* game, int key) {
+PlayerEncounterScenario tryPlayerMovementInput(int key) {
     switch (key) {
         case '7':
         case 'y': // PLAYER UP-LEFT
-            return attemptMovePlayer(game, -1, -1);
+            return attemptMovePlayer(-1, -1);
 
         case '8':
         case 'k':
         case 'w':  // WASD alias
             // PLAYER UP
-            return attemptMovePlayer(game, 0, -1);
+            return attemptMovePlayer(0, -1);
 
         case '9':
         case 'u':
             // PLAYER UP-RIGHT
-            return attemptMovePlayer(game, 1, -1);
+            return attemptMovePlayer(1, -1);
 
         case '6':
         case 'l':
         case 'd':  // WASD alias
             // PLAYER RIGHT
-            return attemptMovePlayer(game, 1, 0);
+            return attemptMovePlayer(1, 0);
 
         case '3':
         case 'n':
             // PLAYER DOWN-RIGHT
-            return attemptMovePlayer(game, 1, 1);
+            return attemptMovePlayer(1, 1);
 
         case '2':
         case 'j':
         case 's':  // WASD alias
             // PLAYER DOWN
-            return attemptMovePlayer(game, 0, 1);
+            return attemptMovePlayer(0, 1);
 
         case '1':
         case 'b':
             // PLAYER DOWN-LEFT
-            return attemptMovePlayer(game, -1, 1);
+            return attemptMovePlayer(-1, 1);
 
         case '4':
         case 'h':
         case 'a':  // WASD alias
             // PLAYER LEFT
-            return attemptMovePlayer(game, -1, 0);
+            return attemptMovePlayer(-1, 0);
 
         default: return INVALID;
     }
 }
 
 
-bool worldContextInputHandler(GameManager* game, __attribute__((unused)) GameOptions* options, int key) {
-    EntityManager* entManager = game->entManager;
-    Player* player = game->player;
+bool worldContextInputHandler(int key) {
+    Player* player = GAME.player;
 
     // Try to see if the key was a player movement. If so, the player will have been moved, and we need to
     // handle the encounter event and return true, since the key was already caught.
-    PlayerEncounterScenario scenario = tryPlayerMovementInput(game, key);
+    PlayerEncounterScenario scenario = tryPlayerMovementInput(key);
     if (scenario != INVALID) {
-        dispatchPlayerEncounter(game, scenario);
+        dispatchPlayerEncounter(scenario);
         return true;
     }
 
@@ -71,30 +70,30 @@ bool worldContextInputHandler(GameManager* game, __attribute__((unused)) GameOpt
         case '.': {
             // REST
             Event* event = constructInputBlockingEvent(player->currentEntity, PLAYER_REST_TIME);
-            event->resolveTime = game->time + event->cost;
-            enqueueEvent(entManager, event);
+            event->resolveTime = GAME.time + event->cost;
+            enqueueEvent(event);
             return true;
         }
 
         case 't': {
             // LIST TRAINERS
             Event* event = constructInputBlockingEvent(player->currentEntity, 1);
-            event->resolveTime = game->time + event->cost;
-            enqueueEvent(entManager, event);
+            event->resolveTime = GAME.time + event->cost;
+            enqueueEvent(event);
 
-            startTrainerListWindow(game);
+            startTrainerListWindow();
             break;
         }
 
         case '>':
         case ']': {  // [ ] alias
-            TileType type = game->world->current->tileset[player->mapY][player->mapX].type;
+            TileType type = GAME.world->current->tileset[player->mapY][player->mapX].type;
             if (type != POKECENTER && type != POKEMART) return false;
 
             Event* event = constructInputBlockingEvent(player->currentEntity, 1);
-            event->resolveTime = game->time + event->cost;
-            enqueueEvent(entManager, event);
-            enterPlaceholderBuilding(game, type);
+            event->resolveTime = GAME.time + event->cost;
+            enqueueEvent(event);
+            enterPlaceholderBuilding(type);
             break;
         }
 

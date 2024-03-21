@@ -2,7 +2,7 @@
 #include "contexts/ctx_battle_view.h"
 #include "core/game_manager.h"
 
-void enterPlaceholderBattle(GameManager* game, Entity* opponent) {
+void enterPlaceholderBattle(Entity* opponent) {
     WINDOW* parentWindow = stdscr;
     int width = WINDOW_WIDTH - 4;
     int height = WINDOW_HEIGHT - 4;
@@ -21,7 +21,7 @@ void enterPlaceholderBattle(GameManager* game, Entity* opponent) {
     mvwprintw(window, 1, 1, "PLACEHOLDER BATTLE INTERFACE");
 
     // We're done with initialization
-    game->context = BATTLE_CONTEXT;
+    GAME.context = BATTLE_CONTEXT;
     wrefresh(window);
 
     // Only accepts ESC to exit, no other keys are handled.
@@ -30,9 +30,10 @@ void enterPlaceholderBattle(GameManager* game, Entity* opponent) {
         if (ch == ESCAPE_KEY) break;
     }
 
+
     // If we got here, ESC has been pressed
     delwin(window);
     wrefresh(parentWindow);
     opponent->activeBattle = false;
-    game->context = WORLD_CONTEXT;
+    GAME.context = WORLD_CONTEXT;
 }

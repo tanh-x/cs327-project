@@ -11,6 +11,6 @@ void initializeRenderer(bool enableColor);
 // Call at the end of the program
 void cleanUpRenderer();
 
-void renderGameUpdate(GameManager* game, GameOptions* options);
+void renderGameUpdate();
 
 #endif

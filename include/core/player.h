@@ -29,8 +29,8 @@ typedef enum __attribute__ ((__packed__)) {
 
 
 // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE or out of bounds.
-PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy);
+PlayerEncounterScenario attemptMovePlayer(int dx, int dy);
 
-void dispatchPlayerEncounter(GameManager* game, PlayerEncounterScenario scenario);
+void dispatchPlayerEncounter(PlayerEncounterScenario scenario);
 
 #endif

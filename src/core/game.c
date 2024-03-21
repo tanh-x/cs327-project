@@ -11,48 +11,46 @@
 #include "graphics/renderer.h"
 #include "core/input.h"
 
-#define AWAIT_PLAYER_INPUT true
 #define RENDER_TIMER_INTERVAL 5
 
 // The main game loop
-void update(GameManager* game, GameOptions* options) {
+void gameLoop() {
     // Pointers to essential components
-    World* world = game->world;
-    Player* player = game->player;
+    World* world = GAME.world;
     Map* map = world->current;
-    EntityManager* entManager = game->entManager;
+    EntityManager* entManager = GAME.entManager;
 
     // Used to occasionally rerender the game, even if it's not the player's turn yet.
     int renderTimeTarget = RENDER_TIMER_INTERVAL;
 
     // Draw once
-    renderGameUpdate(game, options);
+    renderGameUpdate();
     Event* event;
-    while (!game->quit_game) {
+    while (!GAME.quit_game) {
         // Note: the first event ever (resolveTime = 0) is always the Player's first event
         while ((event = heap_remove_min(entManager->eventQueue))) {
             // Time travelling is strictly prohibited
-            game->time = max(game->time, event->resolveTime);
+            GAME.time = max(GAME.time, event->resolveTime);
 
             // If it's a player event, break the event loop.
             if (event->actor->type == PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;
 
             // Delegate the event action to the entity manager
-            resolveEvent(entManager, event);
+            resolveEvent(event);
 
             // Queue next event for this entity
-            Event* newEvent = constructEventOnTurn(map, player, event->actor);
-            newEvent->resolveTime = game->time + newEvent->cost;
-            enqueueEvent(game->entManager, newEvent);
+            Event* newEvent = constructEventOnTurn(event->actor);
+            newEvent->resolveTime = GAME.time + newEvent->cost;
+            enqueueEvent(newEvent);
 
             // Dispose the old event
             disposeEvent(event);
 
             // Render it out every once in a while, in case the player did some "time-consuming" action
-            if (game->time >= renderTimeTarget) {
-                renderGameUpdate(game, options);
-                renderTimeTarget = (game->time / RENDER_TIMER_INTERVAL + 1) * RENDER_TIMER_INTERVAL;
-                usleep(options->frameTimeMicros);
+            if (GAME.time >= renderTimeTarget) {
+                renderGameUpdate();
+                renderTimeTarget = (GAME.time / RENDER_TIMER_INTERVAL + 1) * RENDER_TIMER_INTERVAL;
+                usleep(OPTIONS.frameTimeMicros);
             }
         }
 
@@ -62,10 +60,10 @@ void update(GameManager* game, GameOptions* options) {
         disposeEvent(event);
 
         // Keep calling handlePlayerInput until it returns true
-        while (!handlePlayerInput(game, options));
+        while (!handlePlayerInput());
 
         // Render the game after handling the player event
-        renderGameUpdate(game, options);
+        renderGameUpdate();
 
         // Also, the distance field cache must be invalidated in case the player moved or took some other action
         invalidateMemoization(map->memoizedDistanceFields);
@@ -74,24 +72,24 @@ void update(GameManager* game, GameOptions* options) {
 
 // Set up the current map (as determined by player global position) for gameplay.
 // Must be called whenever the map changes
-void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOptions* options) {
+void setupGameOnMapLoad(MapEntryProps* entryProps) {
     // Clean up previous EntityManager, if any
-    if (game->entManager != NULL) disposeEntityManager(game->entManager);
+    if (GAME.entManager != NULL) disposeEntityManager(GAME.entManager);
 
     // Switch back to the world context
-    game->context = WORLD_CONTEXT;
+    GAME.context = WORLD_CONTEXT;
 
     // Load useful pointers
-    Player* player = game->player;
+    Player* player = GAME.player;
     player->mapX = entryProps->playerSpawnX;
     player->mapY = entryProps->playerSpawnY;
     player->currentEntity = NULL;  // Will soon be loaded
-    Map* map = game->world->current;
+    Map* map = GAME.world->current;
     invalidateMemoization(map->memoizedDistanceFields);
 
     // Load in new entity manager. It will also assign a new entity to the player
-    initializeEntityManager(game, options->numTrainers);
-    game->time = 0;
+    initializeEntityManager(OPTIONS.numTrainers);
+    GAME.time = 0;
 
     // Place trainers on the map
     // Possible trainer types
@@ -99,7 +97,7 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
     int numTypes = 6;
 
     // Start placing numTrainers NPCs, or until we stop prematurely if it got too crowded
-    for (int i = 0; i < options->numTrainers; i++) {
+    for (int i = 0; i < OPTIONS.numTrainers; i++) {
         EntityType entType;
         Entity* entity = NULL;
 
@@ -119,7 +117,7 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
             // spawnEntity might return NULL, indicating an unsuccessful placement, so entity = NULL and we try again
-            entity = spawnEntity(game, entType, x, y);
+            entity = spawnEntity(entType, x, y);
         }
 
         // If we already went through MAX_ITERATIONS and entity is still NULL, give up
@@ -131,20 +129,20 @@ void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOption
         entity->activeBattle = true;
 
         // Try creating and queueing a new event.
-        Event* event = constructEventOnTurn(map, player, entity);
+        Event* event = constructEventOnTurn(entity);
         if (event == NULL) continue;
         // Event initialization was successful, so we add it to the queue
-        event->resolveTime = game->time + event->cost;
-        enqueueEvent(game->entManager, event);
+        event->resolveTime = GAME.time + event->cost;
+        enqueueEvent(event);
     }
 }
 
 // Moves the player to an adjacent map
 // Returns the pointer to that map
-Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps) {
-    int worldSeed = game->world->worldSeed;
-    int x = game->player->globalX;
-    int y = game->player->globalY;
+Map* moveInWorldDirection(char dir, MapEntryProps* entryProps) {
+    int worldSeed = GAME.world->worldSeed;
+    int x = GAME.player->globalX;
+    int y = GAME.player->globalY;
     int dx = 0;
     int dy = 0;
     int playerSpawnX;
@@ -178,7 +176,7 @@ Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps
     }
 
     // Move there
-    Map* newMap = moveToMap(game, x + dx, y + dy, entryProps);
+    Map* newMap = moveToMap(x + dx, y + dy, entryProps);
     entryProps->playerSpawnX = playerSpawnX;
     entryProps->playerSpawnY = playerSpawnY;
     return newMap;
@@ -186,115 +184,15 @@ Map* moveInWorldDirection(GameManager* game, char dir, MapEntryProps* entryProps
 
 // Moves the player to a map at the specified parameters (globalX, globalY)
 // Returns the pointer to that map
-Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entryProps) {
+Map* moveToMap(int globalX, int globalY, MapEntryProps* entryProps) {
     // Get the new map at the specified coordinates
-    Map* newMap = getMap(game->world, entryProps, globalX, globalY, true);
+    Map* newMap = getMap(GAME.world, entryProps, globalX, globalY, true);
 
     // Check if it's a valid map, if so then actually move there, otherwise a NULL will be returned.
     if (newMap != NULL) {
-        game->player->globalX = globalX;
-        game->player->globalY = globalY;
-        game->world->current = newMap;
+        GAME.player->globalX = globalX;
+        GAME.player->globalY = globalY;
+        GAME.world->current = newMap;
     }
     return newMap;
 }
-
-// Game loop for assignment 1.03 and before
-__attribute__((unused)) void update_old(GameManager* game, GameOptions* options) {
-    World* world = game->world;
-    Player* player = game->player;
-    Map* map = world->current;
-
-    bool quitFlag = false;
-    while (true) {
-        if (quitFlag) break;
-
-        // Start graphics
-        char* promptOverride = NULL;
-
-        // Print the map
-        char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-        worldToString(game, mapStr);
-        prettyPrint(mapStr, options->doColoring);
-
-        // First line
-        printf("Map position: (%d, %d)", player->globalX, player->globalY);
-        printf("\n");
-
-        // Second line
-        printf("[ NOTE ] Use `h` for hiker map and `r` for rival map. Or `hh`/`rr` for div 10\n");
-
-        // Third line
-        char cmd[CMD_MAX_LENGTH];
-        char first;
-        printf("Input command: ");
-        while (AWAIT_PLAYER_INPUT) {
-            fgets(cmd, CMD_MAX_LENGTH, stdin);
-            first = cmd[0];
-
-            // Process the input
-            if (first == 'q') {
-                // q: Quit game
-                quitFlag = true;
-                break;
-
-            } else if (first == 'n' || first == 'w' || first == 's' || first == 'e') {
-                // n,s,w,e: Move along the world in cardinal directions
-                MapEntryProps entryProps;
-                map = moveInWorldDirection(game, cmd[0], &entryProps);
-                setupGameOnMapLoad(game, &entryProps, options);
-                if (map != NULL) break;  // NULL only if invalid move
-
-                // Else, it was an invalid move, so let it exit the if body,
-                promptOverride = "You reached the map border, try again: ";
-
-            } else if (first == 'f') {
-                // f <x> <y>: Fly to a specific map
-                int x, y;
-                int parsedItems = sscanf(cmd, "f %d %d", &x, &y); // NOLINT(*-err34-c)
-                if (parsedItems == 2) {
-                    MapEntryProps entryProps;
-                    map = moveToMap(game, x, y, &entryProps);
-                    entryProps.playerSpawnX = 0;
-                    entryProps.playerSpawnY = hashWithMapCardinalDir(x, y, WEST, world->worldSeed);
-                    setupGameOnMapLoad(game, &entryProps, options);
-                    if (map != NULL) break;  // NULL if invalid move
-                    // Else, let it exit the if body
-                }
-
-            } else if (first == 'h') {
-                // h: Hiker distance map
-                DistanceField* distanceField = generateDistanceField(map, player->mapX, player->mapY, HIKER);
-
-                if (cmd[1] == 'h') {
-                    printDistanceFieldAlt(distanceField);
-                } else {
-                    printDistanceField(distanceField);
-                }
-
-                promptOverride = "Printed Hiker's distance map. Input command: ";
-
-            } else if (first == 'r') {
-                // r: Rival distance map
-                DistanceField* distanceField = generateDistanceField(map, player->mapX, player->mapY, RIVAL);
-
-                if (cmd[1] == 'r') {
-                    printDistanceFieldAlt(distanceField);
-                } else {
-                    printDistanceField(distanceField);
-                }
-
-                promptOverride = "Printed Rival's distance map. Input command: ";
-            }
-
-            // If we got here, it must have been an invalid command
-//            printf(CLEAR_PREV_LINE);
-            if (promptOverride == NULL) printf("Invalid command, try again: ");
-            else {
-                printf("%s", promptOverride);
-                promptOverride = NULL;
-            }
-        }
-    }
-}
-

@@ -8,36 +8,19 @@
 // Forward declarations
 typedef struct EntityManager EntityManager;
 
-// Maximum command size (assignment 1.03 and prior)
-#define CMD_MAX_LENGTH 64
-
-// Stores the game options, specified via arguments passed by the user.
-typedef struct {
-    // Whether to color the map when printing to stdout.
-    bool doColoring;
-    // The number of trainers (NPCs) to spawn on every map load.
-    int numTrainers;
-    // The number of microseconds to wait between drawing each frame.
-    int frameTimeMicros;
-} GameOptions;
-
-
 // The main game loop.
-void update(GameManager* game, GameOptions* options);
+void gameLoop();
 
 // Set up the current map (as determined by player global position) for gameplay.
 // Must be called whenever the map changes
-void setupGameOnMapLoad(GameManager* game, MapEntryProps* entryProps, GameOptions* options);
+void setupGameOnMapLoad(MapEntryProps* entryProps);
 
 // Moves the player to an adjacent map.
 // Returns the pointer to that map
-Map* moveInWorldDirection(GameManager* game, char cmd, MapEntryProps* entryProps);
+Map* moveInWorldDirection(char cmd, MapEntryProps* entryProps);
 
 // Moves the player to a map at the specified parameters (globalX, globalY).
 // Returns the pointer to that map
-Map* moveToMap(GameManager* game, int globalX, int globalY, MapEntryProps* entryProps);
-
-// Game loop for assignment 1.03 and before.
-__attribute__((unused)) void update_old(GameManager* game, GameOptions* options);
+Map* moveToMap(int globalX, int globalY, MapEntryProps* entryProps);
 
 #endif

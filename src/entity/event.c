@@ -1,6 +1,7 @@
 // Events indicate entity actions on the map, such as movement
 #include <stdlib.h>
 #include "entity/event.h"
+#include "core/game_manager.h"
 
 // Comparator for the event's resolveTime, for purposes of using the event queue
 int eventComparator(const void* this, const void* other) {
@@ -8,16 +9,16 @@ int eventComparator(const void* this, const void* other) {
 }
 
 // Adds the given event into the EntityManager's event queue.
-void enqueueEvent(EntityManager* entManager, Event* event) {
-    heap_insert(entManager->eventQueue, event);
+void enqueueEvent(Event* event) {
+    heap_insert(GAME.entManager->eventQueue, event);
 }
 
 // Resolves the event by carrying out the specified action.
 // Called on the event when it is polled from the event queue.
-void resolveEvent(EntityManager* entManager, Event* event) {
+void resolveEvent(Event* event) {
     Entity* entity = event->actor;
     switch (event->type) {
-        case MOVEMENT: moveEntity(entManager, entity, event->dx, event->dy);
+        case MOVEMENT: moveEntity(entity, event->dx, event->dy);
             break;
         case IDLE: break;
         case PLAYER_INPUT_BLOCKING: exit(1);  // This event should not be delegated to the manager

@@ -19,27 +19,27 @@ void cleanUpRenderer() {
     endwin();
 }
 
-void renderGameUpdate(GameManager* game, GameOptions* options) {
+void renderGameUpdate() {
 //    clear();
 
     // First line
-    mvprintw(0, 0, "Event time: %d", game->time);
+    mvprintw(0, 0, "Event time: %d", GAME.time);
 
     // Draw the map
     char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-    worldToString(game, mapStr);
+    worldToString(mapStr);
     mvprintw(MAP_LINE_OFFSET, 0, "%s", mapStr);
 
     // Draw entities
-    ArrayList* entities = game->entManager->entities;
+    ArrayList* entities = GAME.entManager->entities;
     for (int i = 0; i < entities->size; i++) {
         Entity* ent = entities->array[i];
         mvaddch(MAP_LINE_OFFSET + ent->mapY, ent->mapX, entityToChar(ent));
     }
 
     // Last two lines
-    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET, 0, "Map position: (%d, %d)", game->player->globalX, game->player->globalY);
-    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET + 1, 0, "PC position: (%d, %d)", game->player->mapX, game->player->mapY);
+    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET, 0, "Map position: (%d, %d)", GAME.player->globalX, GAME.player->globalY);
+    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET + 1, 0, "PC position: (%d, %d)", GAME.player->mapX, GAME.player->mapY);
 
     refresh();
 }

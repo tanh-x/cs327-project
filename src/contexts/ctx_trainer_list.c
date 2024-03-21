@@ -3,7 +3,7 @@
 #include "graphics/artist.h"
 #include "utils/string_helpers.h"
 
-void startTrainerListWindow(GameManager* game) {
+void startTrainerListWindow() {
     WINDOW* parentWindow = stdscr;
     int width = TRAINER_LIST_WINDOW_WIDTH;
     int height = TRAINER_LIST_WINDOW_HEIGHT;
@@ -20,20 +20,20 @@ void startTrainerListWindow(GameManager* game) {
     keypad(window, TRUE);
 
     // We're done with initialization
-    game->context = TRAINER_LIST_CONTEXT;
+    GAME.context = TRAINER_LIST_CONTEXT;
     wrefresh(window);
 
     // Enter the main loop
-    trainerListEntry(game, window, parentWindow);
+    trainerListEntry(window, parentWindow);
 
     // trainerListEntry() only returns upon exit, so we destroy the window and exit
     disposeTrainerListWindow(window, parentWindow);
-    game->context = WORLD_CONTEXT;
+    GAME.context = WORLD_CONTEXT;
 }
 
-void trainerListEntry(GameManager* game, WINDOW* window, WINDOW* parentWindow) {
-    ArrayList* entities = game->entManager->entities;
-    Player* player = game->player;
+void trainerListEntry(WINDOW* window, WINDOW* parentWindow) {
+    ArrayList* entities = GAME.entManager->entities;
+    Player* player = GAME.player;
 
     int scroll = 0;
     int maxScroll = entities->size - TRAINER_LIST_WINDOW_HEIGHT + 2;
@@ -100,7 +100,7 @@ void disposeTrainerListWindow(WINDOW* window, WINDOW* parentWindow) {
     wrefresh(parentWindow);
 }
 
-bool trainerListInputHandler(GameManager* game, GameOptions* options, int key) {
+bool trainerListInputHandler(int key) {
     // TODO: Integrate this into the system, if time allows
     return false;
 }

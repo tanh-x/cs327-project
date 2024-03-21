@@ -1,7 +1,7 @@
 #include <ncurses.h>
 #include "contexts/ctx_building.h"
 
-void enterPlaceholderBuilding(GameManager* game, TileType type) {
+void enterPlaceholderBuilding(TileType type) {
     WINDOW* parentWindow = stdscr;
     int width = WINDOW_WIDTH - 4;
     int height = WINDOW_HEIGHT - 4;
@@ -21,7 +21,7 @@ void enterPlaceholderBuilding(GameManager* game, TileType type) {
     else if (type == POKECENTER) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMON CENTER INTERFACE");
 
     // We're done with initialization
-    game->context = BUILDING_CONTEXT;
+    GAME.context = BUILDING_CONTEXT;
     wrefresh(window);
 
     // Only accepts ESC to exit, no other keys are handled.
@@ -33,5 +33,5 @@ void enterPlaceholderBuilding(GameManager* game, TileType type) {
     // If we got here, ESC has been pressed
     delwin(window);
     wrefresh(parentWindow);
-    game->context = WORLD_CONTEXT;
+    GAME.context = WORLD_CONTEXT;
 }

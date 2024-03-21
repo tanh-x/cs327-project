@@ -2,6 +2,7 @@
 #include "entity/event.h"
 #include "entity/pathfinding.h"
 #include "entity/npc/explorer.h"
+#include "core/game_manager.h"
 
 ExplorerSoul* constructExplorerSoul() {
     ExplorerSoul* soul = malloc(sizeof(ExplorerSoul));
@@ -12,7 +13,8 @@ ExplorerSoul* constructExplorerSoul() {
 }
 
 // Explorers walk in one direction, and turns in a random direction if they can't walk forward.
-bool explorerMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity) {
+bool explorerMovementAI(Event* event, Entity* entity) {
+    Map* map = GAME.world->current;
     ExplorerSoul* soul = entity->soul;
     Int2D* walk = &soul->walk;
 

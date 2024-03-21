@@ -10,7 +10,7 @@
 
 void prettyPrint(const char *str, bool isMapColored);
 
-void worldToString(GameManager *game, char *str);
+void worldToString(char *str);
 
 char entityToChar(Entity *entity);
 

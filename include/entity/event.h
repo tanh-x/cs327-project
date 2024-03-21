@@ -45,11 +45,11 @@ typedef struct Event {
 int eventComparator(const void* this, const void* other);
 
 // Adds the given event into the EntityManager's event queue.
-void enqueueEvent(EntityManager* entManager, Event* event);
+void enqueueEvent(Event* event);
 
 // Resolves the event by carrying out the specified action.
 // Called on the event when it is polled from the event queue.
-void resolveEvent(EntityManager* entManager, Event* event);
+void resolveEvent(Event* event);
 
 // Frees the currently allocated memory for the event.
 void disposeEvent(void* event);

@@ -3,6 +3,6 @@
 
 #include "core/game_manager.h"
 
-void enterPlaceholderBuilding(GameManager* game, TileType type);
+void enterPlaceholderBuilding(TileType type);
 
 #endif

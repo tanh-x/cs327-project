@@ -13,6 +13,6 @@ typedef struct {
 
 ExplorerSoul* constructExplorerSoul();
 
-bool explorerMovementAI(Event* event, Map* map, __attribute__((unused)) Player* player, Entity* entity);
+bool explorerMovementAI(Event* event, Entity* entity);
 
 #endif

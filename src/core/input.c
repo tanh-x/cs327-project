@@ -1,12 +1,12 @@
 #include <ncurses.h>
 #include "core/input.h"
-#include "contexts/context.h"
+#include "contexts/context_facade.h"
 
-bool globalInputHandler(GameManager* game, __attribute__((unused)) GameOptions* options, int key) {
+bool globalInputHandler(int key) {
     switch (key) {
         case 'q':
         case 'Q': {
-            game->quit_game = true;
+            GAME.quit_game = true;
             break;
         }
         default: return false;
@@ -16,16 +16,16 @@ bool globalInputHandler(GameManager* game, __attribute__((unused)) GameOptions* 
 
 
 // Returns whether the input was actually handled or not
-bool handlePlayerInput(GameManager* game, GameOptions* options) {
+bool handlePlayerInput() {
     // Await player input
     int key = getch();
 
     // Propagate through the global input handler
-    if (globalInputHandler(game, options, key)) return true;
+    if (globalInputHandler(key)) return true;
 
     // If uncaught, then propagate through the current context input handler
-    bool (* handler)(GameManager*, GameOptions*, int) = dispatchContextInputHandler(game->context);
-    if (handler(game, options, key)) return true;
+    bool (* handler)(int) = dispatchContextInputHandler(GAME.context);
+    if (handler(key)) return true;
 
     // If none of our input handlers caught the key, then return false
     return false;
