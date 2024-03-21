@@ -31,10 +31,14 @@ typedef struct Entity {
     int mapX;
     int mapY;
 
-    // This is a coping mechanism with the lack of OOP constructs.
     // A soul is a pointer to a fragment of additional data that some entities may have.
     // This allows us to store additional states with the entities' own structs (e.g. Player)
+    // [ This is a coping mechanism with the lack of OOP constructs. ]
     void* soul;
+
+    // Whether the player can battle this NPC. Entities that can't be fought or has already been defeated will
+    // have this value as false
+    bool activeBattle;
 } Entity;
 
 

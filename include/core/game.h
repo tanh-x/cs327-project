@@ -2,9 +2,8 @@
 #define GAME_H
 // This file has components that drive the game, or otherwise is a very centerpiece part of the project.
 
-#include "player.h"
-#include "world/world.h"
-#include "entity/event.h"
+#include <stdbool.h>
+#include "game_manager.h"
 
 // Forward declarations
 typedef struct EntityManager EntityManager;
@@ -12,26 +11,12 @@ typedef struct EntityManager EntityManager;
 // Maximum command size (assignment 1.03 and prior)
 #define CMD_MAX_LENGTH 64
 
-
-// Singleton object that stores pointers to core components of the game, as well as other information.
-// This is often passed into various functions for most core game functionality.
-typedef struct GameManager {
-    World* world;
-    Player* player;
-    EntityManager* entManager;
-    int time;
-    bool quit_game;
-} GameManager;
-
-
 // Stores the game options, specified via arguments passed by the user.
 typedef struct {
     // Whether to color the map when printing to stdout.
     bool doColoring;
-
     // The number of trainers (NPCs) to spawn on every map load.
     int numTrainers;
-
     // The number of microseconds to wait between drawing each frame.
     int frameTimeMicros;
 } GameOptions;

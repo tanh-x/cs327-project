@@ -96,12 +96,7 @@ Event* constructEventOnTurn(Map* map, Player* player, Entity* entity) {
 // A movement AI handler is a function that takes in 4 arguments: event, map, player, entity; and returns a boolean
 // that indicates whether the event creation was successful or not.
 // The event will be of movement type, with dx, dy, and cost correctly written into.
-bool (* dispatchMovementAIHandler(EntityType type))(
-    Event* event,
-    Map* map,
-    Player* player,
-    Entity* entity
-) {
+bool (* dispatchMovementAIHandler(EntityType type))(Event* event, Map* map, Player* player, Entity* entity) {
     switch (type) {
         case HIKER: return gradientDescentAI;
         case RIVAL: return gradientDescentAI;

@@ -90,7 +90,8 @@
     Evening:
     - Set up ncurses
     - Set up input handling
-    - Implemented a simple array list
-    - Handled player movement
+    - Implemented a simple array list for holding entities
+    - Handled character movement
 * Day 2 (2024-03-20)
-    - Vastly optimized rendering, can update at 14kHz without flickering
+    - Completed movement control
+    - Vastly optimized ncurses updates, can now refresh at 21kHz without flickering (3kHz on pyrite)

@@ -3,10 +3,9 @@
 #include "core/player.h"
 #include "entity/pathfinding.h"
 #include "core/game.h"
+#include "entity/event.h"
 
-#define PLAYER_IDLE_TIME 10
 // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE or out of bounds.
-
 PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
     Player* player = game->player;
     EntityManager* entManager = game->entManager;
@@ -19,15 +18,7 @@ PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
 
     // Check if the terrain we're moving towards is traversable to the player
     int cost = getTerrainCost(game->world->current->tileset[newY][newX].type, PLAYER);
-    if (cost == UNCROSSABLE || cost < -1) {
-        // If so, then make the player idle for 10 units of time
-        Event* event = constructInputBlockingEvent(playerEnt, PLAYER_IDLE_TIME);
-        event->resolveTime = game->time + event->cost;
-        enqueueEvent(entManager, event);
-
-        // No movement, so no other actions for now.
-        return UNCROSSABLE_TERRAIN;
-    }
+    if (cost == UNCROSSABLE || cost < -1) return UNCROSSABLE_TERRAIN;
 
     // If we got here, it must be a valid move, so immediately move the player and its entity, bypassing the
     // event queue system. We also skip moveEntity's check.
@@ -39,9 +30,25 @@ PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy) {
         enqueueEvent(entManager, event);
 
         // The movement is successful, and nothing else needs to be done, so we return.
-        return NONE;
+        return STANDARD;
     } else {
         // If the return was false, it means we have encountered another entity at this location.
         return ENTITY_ENCOUNTER;
     }
+}
+
+void dispatchPlayerEncounter(GameManager* game, PlayerEncounterScenario scenario) {
+    Player* player = game->player;
+    EntityManager* entManager = game->entManager;
+
+    // Normal movement is already handled within attemptMovePlayer()
+    if (scenario == STANDARD) return;
+
+    // Otherwise, enqueue an idle event for the player, and continue with other scenarios
+    Event* event = constructInputBlockingEvent(player->currentEntity, PLAYER_SPECIAL_ACTION_IDLE_TIME);
+    event->resolveTime = game->time + event->cost;
+    enqueueEvent(entManager, event);
+
+    // If we hit uncrossable terrain, just do nothing and wait.
+    if (scenario == UNCROSSABLE_TERRAIN) return;
 }

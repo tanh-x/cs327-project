@@ -5,6 +5,9 @@
 #include "entity/entities.h"
 #include "world/mapbuilder.h"
 
+#define PLAYER_SPECIAL_ACTION_IDLE_TIME 14
+#define PLAYER_REST_TIME 8
+
 // Holds the data related to various aspects of the player
 typedef struct {
     int globalX;
@@ -18,15 +21,16 @@ typedef struct {
 
 // Every time the player moves, or an entity moves upon the player, one of a few outcomes can happen
 typedef enum __attribute__ ((__packed__)) {
-    NONE,
+    INVALID,
+    STANDARD,
     UNCROSSABLE_TERRAIN,
     ENTITY_ENCOUNTER
 } PlayerEncounterScenario;
 
 
 // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE or out of bounds.
-// Returns the cost of the action if successful.
-// The caller must add an PLAYER_INPUT_BLOCKING event to the event queue afterward with the cost returned.
 PlayerEncounterScenario attemptMovePlayer(GameManager* game, int dx, int dy);
+
+void dispatchPlayerEncounter(GameManager* game, PlayerEncounterScenario scenario);
 
 #endif

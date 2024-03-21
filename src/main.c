@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     bool doColoring = true;
     bool doBadApple = false;
     int numTrainers = 10;
-    int frameTimeMicros = 1000000 / 5000;
+    int frameTimeMicros = 1000000 / 60;
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
     GameManager game;
     game.entManager = NULL;
     game.quit_game = false;
+    game.context = WORLD_CONTEXT;
 
     // Create a player struct
     Player player;

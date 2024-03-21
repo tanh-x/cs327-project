@@ -1,11 +1,9 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│  Has players and characters moving around. The movement AI depends on the    │
-│  type of character. The game loop is ran on an event system, with a heap as  │
-│  the ticking clock of the game.                                              │
+│  The game is now rendered using ncurses library, with a new input handling   │
+│  and context switching system to handle the increased complexity of the new  │
+│  features. Players can move in the world with the specified keys or WASD.    │
 │                                                                              │
-│  Most tile types use standard display characters, with these exceptions:     │
-│  - Borders: &, white background                                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 
@@ -32,6 +30,10 @@ Flags:
 
     In Bad Apple mode, it may segfault once every 700 frames or so. Run
     ./animate.sh 2> /dev/null to suppress these.
+
+Notes:
+Most tile types use standard display characters, with these exceptions:
+    - Borders: &, white background
 
     ─────────────────────────<  Assignment 1.01  >──────────────────────────
 
@@ -141,3 +143,7 @@ need to pass data around.
 [ Event System ]
 Instead of placing characters in the queue, instead, events are created every time
 a character wants to perform an action, then those events are enqueued in the heap.
+
+    ─────────────────────────<  Assignment 1.05  >──────────────────────────
+
+[ Context Switching ]
