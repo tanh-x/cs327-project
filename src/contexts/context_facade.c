@@ -14,29 +14,29 @@ Context* instantiateRootContext() {
     return ctx;
 }
 
-// Instantiates the child context, with a given constructed window.
-Context* switchToChildWindowContext(Context* parent, ContextType type, WINDOW* window) {
+// Instantiates the child context as well as a constructed window.
+Context* constructChildWindowContext(ContextType type, Rect2D dimensions) {
     Context* ctx = malloc(sizeof(Context));
-    ctx->window = window;
+    ctx->window = constructWindow(dimensions);
     ctx->type = type;
-    ctx->parent = parent;
+    ctx->parent = GAME.context;
+    ctx->dimensions = dimensions;
 
     GAME.context = ctx;
-    wrefresh(window);
     return ctx;
 }
 
 // Constructs a basic popup window
-WINDOW* constructWindow(int width, int height, int top, int left) {
-    WINDOW* window = newwin(height, width, top, left);
+WINDOW* constructWindow(Rect2D dimensions) {
+    WINDOW* window = newwin(dimensions.height, dimensions.width, dimensions.y, dimensions.x);
     box(window, 0, 0);
     keypad(window, true);
     return window;
 }
 
 // Disposes of the context, and restores the terminal to the parent window.
-// The caller must change the context of the game manager back to the parent context
-void disposeContext(Context* ctx) {
+// The caller must change the context of the game manager back to the parent context before this.
+void returnToParentContext(Context* ctx) {
     if (ctx->parent != NULL) {
         delwin(ctx->window);
         wrefresh(ctx->parent->window);

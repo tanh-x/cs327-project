@@ -52,4 +52,11 @@ typedef struct {
     int y;
 } Int2D;
 
+typedef struct {
+    int x;
+    int y;
+    int width;
+    int height;
+} Rect2D;
+
 #endif

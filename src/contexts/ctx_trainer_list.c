@@ -1,37 +1,46 @@
 #include <ncurses.h>
+#include <assert.h>
 #include "contexts/ctx_trainer_list.h"
 #include "graphics/artist.h"
 #include "utils/string_helpers.h"
+#include "core/input.h"
+#include "contexts/components/elements.h"
+
+#define WINDOW_LEFT_PADDING 2
 
 void startTrainerListWindow() {
-    WINDOW* parentWindow = stdscr;
-    int width = TRAINER_LIST_WINDOW_WIDTH;
-    int height = TRAINER_LIST_WINDOW_HEIGHT;
+    // Define dimensions of the new window
+    Rect2D windowDimensions;
+    windowDimensions.width = TRAINER_LIST_WINDOW_WIDTH;
+    windowDimensions.height = TRAINER_LIST_WINDOW_HEIGHT;
 
-    // Find the center of the window
-    int top = (WINDOW_HEIGHT - height) / 2;
-    int left = (WINDOW_WIDTH - width) / 2;
+    // Find the center of the parent window
+    windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
+    windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
 
-    // Instantiate new window
-    WINDOW* window = newwin(height, width, top, left);
+    // Construct and switch to it
+    Context* childCtx = constructChildWindowContext(TRAINER_LIST_CONTEXT, windowDimensions);
 
-    // Draw a box around the window
-    box(window, 0, 0);
-    keypad(window, true);
+    // Add extra stuff
+    windowTitle(childCtx, "Trainer list");
 
-    // We're done with initialization
-    GAME.context = TRAINER_LIST_CONTEXT;
-    wrefresh(window);
+    // Enter the main loop, which is where it will be wrefresh()'d
+    trainerListEntry();
 
-    // Enter the main loop
-    trainerListEntry(window, parentWindow);
+    // trainerListEntry() only returns upon exit, so we want to destroy the window and the context
+    // First, swap the context back to the parent
+    assert(GAME.context->parent != NULL);
+    GAME.context = GAME.context->parent;
 
-    // trainerListEntry() only returns upon exit, so we destroy the window and exit
-    disposeTrainerListWindow(window, parentWindow);
-    GAME.context = WORLD_CONTEXT;
+    // Then, dispose it, and return back to the parent window.
+    returnToParentContext(childCtx);
+
+    // We are done with the trainer list, so exit back to the call site
 }
 
-void trainerListEntry(WINDOW* window, WINDOW* parentWindow) {
+void trainerListEntry() {
+    assert(GAME.context->type == TRAINER_LIST_CONTEXT);
+    WINDOW* window = GAME.context->window;
     ArrayList* entities = GAME.entManager->entities;
     Player* player = GAME.player;
 
@@ -49,7 +58,7 @@ void trainerListEntry(WINDOW* window, WINDOW* parentWindow) {
             sprintf(dxString, "dx=%d,", ent->mapX - player->mapX);
             rightPad(dxString, 7);
             sprintf(indexString, "%d.", i + scroll);
-            rightPad(indexString, 4);
+            rightPad(indexString, 5);
             sprintf(
                 entityString, "%s%c @ (%s dy=%d)",
                 indexString,
@@ -57,48 +66,56 @@ void trainerListEntry(WINDOW* window, WINDOW* parentWindow) {
                 dxString,
                 ent->mapY - player->mapY
             );
-            rightPad(entityString, TRAINER_LIST_WINDOW_WIDTH - 2);
+            rightPad(entityString, TRAINER_LIST_WINDOW_WIDTH - WINDOW_LEFT_PADDING - 1);
 
             // Print it out
-            mvwprintw(window, i, 1, "%s", entityString);
+            mvwprintw(window, i, WINDOW_LEFT_PADDING, "%s", entityString);
         }
         if (entities->size >= TRAINER_LIST_WINDOW_HEIGHT) {
             if (scroll != maxScroll) {
-                mvwprintw(window, TRAINER_LIST_WINDOW_HEIGHT - 2, 1, "<%d MORE>  ", maxScroll - scroll);
+                mvwprintw(
+                    window, TRAINER_LIST_WINDOW_HEIGHT - 2, WINDOW_LEFT_PADDING,
+                    "<%d MORE>  ", maxScroll - scroll
+                );
             } else {
-                mvwprintw(window, TRAINER_LIST_WINDOW_HEIGHT - 2, 1, "<END>      ");
+                mvwprintw(
+                    window, TRAINER_LIST_WINDOW_HEIGHT - 2, WINDOW_LEFT_PADDING,
+                    "<END>      "
+                );
             }
 
         }
         wrefresh(window);
 
-
         // Listen for input
         int ch = getch();
+
+        // Check it against our trainer list handlers
         switch (ch) {
             case ESCAPE_KEY:
             case 't':  // Toggle alias
-                return;
+                return;  // Exit the loop
 
             case KEY_UP: {
                 scroll = clamp(scroll - 1, 0, maxScroll);
-                break;
+                continue;
             }
 
             case KEY_DOWN: {
                 scroll = clamp(scroll + 1, 0, maxScroll);
-                break;
+                continue;
             }
 
             default: {}
         }
+
+        // If not, then propagate it through the global handler first
+        if (handlePlayerInput()) continue;
+
+        // If still not caught, then don't do anything
     }
 }
 
-void disposeTrainerListWindow(WINDOW* window, WINDOW* parentWindow) {
-    delwin(window);
-    wrefresh(parentWindow);
-}
 
 bool trainerListInputHandler(int key) {
     // TODO: Integrate this into the system, if time allows
