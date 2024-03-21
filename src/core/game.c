@@ -10,6 +10,7 @@
 #include "entity/map_ai.h"
 #include "graphics/renderer.h"
 #include "core/input.h"
+#include "contexts/ctx_battle_view.h"
 
 #define RENDER_TIMER_INTERVAL 5
 
@@ -17,6 +18,7 @@
 void gameLoop() {
     // Pointers to essential components
     World* world = GAME.world;
+    Player* player = GAME.player;
     Map* map = world->current;
     EntityManager* entManager = GAME.entManager;
 
@@ -32,14 +34,26 @@ void gameLoop() {
             // Time travelling is strictly prohibited
             GAME.time = max(GAME.time, event->resolveTime);
 
+            Entity* actor = event->actor;
+
             // If it's a player event, break the event loop.
-            if (event->actor->type == PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;
+            if (actor->type == PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;
 
             // Delegate the event action to the entity manager
             resolveEvent(event);
 
+            // If the entity is near the player, or they haven't been defeated
+            if (actor->activeBattle
+                && manhattan_dist(actor->mapX, actor->mapY, player->mapX, player->mapY) <= 1) {
+                // Then enter the battle
+                enterPlaceholderBattle(actor);
+                // Render the game after the opponent is defeated before keep checking other entities
+                renderGameUpdate();
+                usleep(OPTIONS.frameTimeMicros);
+            }
+
             // Queue next event for this entity
-            Event* newEvent = constructEventOnTurn(event->actor);
+            Event* newEvent = constructEventOnTurn(actor);
             newEvent->resolveTime = GAME.time + newEvent->cost;
             enqueueEvent(newEvent);
 

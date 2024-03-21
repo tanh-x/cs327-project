@@ -19,10 +19,10 @@ void startTrainerListWindow() {
     windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
 
     // Construct and switch to it
-    Context* childCtx = constructChildWindowContext(TRAINER_LIST_CONTEXT, windowDimensions);
+    Context* context = constructChildWindowContext(TRAINER_LIST_CONTEXT, windowDimensions);
 
     // Add extra stuff
-    windowTitle(childCtx, "Trainer list");
+    windowTitle(context, "Trainer list");
 
     // Enter the main loop, which is where it will be wrefresh()'d
     trainerListEntry();
@@ -33,7 +33,7 @@ void startTrainerListWindow() {
     GAME.context = GAME.context->parent;
 
     // Then, dispose it, and return back to the parent window.
-    returnToParentContext(childCtx);
+    returnToParentContext(context);
 
     // We are done with the trainer list, so exit back to the call site
 }
@@ -93,6 +93,8 @@ void trainerListEntry() {
         // Check it against our trainer list handlers
         switch (ch) {
             case ESCAPE_KEY:
+            case '`':  // Near-esc alias
+            case '~':  // Near-esc alias
             case 't':  // Toggle alias
                 return;  // Exit the loop
 

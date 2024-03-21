@@ -1,39 +1,37 @@
 #include <ncurses.h>
 #include "contexts/ctx_battle_view.h"
 #include "core/game_manager.h"
+#include "graphics/artist.h"
 
 void enterPlaceholderBattle(Entity* opponent) {
-    WINDOW* parentWindow = stdscr;
-    int width = WINDOW_WIDTH - 4;
-    int height = WINDOW_HEIGHT - 4;
+    // Define dimensions of the new window
+    Rect2D windowDimensions;
+    windowDimensions.width = WINDOW_WIDTH - 4;
+    windowDimensions.height = WINDOW_HEIGHT - 4;
 
-    // Find the center of the window
-    int top = (WINDOW_HEIGHT - height) / 2;
-    int left = (WINDOW_WIDTH - width) / 2;
+    // Find the center of the parent window
+    windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
+    windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
 
-    // Instantiate new window
-    WINDOW* window = newwin(height, width, top, left);
 
-    // Draw a box around the window
-    box(window, 0, 0);
-    keypad(window, TRUE);
+    // Construct and switch to it
+    Context* context = constructChildWindowContext(BATTLE_CONTEXT, windowDimensions);
+    WINDOW* window = context->window;
 
-    mvwprintw(window, 1, 1, "PLACEHOLDER BATTLE INTERFACE");
+    // Add a placeholder title
+    mvwprintw(window, 1, 1, "PLACEHOLDER BATTLE INTERFACE (type %c) [@ %p]", entityToChar(opponent), &opponent->soul);
 
     // We're done with initialization
-    GAME.context = BATTLE_CONTEXT;
     wrefresh(window);
 
     // Only accepts ESC to exit, no other keys are handled.
     while (true) {
         int ch = getch();
-        if (ch == ESCAPE_KEY) break;
+        if (ch == ESCAPE_KEY || ch == '`' || ch == '~') break;
     }
 
-
     // If we got here, ESC has been pressed
-    delwin(window);
-    wrefresh(parentWindow);
     opponent->activeBattle = false;
-    GAME.context = WORLD_CONTEXT;
+    GAME.context = context->parent;
+    returnToParentContext(context);
 }
