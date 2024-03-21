@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include "contexts/ctx_building.h"
+#include "contexts/components/animations.h"
 
 void enterPlaceholderBuilding(TileType type) {
     // Define dimensions of the new window
@@ -10,6 +11,9 @@ void enterPlaceholderBuilding(TileType type) {
     // Find the center of the parent window
     windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
     windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
+
+    // Do a fancy animation
+    expandWindowVertical(windowDimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
     Context* context = constructChildWindowContext(BUILDING_CONTEXT, windowDimensions);

@@ -5,6 +5,7 @@
 #include "utils/string_helpers.h"
 #include "core/input.h"
 #include "contexts/components/elements.h"
+#include "contexts/components/animations.h"
 
 #define WINDOW_LEFT_PADDING 2
 
@@ -17,6 +18,9 @@ void startTrainerListWindow() {
     // Find the center of the parent window
     windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
     windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
+
+    // Do a fancy animation
+    expandWindowVertical(windowDimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
     Context* context = constructChildWindowContext(TRAINER_LIST_CONTEXT, windowDimensions);

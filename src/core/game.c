@@ -13,6 +13,7 @@
 #include "contexts/ctx_battle_view.h"
 
 #define RENDER_TIMER_INTERVAL 5
+#define BATTLE_INITIATION_COOLDOWN 10
 
 // The main game loop
 void gameLoop() {
@@ -24,6 +25,9 @@ void gameLoop() {
 
     // Used to occasionally rerender the game, even if it's not the player's turn yet.
     int renderTimeTarget = RENDER_TIMER_INTERVAL;
+
+    // Used to prevent NPCs from spamming too many battle intiations with the player
+    int nextBattleInitiationTime = 0;
 
     // Draw once
     renderGameUpdate();
@@ -42,14 +46,24 @@ void gameLoop() {
             // Delegate the event action to the entity manager
             resolveEvent(event);
 
-            // If the entity is near the player, or they haven't been defeated
+            // If the entity is near the player, and they haven't been defeated, and there isn't an active cooldown
             if (actor->activeBattle
-                && manhattan_dist(actor->mapX, actor->mapY, player->mapX, player->mapY) <= 1) {
+                && manhattan_dist(actor->mapX, actor->mapY, player->mapX, player->mapY) <= 1
+                && GAME.time >= nextBattleInitiationTime) {
+
+                // Render the game before entering battle
+                renderGameUpdate();
+                usleep(STD_SLOW_FRAME_DELAY);
+
                 // Then enter the battle
                 enterPlaceholderBattle(actor);
-                // Render the game after the opponent is defeated before keep checking other entities
+
+                // Do another render when we're done
+                clear();
                 renderGameUpdate();
-                usleep(OPTIONS.frameTimeMicros);
+
+                // Update the next possible initiation time
+                nextBattleInitiationTime = GAME.time + BATTLE_INITIATION_COOLDOWN;
             }
 
             // Queue next event for this entity
