@@ -7,7 +7,7 @@ void initializeExtendedColors() {
     start_color();
 
     init_pair(1, 154, 0); // lime
-    init_pair(2, 245, -1); // light gray
+    init_pair(2, 245, 0); // light gray
     init_pair(3, 248, 0); // dark gray
     init_pair(4, 172, 0); // brown
     init_pair(5, 208, 0); // light gray

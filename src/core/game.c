@@ -13,7 +13,7 @@
 #include "contexts/ctx_battle_view.h"
 
 #define RENDER_TIMER_INTERVAL 5
-#define BATTLE_INITIATION_COOLDOWN 10
+#define BATTLE_INITIATION_COOLDOWN 14
 
 // The main game loop
 void gameLoop() {

@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <unistd.h>
 #include "contexts/ctx_battle_view.h"
 #include "core/game_manager.h"
 #include "graphics/artist.h"
@@ -19,13 +20,37 @@ void enterPlaceholderBattle(Entity* opponent) {
     // Construct and switch to it
     Context* context = constructChildWindowContext(BATTLE_CONTEXT, windowDimensions);
     WINDOW* window = context->window;
-
     // Add a placeholder title
     mvwprintw(window, 1, 2, "PLACEHOLDER BATTLE INTERFACE");
-    mvwprintw(window, 2, 2, "Opponent: \"%s\" (type %c) [@ %p]", opponent->name, entityToChar(opponent), &opponent->soul);
+    // We're done with the main window
 
-    // We're done with initialization
+    // TIme to build the dialog window
+    Rect2D dialogDimensions;
+    dialogDimensions.x = 1;
+    dialogDimensions.y = WINDOW_HEIGHT - DIALOG_WINDOW_HEIGHT;
+    dialogDimensions.width = WINDOW_WIDTH - 2;
+    dialogDimensions.height = DIALOG_WINDOW_HEIGHT;
     wrefresh(window);
+    usleep(STD_SLOW_FRAME_DELAY);
+
+    // Start with an animation
+    expandWindowVertical(dialogDimensions, INTERVAL_30FPS_MICROS);
+
+    // Then build the actual dialog window
+    WINDOW* dialogWindow = constructWindow(dialogDimensions);
+
+    // Print out text to the dialog window
+    mvwprintw(
+        dialogWindow, 1, 1, "%s wants to fight!",
+        opponent->name
+    );
+    mvwprintw(
+        dialogWindow, DIALOG_WINDOW_HEIGHT - 2, 1, "<Opponent: \"%s\" (type %c) [@ %p]>",
+        opponent->name, entityToChar(opponent), &opponent->soul
+    );
+
+    // We're done with building the window
+    wrefresh(dialogWindow);
 
     // Only accepts ESC to exit, no other keys are handled.
     while (true) {
@@ -34,6 +59,7 @@ void enterPlaceholderBattle(Entity* opponent) {
     }
 
     // If we got here, ESC has been pressed
+    clear();
     opponent->activeBattle = false;
     GAME.context = context->parent;
     returnToParentContext(context);
