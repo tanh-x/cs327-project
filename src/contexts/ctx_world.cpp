@@ -3,63 +3,14 @@
 #include "contexts/ctx_trainer_list.hpp"
 #include "contexts/ctx_building.hpp"
 
-PlayerEncounterScenario tryPlayerMovementInput(int key) {
-    switch (key) {
-        case '7':
-        case 'y': // PLAYER UP-LEFT
-            return attemptMovePlayer(-1, -1);
-
-        case '8':
-        case 'k':
-        case 'w':  // WASD alias
-            // PLAYER UP
-            return attemptMovePlayer(0, -1);
-
-        case '9':
-        case 'u':
-            // PLAYER UP-RIGHT
-            return attemptMovePlayer(1, -1);
-
-        case '6':
-        case 'l':
-        case 'd':  // WASD alias
-            // PLAYER RIGHT
-            return attemptMovePlayer(1, 0);
-
-        case '3':
-        case 'n':
-            // PLAYER DOWN-RIGHT
-            return attemptMovePlayer(1, 1);
-
-        case '2':
-        case 'j':
-        case 's':  // WASD alias
-            // PLAYER DOWN
-            return attemptMovePlayer(0, 1);
-
-        case '1':
-        case 'b':
-            // PLAYER DOWN-LEFT
-            return attemptMovePlayer(-1, 1);
-
-        case '4':
-        case 'h':
-        case 'a':  // WASD alias
-            // PLAYER LEFT
-            return attemptMovePlayer(-1, 0);
-
-        default: return INVALID;
-    }
-}
-
 
 bool worldContextInputHandler(int key) {
     Player* player = GAME.player;
 
     // Try to see if the key was a player movement. If so, the player will have been moved, and we need to
     // handle the encounter event and return true, since the key was already caught.
-    PlayerEncounterScenario scenario = tryPlayerMovementInput(key);
-    if (scenario != INVALID) {
+    EncounterScenario scenario = tryPlayerMovementInput(player, key);
+    if (scenario != EncounterScenario::INVALID) {
         dispatchPlayerEncounter(scenario);
         return true;
     }
@@ -94,4 +45,54 @@ bool worldContextInputHandler(int key) {
     }
     // We can only get here if it wasn't the no-op case, so we have handled the input
     return true;
+}
+
+
+EncounterScenario tryPlayerMovementInput(Player* player, int key) {
+    switch (key) {
+        case '7':
+        case 'y': // PLAYER UP-LEFT
+            return player->attemptMove(-1, -1);
+
+        case '8':
+        case 'k':
+        case 'w':  // WASD alias
+            // PLAYER UP
+            return player->attemptMove(0, -1);
+
+        case '9':
+        case 'u':
+            // PLAYER UP-RIGHT
+            return player->attemptMove(1, -1);
+
+        case '6':
+        case 'l':
+        case 'd':  // WASD alias
+            // PLAYER RIGHT
+            return player->attemptMove(1, 0);
+
+        case '3':
+        case 'n':
+            // PLAYER DOWN-RIGHT
+            return player->attemptMove(1, 1);
+
+        case '2':
+        case 'j':
+        case 's':  // WASD alias
+            // PLAYER DOWN
+            return player->attemptMove(0, 1);
+
+        case '1':
+        case 'b':
+            // PLAYER DOWN-LEFT
+            return player->attemptMove(-1, 1);
+
+        case '4':
+        case 'h':
+        case 'a':  // WASD alias
+            // PLAYER LEFT
+            return player->attemptMove(-1, 0);
+
+        default: return EncounterScenario::INVALID;
+    }
 }

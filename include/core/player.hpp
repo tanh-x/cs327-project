@@ -1,36 +1,37 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+
 // This file holds functionalities related to the player
 
 #include "entity/entities.hpp"
 #include "world/mapbuilder.hpp"
 
-#define PLAYER_SPECIAL_ACTION_IDLE_TIME 5
-#define PLAYER_REST_TIME 8
+constexpr int PLAYER_SPECIAL_ACTION_IDLE_TIME = 5;
+constexpr int PLAYER_REST_TIME = 8;
 
-// Holds the data related to various aspects of the player
-typedef struct {
+enum class EncounterScenario {
+    INVALID,
+    STANDARD,
+    UNCROSSABLE_TERRAIN,
+    ENTITY_ENCOUNTER
+};
+
+class Player {
+public:
     int globalX;
     int globalY;
     int mapX;
     int mapY;
 
     Entity* currentEntity;
-} Player;
 
+    Player() : globalX(0), globalY(0), mapX(0), mapY(0), currentEntity(nullptr) {}
 
-// Every time the player moves, or an entity moves upon the player, one of a few outcomes can happen
-typedef enum __attribute__ ((__packed__)) {
-    INVALID,
-    STANDARD,
-    UNCROSSABLE_TERRAIN,
-    ENTITY_ENCOUNTER
-} PlayerEncounterScenario;
+    // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE
+    // or out of bounds.
+    EncounterScenario attemptMove(int dx, int dy);
+};
 
-
-// Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE or out of bounds.
-PlayerEncounterScenario attemptMovePlayer(int dx, int dy);
-
-void dispatchPlayerEncounter(PlayerEncounterScenario scenario);
+void dispatchPlayerEncounter(EncounterScenario scenario);
 
 #endif

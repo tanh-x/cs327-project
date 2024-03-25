@@ -1,8 +1,5 @@
 // This file has components that drive the game, or otherwise is a very centerpiece part of the project
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include "core/game.hpp"
 #include "graphics/artist.hpp"
@@ -11,6 +8,7 @@
 #include "graphics/renderer.hpp"
 #include "core/input.hpp"
 #include "contexts/ctx_battle_view.hpp"
+#include "entity/entity_manager.hpp"
 
 #define RENDER_TIMER_INTERVAL 5
 #define BATTLE_INITIATION_COOLDOWN 14
@@ -18,6 +16,7 @@
 // The main game loop
 void gameLoop() {
     // Pointers to essential components
+    GAME.quit_game = false;
     World* world = GAME.world;
     Player* player = GAME.player;
     Map* map = world->current;
@@ -101,6 +100,7 @@ void gameLoop() {
 // Set up the current map (as determined by player global position) for gameplay.
 // Must be called whenever the map changes
 void setupGameOnMapLoad(MapEntryProps* entryProps) {
+    // TODO: Put the manager in a map
     // Clean up previous EntityManager, if any
     if (GAME.entManager != nullptr) disposeEntityManager(GAME.entManager);
 
@@ -113,7 +113,7 @@ void setupGameOnMapLoad(MapEntryProps* entryProps) {
     invalidateMemoization(map->memoizedDistanceFields);
 
     // Load in new entity manager. It will also assign a new entity to the player
-    initializeEntityManager(OPTIONS.numTrainers);
+    GAME.entManager = new EntityManager(OPTIONS.numTrainers);
     GAME.time = 0;
 
     // Place trainers on the map
@@ -141,8 +141,11 @@ void setupGameOnMapLoad(MapEntryProps* entryProps) {
             // Check if the terrain cost was infinite
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
-            // spawnEntity might return NULL, indicating an unsuccessful placement, so entity = NULL and we try again
-            entity = spawnEntity(entType, x, y);
+            entity = new Entity(entType, x, y);
+            if (entity != NULL) GAME.entManager->addEntity(entity);
+
+            // spawnEntity might return NULL, indicating an unsuccessful placement
+            // if so then entity = nullptr and we try again
         }
 
         // If we already went through MAX_ITERATIONS and entity is still NULL, give up

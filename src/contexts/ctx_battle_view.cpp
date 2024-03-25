@@ -18,7 +18,7 @@ void enterPlaceholderBattle(Entity* opponent) {
     battleTransition(INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    Context* context = constructChildWindowContext(BATTLE_CONTEXT, windowDimensions);
+    Context* context = constructChildWindowContext(ContextType::BATTLE_CONTEXT, windowDimensions);
     WINDOW* window = context->window;
     // Add a placeholder title
     mvwprintw(window, 1, 2, "PLACEHOLDER BATTLE INTERFACE");

@@ -16,7 +16,7 @@ void enterPlaceholderBuilding(TileType type) {
     expandWindowVertical(windowDimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    Context* context = constructChildWindowContext(BUILDING_CONTEXT, windowDimensions);
+    Context* context = constructChildWindowContext(ContextType::BUILDING_CONTEXT, windowDimensions);
     WINDOW* window = context->window;
 
     if (type == POKEMART) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMART INTERFACE");

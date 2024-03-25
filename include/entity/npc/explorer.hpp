@@ -3,16 +3,16 @@
 
 #include "utils/mathematics.hpp"
 
-
 // Explorers walk in one direction, and turns in a random direction if they can't walk forward.
-typedef struct {
+class Explorer : public Entity {
+public:
+    Explorer(int x, int y);
+
+    bool moveAI(Event* event) override;
+
+private:
     // A 2D int vector that stores the current walking direction
     Int2D walk;
-} ExplorerSoul;
-
-
-ExplorerSoul* constructExplorerSoul();
-
-bool explorerMovementAI(Event* event, Entity* entity);
+};
 
 #endif

@@ -1,7 +1,7 @@
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <cstdio>
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"
@@ -21,9 +21,9 @@ int main(int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
         char* flag = argv[i];
         if (strcmp(flag, "--nocolor") == 0) doColoring = false;
-        else if (strcmp(flag, "--badapple") == 0) doBadApple = true;
-        else if (strcmp(flag, "--numtrainers") == 0) numTrainers = (int) strtol(argv[i + 1], NULL, 10);
-        else if (strcmp(flag, "--frametime") == 0) frameTimeMicros = (int) strtol(argv[i + 1], NULL, 10);
+//        else if (strcmp(flag, "--badapple") == 0) doBadApple = true;
+        else if (strcmp(flag, "--numtrainers") == 0) numTrainers = (int) strtol(argv[i + 1], nullptr, 10);
+        else if (strcmp(flag, "--frametime") == 0) frameTimeMicros = (int) strtol(argv[i + 1], nullptr, 10);
     }
 
     // Initialize options to reflect the parsed arguments
@@ -34,9 +34,9 @@ int main(int argc, char* argv[]) {
     // Get millisecond seed
     char* val = getenv("START");
     long long int invocationStartTime;
-    if (val != NULL) invocationStartTime = strtol(val, NULL, 10) % 2190666 + 69820;
+    if (val != nullptr) invocationStartTime = strtol(val, nullptr, 10) % 2190666 + 69820;
     else invocationStartTime = 0;
-    struct timespec timeNano;
+    struct timespec timeNano {};
     timespec_get(&timeNano, TIME_UTC);
     int timeSeedMilli = (int) ((timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime);
 
@@ -46,11 +46,11 @@ int main(int argc, char* argv[]) {
     // TODO: Main menu?
 
     // Initial set up
-    GAME.entManager = NULL;
+    GAME.entManager = nullptr;
     GAME.quit_game = false;
     GAME.context = instantiateRootContext();
 
-    // Create a player struct
+    // Create a player
     Player player;
     player.globalX = 0;
     player.globalY = 0;
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     world.current = map;
 
     // Initialize the memoized distance fields array
-    for (int i = 0; i < DISTANCE_FIELD_MEMOIZATION_SIZE; i++) map->memoizedDistanceFields[i] = NULL;
+    for (auto &distanceField: map->memoizedDistanceFields) distanceField = nullptr;
 
     // spawnMap will allow for special case world generation
     map->isSpawnMap = true;
@@ -84,13 +84,13 @@ int main(int argc, char* argv[]) {
     setupGameOnMapLoad(&entryProps);
 
     // Override game loop if using bad apple, DON'T PORT TO NCURSES!
-    if (doBadApple) {
-        printf(CLEAR_SCREEN);
-        char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
-        worldToString(mapStr);
-        prettyPrint(mapStr, OPTIONS.doColoring);
-        return 0;
-    }
+//    if (doBadApple) {
+//        printf(CLEAR_SCREEN);
+//        char mapStr[MAP_HEIGHT * (MAP_WIDTH + 1) + 1];
+//        worldToString(mapStr);
+//        prettyPrint(mapStr, OPTIONS.doColoring);
+//        return 0;
+//    }
 
     // Enter game loop
     gameLoop();

@@ -4,33 +4,29 @@
 #include "entity/npc/explorer.hpp"
 #include "core/game_manager.hpp"
 
-ExplorerSoul* constructExplorerSoul() {
-    auto* soul = static_cast<ExplorerSoul*>(malloc(sizeof(ExplorerSoul)));
-    soul->walk.x = randomInt(-1, 1);
-    soul->walk.y = randomInt(-1, 1);
-    if (soul->walk.x == 0 && soul->walk.y == 0) soul->walk.x = 1;
-    return soul;
+
+Explorer::Explorer(int x, int y) : Entity(EXPLORER, x, y) {
+    this->walk.x = randomInt(-1, 1);
+    this->walk.y = randomInt(-1, 1);
+    if (this->walk.x == 0 && this->walk.y == 0) this->walk.x = 1;
 }
 
-// Explorers walk in one direction, and turns in a random direction if they can't walk forward.
-bool explorerMovementAI(Event* event, Entity* entity) {
+bool Explorer::moveAI(Event* event) {
     Map* map = GAME.world->current;
-    auto* soul = static_cast<ExplorerSoul*>(entity->soul);
-    Int2D* walk = &soul->walk;
-
     int dx;
     int dy;
     int cost;
+
     for (int _ = 0; _ < MAX_ITERATIONS_SMALL; _++) {
         // Roll a random direction, standing still for one turn is an option. You gotta take breaks sometimes.
         dx = clamp(randomInt(-2, 2), -1, 1);
         dy = randomInt(-1, 1);
-        cost = getTerrainCost(map->tileset[entity->mapY + dy][entity->mapX + dx].type, EXPLORER);
+        cost = getTerrainCost(map->tileset[mapY + dy][mapX + dx].type, EXPLORER);
 
         // If we found a good direction, then start walking that way
         if (cost != UNCROSSABLE) {
-            walk->x = dx;
-            walk->y = dy;
+            walk.x = dx;
+            walk.y = dy;
             break;
         } // Else retry another roll
     }
@@ -40,7 +36,7 @@ bool explorerMovementAI(Event* event, Entity* entity) {
 
     // Otherwise, we're good to go
     event->cost = cost;
-    event->dx = walk->x;
-    event->dy = walk->y;
+    event->dx = walk.x;
+    event->dy = walk.y;
     return true;
 }

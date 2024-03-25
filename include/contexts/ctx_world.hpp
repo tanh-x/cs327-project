@@ -3,8 +3,8 @@
 
 #include "core/game.hpp"
 
-PlayerEncounterScenario tryPlayerMovementInput(int key);
-
 bool worldContextInputHandler(int key);
+
+EncounterScenario tryPlayerMovementInput(Player* player, int key);
 
 #endif

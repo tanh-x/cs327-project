@@ -1,5 +1,5 @@
 // Events indicate entity actions on the map, such as movement
-#include <stdlib.h>
+#include <cstdlib>
 #include "entity/event.hpp"
 #include "core/game_manager.hpp"
 
@@ -19,7 +19,7 @@ void enqueueEvent(Event* event) {
 void resolveEvent(Event* event) {
     Entity* entity = event->actor;
     switch (event->type) {
-        case MOVEMENT: moveEntity(entity, event->dx, event->dy);
+        case MOVEMENT: entity->moveBy(event->dx, event->dy);
             break;
         case IDLE: break;
         case PLAYER_INPUT_BLOCKING: exit(1);  // This event should not be delegated to the manager

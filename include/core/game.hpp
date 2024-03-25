@@ -2,11 +2,7 @@
 #define GAME_H
 // This file has components that drive the game, or otherwise is a very centerpiece part of the project.
 
-#include <stdbool.h>
 #include "game_manager.hpp"
-
-// Forward declarations
-typedef struct EntityManager EntityManager;
 
 // The main game loop.
 void gameLoop();

@@ -5,15 +5,15 @@
 
 
 // Pacers walk in one direction, then turn the opposite way if they hit an uncrossable tile
-typedef struct {
+class Pacer : public Entity {
+public:
+    Pacer(int x, int y);
+
+    bool moveAI(Event* event) override;
+
+private:
     // A 2D int vector that stores the current walking direction
     Int2D walk;
-} PacerSoul;
-
-
-PacerSoul* constructPacerSoul();
-
-// Pacers move back and forth, turning around whenever they encounter uncrossable terrain
-bool pacerMovementAI(Event* event, Entity* entity);
+};
 
 #endif

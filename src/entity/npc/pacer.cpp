@@ -1,32 +1,26 @@
-#include "world/mapbuilder.hpp"
-#include "core/player.hpp"
-#include "entity/event.hpp"
-#include "entity/pathfinding.hpp"
+#include "entity/entities.hpp"
 #include "entity/npc/pacer.hpp"
-#include "core/game_manager.hpp"
+#include "core/game.hpp"
+#include "entity/pathfinding.hpp"
 
-PacerSoul* constructPacerSoul() {
-    auto* soul = static_cast<PacerSoul*>(malloc(sizeof(PacerSoul)));
-    soul->walk.x = randomInt(-1, 1);
-    soul->walk.y = randomInt(-1, 1);
-    if (soul->walk.x == 0 && soul->walk.y == 0) soul->walk.x = 1;
-    return soul;
+Pacer::Pacer(int x, int y) : Entity(PACER, x, y) {
+    this->walk.x = randomInt(-1, 1);
+    this->walk.y = randomInt(-1, 1);
+    if (this->walk.x == 0 && this->walk.y == 0) this->walk.x = 1;
 }
 
 // Pacers move back and forth, turning around whenever they encounter uncrossable terrain
-bool pacerMovementAI(Event* event, Entity* entity) {
+bool Pacer::moveAI(Event* event) {
     Map* map = GAME.world->current;
-    auto* soul = static_cast<PacerSoul*>(entity->soul);
-    Int2D* walk = &soul->walk;
 
-    TileType nextTileType = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
+    TileType nextTileType = map->tileset[mapY + walk.y][mapX + walk.x].type;
 
     int cost = getTerrainCost(nextTileType, PACER);
     if (cost == UNCROSSABLE) {
         // Reverse the walking direction
-        walk->y *= -1;
-        walk->x *= -1;
-        TileType tileBehind = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
+        walk.y *= -1;
+        walk.x *= -1;
+        TileType tileBehind = map->tileset[mapY + walk.y][mapX + walk.x].type;
         cost = getTerrainCost(tileBehind, PACER);
         if (cost == UNCROSSABLE) {
             // We are stuck, so try again next turn
@@ -35,8 +29,8 @@ bool pacerMovementAI(Event* event, Entity* entity) {
     }
 
     event->cost = cost;
-    event->dx = walk->x;
-    event->dy = walk->y;
+    event->dx = walk.x;
+    event->dy = walk.y;
 
     return true;
 }

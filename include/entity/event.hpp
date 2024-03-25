@@ -5,11 +5,6 @@
 #include <malloc.h>
 #include "entities.hpp"
 
-// Forward declarations
-typedef struct Entity Entity;
-typedef struct EntityManager EntityManager;
-
-
 typedef enum __attribute__ ((__packed__)) {
     // IDLE events are placeholders, or waiting turns.
     IDLE,
@@ -21,7 +16,8 @@ typedef enum __attribute__ ((__packed__)) {
 
 
 // An Event is an action that will be enacted by an entity in some amount of time in the future.
-typedef struct Event {
+class Event {
+public:
     EventType type;
 
     // The entity carrying out this event.
@@ -38,7 +34,7 @@ typedef struct Event {
     // The cost plus time at which this event was queued.
     // This value will be written into during a enqueueEvent() call.
     int resolveTime;
-} Event;
+};
 
 
 // Comparator for the event's resolveTime, for purposes of using the event queue

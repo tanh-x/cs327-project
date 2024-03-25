@@ -8,7 +8,7 @@
 Context* instantiateRootContext() {
     auto* ctx = static_cast<Context*>(malloc(sizeof(Context)));
     ctx->window = stdscr;
-    ctx->type = WORLD_CONTEXT;
+    ctx->type = ContextType::WORLD_CONTEXT;
     ctx->parent = nullptr;  // Root context has no parent
 
     return ctx;
@@ -54,8 +54,8 @@ bool emptyInputHandler(int key) {
 // propagated to the next input handler.
 bool (* dispatchContextInputHandler(ContextType type))(int key) {
     switch (type) {
-        case WORLD_CONTEXT: return worldContextInputHandler;
-        case TRAINER_LIST_CONTEXT: return trainerListInputHandler;
+        case ContextType::WORLD_CONTEXT: return worldContextInputHandler;
+        case ContextType::TRAINER_LIST_CONTEXT: return trainerListInputHandler;
         default: return emptyInputHandler;
     }
 }

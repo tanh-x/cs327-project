@@ -23,7 +23,7 @@ void startTrainerListWindow() {
     expandWindowVertical(windowDimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    Context* context = constructChildWindowContext(TRAINER_LIST_CONTEXT, windowDimensions);
+    Context* context = constructChildWindowContext(ContextType::TRAINER_LIST_CONTEXT, windowDimensions);
 
     // Add extra stuff
     windowTitle(context, "Trainer list");
@@ -43,7 +43,7 @@ void startTrainerListWindow() {
 }
 
 void trainerListEntry() {
-    assert(GAME.context->type == TRAINER_LIST_CONTEXT);
+    assert(GAME.context->type == ContextType::TRAINER_LIST_CONTEXT);
     WINDOW* window = GAME.context->window;
     ArrayList* entities = GAME.entManager->entities;
     Player* player = GAME.player;

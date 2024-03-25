@@ -5,6 +5,7 @@
 #include "player.hpp"
 #include "game.hpp"
 #include "contexts/context_facade.hpp"
+#include "entity/entity_manager.hpp"
 
 // Stores the game options, specified via arguments passed by the user.
 typedef struct {
