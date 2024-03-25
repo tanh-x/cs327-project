@@ -102,3 +102,10 @@
     - Implemented placeholder battles interface
     - Implemented placeholder building interface
     - Refactored to use globals GAME and OPTIONS
+
+
+-- Assignment 1.06 --
+* Day 1 (2024-03-24)
+    Evening:
+    - Started porting to C++
+    - First successful compile, no warnings
