@@ -1,11 +1,11 @@
 #include "core/player.hpp"
 #include "entity/event.hpp"
 #include "entity/pathfinding.hpp"
-#include "entity/npc/explorer.hpp"
 #include "core/game_manager.hpp"
+#include "entity/entity_types/explorer.hpp"
 
 
-Explorer::Explorer(int x, int y) : Entity(EXPLORER, x, y) {
+Explorer::Explorer(int x, int y) : Entity(EntityEnum::EXPLORER, x, y) {
     this->walk.x = randomInt(-1, 1);
     this->walk.y = randomInt(-1, 1);
     if (this->walk.x == 0 && this->walk.y == 0) this->walk.x = 1;
@@ -21,7 +21,7 @@ bool Explorer::moveAI(Event* event) {
         // Roll a random direction, standing still for one turn is an option. You gotta take breaks sometimes.
         dx = clamp(randomInt(-2, 2), -1, 1);
         dy = randomInt(-1, 1);
-        cost = getTerrainCost(map->tileset[mapY + dy][mapX + dx].type, EXPLORER);
+        cost = getTerrainCost(map->tileset[mapY + dy][mapX + dx].type, EntityEnum::EXPLORER);
 
         // If we found a good direction, then start walking that way
         if (cost != UNCROSSABLE) {

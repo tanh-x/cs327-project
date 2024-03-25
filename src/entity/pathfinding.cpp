@@ -107,7 +107,7 @@ int getTerrainCostSwimmer(TileType tileType) {
     }
 }
 
-int getTerrainCost(TileType tileType, EntityType entityType) {
+int getTerrainCost(TileType tileType, EntityEnum entityType) {
     switch (entityType) {
         case PLAYER:        return getTerrainCostPlayer(tileType);
         case HIKER:         return getTerrainCostHiker(tileType);
@@ -131,7 +131,7 @@ int compareTileNode(const void* tile, const void* other) {
 
 // Computes the distance field for a given entity type and source coordinates
 // Returns the pointer to a DistanceField object
-DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityType entityType) {
+DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityEnum entityType) {
     auto* field = static_cast<DistanceField*>(malloc(sizeof(DistanceField)));
     field->entityType = entityType;
 
@@ -205,7 +205,7 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityT
 
 // Checks the given memoized array for a matching distance field, if none is found, compute and put it in.
 // Returns the pointer to a DistanceField object
-DistanceField* getOrComputeDistanceField(DistanceField* memoized[], EntityType entityType, Map* map, Player* player) {
+DistanceField* getOrComputeDistanceField(DistanceField* memoized[], EntityEnum entityType, Map* map, Player* player) {
     int i = 0;
     for (;; i++) {
         if (i >= DISTANCE_FIELD_MEMOIZATION_SIZE) {

@@ -10,7 +10,7 @@
 const char* trainerNames[] = TRAINER_NAMES;
 
 
-Entity::Entity(EntityType type, int x, int y) {
+Entity::Entity(EntityEnum type, int x, int y) {
     this->type = type;
     this->mapX = x;
     this->mapY = y;

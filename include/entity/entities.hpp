@@ -3,20 +3,9 @@
 // This file holds functionalities related to Entities, which are characters on the map
 
 #include "event.hpp"
+#include "entity/entity_types/entity_enum.hpp"
 
 typedef struct GameManager GameManager;
-
-// Enum for each character type, including the player
-typedef enum __attribute__ ((__packed__)) {
-    PLAYER,
-    HIKER,
-    RIVAL,
-    SWIMMER,
-    PACER,
-    WANDERER,
-    SENTRY,
-    EXPLORER
-} EntityType;
 
 
 // An Entity is an abstract class that lives inside an EntityManager, and holds data for events on the map
@@ -25,11 +14,12 @@ typedef enum __attribute__ ((__packed__)) {
 // Whenever the map changes, all entities as well as the current EntityManager is cleared and disposed of.
 /* abstract */ class Entity {
 public:
-    Entity(EntityType type, int x, int y);
+    Entity(EntityEnum type, int x, int y);
 
     ~Entity();
 
-    EntityType type;
+    // The type of entity
+    EntityEnum type;
 
     // The position of the entity on the map
     int mapX;

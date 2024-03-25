@@ -46,7 +46,7 @@ bool wandererMovementAI(Event* event, Entity* entity) {
     }  // Else, keep walking
 
     // Otherwise, we're good to go
-    event->cost = getTerrainCost(soul->birthplace, WANDERER);
+    event->cost = getTerrainCost(soul->birthplace, EntityEnum::WANDERER);
     event->dx = walk->x;
     event->dy = walk->y;
     return true;

@@ -84,8 +84,9 @@ Event* constructEventOnTurn(Entity* entity) {
     // Check if the entity wants to fight the player or not
     if (entity->activeBattle) {
         // Delegate the movement to the corresponding AI handler function
-        bool (* handler)(Event*, Entity*) = dispatchMovementAIHandler(entity->type);
-        success = handler(event, entity);
+//        bool (* handler)(Event*, Entity*) = dispatchMovementAIHandler(entity->type);
+//        success = handler(event, entity);
+        success = entity->moveAI(event);
     } else {
         // If the entity doesn't want to fight the player, don't pathfind towards them
         success = false;
@@ -102,20 +103,20 @@ Event* constructEventOnTurn(Entity* entity) {
 }
 
 
-// Takes in an EntityType, and returns a pointer to a function, called a movement AI handler, corresponding to the
+// Takes in an EntityEnum, and returns a pointer to a function, called a movement AI handler, corresponding to the
 // given entity type's movement AI.
 // A movement AI handler is a function that takes in 4 arguments: event, map, player, entity; and returns a boolean
 // that indicates whether the event creation was successful or not.
 // The event will be of movement type, with dx, dy, and cost correctly written into.
-bool (* dispatchMovementAIHandler(EntityType type))(Event* event, Entity* entity) {
-    switch (type) {
-        case HIKER: return gradientDescentAI;
-        case RIVAL: return gradientDescentAI;
-        case SWIMMER: return nullptr;
-        case PACER: return pacerMovementAI;
-        case WANDERER: return wandererMovementAI;
-        case SENTRY: return sentryMovementAI;
-        case EXPLORER: return explorerMovementAI;
-        default: return nullptr;
-    }
-}
+//bool (* dispatchMovementAIHandler(EntityEnum type))(Event* event, Entity* entity) {
+//    switch (type) {
+//        case HIKER: return gradientDescentAI;
+//        case RIVAL: return gradientDescentAI;
+//        case SWIMMER: return nullptr;
+//        case PACER: return pacerMovementAI;
+//        case WANDERER: return wandererMovementAI;
+//        case SENTRY: return sentryMovementAI;
+//        case EXPLORER: return explorerMovementAI;
+//        default: return nullptr;
+//    }
+//}

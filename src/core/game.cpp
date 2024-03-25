@@ -118,12 +118,12 @@ void setupGameOnMapLoad(MapEntryProps* entryProps) {
 
     // Place trainers on the map
     // Possible trainer types
-    EntityType types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
+    EntityEnum types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
     int numTypes = 6;
 
     // Start placing numTrainers NPCs, or until we stop prematurely if it got too crowded
     for (int i = 0; i < OPTIONS.numTrainers; i++) {
-        EntityType entType;
+        EntityEnum entType;
         Entity* entity = nullptr;
 
         // Keep retrying to place the trainer until we land on a valid spot

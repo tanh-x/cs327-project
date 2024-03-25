@@ -45,7 +45,7 @@ EncounterScenario Player::attemptMove(int dx, int dy) {
     if (!isInsideMapBorders(newX, newY)) return EncounterScenario::UNCROSSABLE_TERRAIN;
 
     // Check if the terrain we're moving towards is traversable to the player
-    int cost = getTerrainCost(GAME.world->current->tileset[newY][newX].type, PLAYER);
+    int cost = getTerrainCost(GAME.world->current->tileset[newY][newX].type, EntityEnum::PLAYER);
     if (cost == UNCROSSABLE || cost < -1) return EncounterScenario::UNCROSSABLE_TERRAIN;
 
     // If we got here, it must be a valid move, so immediately move the player and its entity, bypassing the
@@ -59,7 +59,8 @@ EncounterScenario Player::attemptMove(int dx, int dy) {
         return EncounterScenario::STANDARD;
     } else {
         // If the return was false, it means we have encountered another entity at this location.
-        // Set the player to be at this location, but not the player entity
+        // Set the player to be at this location, but not the player entity.
+        // We will rectify this difference once the battle is complete
         this->mapX = newX;
         this->mapY = newY;
         return EncounterScenario::ENTITY_ENCOUNTER;
