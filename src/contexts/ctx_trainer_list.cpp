@@ -45,15 +45,15 @@ void startTrainerListWindow() {
 void trainerListEntry() {
     assert(GAME.context->type == ContextType::TRAINER_LIST_CONTEXT);
     WINDOW* window = GAME.context->window;
-    ArrayList* entities = GAME.entManager->entities;
+    std::vector<Entity*> entities = GAME.entManager->entities;
     Player* player = GAME.player;
 
     int scroll = 0;
-    int maxScroll = entities->size - TRAINER_LIST_WINDOW_HEIGHT + 2;
+    int maxScroll = entities.size() - TRAINER_LIST_WINDOW_HEIGHT + 2;
     while (true) {
         // List entities
-        for (int i = 1; i < min(entities->size, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
-            auto* ent = static_cast<Entity*>(entities->array[i + scroll]);
+        for (int i = 1; i < min(entities.size(), TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
+            auto* ent = static_cast<Entity*>(entities[i + scroll]);
 
             // Format the string
             char entityString[TRAINER_LIST_WINDOW_WIDTH - 1];
@@ -75,7 +75,7 @@ void trainerListEntry() {
             // Print it out
             mvwprintw(window, i, WINDOW_LEFT_PADDING, "%s", entityString);
         }
-        if (entities->size >= TRAINER_LIST_WINDOW_HEIGHT) {
+        if (entities.size() >= TRAINER_LIST_WINDOW_HEIGHT) {
             if (scroll != maxScroll) {
                 mvwprintw(
                     window, TRAINER_LIST_WINDOW_HEIGHT - 2, WINDOW_LEFT_PADDING,

@@ -2,6 +2,7 @@
 #include "utils/mathematics.hpp"
 #include "world/mapbuilder.hpp"
 #include "entity/pathfinding.hpp"
+#include "utils/heap.h"
 
 
 // NOLINTBEGIN
@@ -109,10 +110,10 @@ int getTerrainCostSwimmer(TileType tileType) {
 
 int getTerrainCost(TileType tileType, EntityEnum entityType) {
     switch (entityType) {
-        case PLAYER:        return getTerrainCostPlayer(tileType);
-        case HIKER:         return getTerrainCostHiker(tileType);
-        case RIVAL:         return getTerrainCostRival(tileType);
-        case SWIMMER:       return getTerrainCostSwimmer(tileType);
+        case EntityEnum::PLAYER:        return getTerrainCostPlayer(tileType);
+        case EntityEnum::HIKER:         return getTerrainCostHiker(tileType);
+        case EntityEnum::RIVAL:         return getTerrainCostRival(tileType);
+        case EntityEnum::SWIMMER:       return getTerrainCostSwimmer(tileType);
         default:            return getDefaultTerrainCost(tileType);
     }
 }

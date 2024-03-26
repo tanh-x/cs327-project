@@ -13,7 +13,7 @@ public:
 
 private:
     // A 2D int vector that stores the current walking direction
-    Int2D walk;
+    Int2D walk {};
 };
 
 #endif

@@ -46,7 +46,7 @@ void enterPlaceholderBattle(Entity* opponent) {
     );
     mvwprintw(
         dialogWindow, DIALOG_WINDOW_HEIGHT - 2, 1, "<Opponent: \"%s\" (type %c) [@ %p]>",
-        opponent->name, entityToChar(opponent), &opponent->soul
+        opponent->name, entityToChar(opponent), &opponent
     );
 
     // We're done with building the window

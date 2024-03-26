@@ -2,34 +2,30 @@
 #include "core/player.hpp"
 #include "entity/event.hpp"
 #include "entity/pathfinding.hpp"
-#include "entity/npc/wanderer.hpp"
+#include "entity/entity_types//wanderer.hpp"
 
-WandererSoul* constructWandererSoul(TileType birthplace) {
-    auto* soul = static_cast<WandererSoul*>(malloc(sizeof(WandererSoul)));
-    soul->birthplace = birthplace;
-    soul->walk.x = randomInt(-1, 1);
-    soul->walk.y = randomInt(-1, 1);
-    if (soul->walk.x == 0 && soul->walk.y == 0) soul->walk.x = 1;
-    return soul;
+Wanderer::Wanderer(int x, int y) : Entity(EntityEnum::WANDERER, x, y) {
+    this->birthplace = GAME.world->current->tileset[y][x].type;
+    this->walk.x = randomInt(-1, 1);
+    this->walk.y = randomInt(-1, 1);
+    if (this->walk.x == 0 && this->walk.y == 0) this->walk.x = 1;
 }
 
 // Wanderers move until they get to the edge of their "birthplace" terrain (stored in the soul), then they turn
 // in a random direction.
-bool wandererMovementAI(Event* event, Entity* entity) {
+bool Wanderer::moveAI(Event* event) {
     Map* map = GAME.world->current;
-    auto* soul = static_cast<WandererSoul*>(entity->soul);
-    Int2D* walk = &soul->walk;
 
-    TileType nextTileType = map->tileset[entity->mapY + walk->y][entity->mapX + walk->x].type;
+    TileType nextTileType = map->tileset[mapY + walk.y][mapX + walk.x].type;
 
     int dx;
     int dy;
-    if (nextTileType != soul->birthplace || (walk->x == 0 && walk->y == 0)) {
+    if (nextTileType != birthplace || (walk.x == 0 && walk.y == 0)) {
         for (int _ = 0;; _++) {
             if (_ >= MAX_ITERATIONS_SMALL) {
                 // If we unluckily reached 32 rolls without a successful direction, stand still for now.
-                walk->x = 0;
-                walk->y = 0;
+                walk.x = 0;
+                walk.y = 0;
                 break;
             }
             // Roll a random direction, standing still for one turn is an option. You gotta take breaks sometimes.
@@ -37,17 +33,17 @@ bool wandererMovementAI(Event* event, Entity* entity) {
             dy = randomInt(-1, 1);
 
             // If we found a good direction, then start walking that way
-            if (map->tileset[entity->mapY + dy][entity->mapX + dx].type == soul->birthplace) {
-                walk->x = dx;
-                walk->y = dy;
+            if (map->tileset[mapY + dy][mapX + dx].type == birthplace) {
+                walk.x = dx;
+                walk.y = dy;
                 break;
             } // Else retry another roll
         }
     }  // Else, keep walking
 
     // Otherwise, we're good to go
-    event->cost = getTerrainCost(soul->birthplace, EntityEnum::WANDERER);
-    event->dx = walk->x;
-    event->dy = walk->y;
+    event->cost = getTerrainCost(birthplace, EntityEnum::WANDERER);
+    event->dx = walk.x;
+    event->dy = walk.y;
     return true;
 }

@@ -5,11 +5,9 @@ CFLAGS := -Wall -g -I$(INC_DIR)
 CPPFLAGS := $(CFLAGS) -std=c++17
 LDFLAGS := -lm -lpng -lncurses
 
-# Separate the special C source file
 C_SRCS := $(SRC_DIR)/utils/heap.c
 C_OBJS := $(C_SRCS:.c=.o)
 
-# Adjust the wildcard pattern to match .cpp files and exclude the special C file
 CPP_SRCS := $(filter-out $(C_SRCS), $(wildcard $(SRC_DIR)/**/**/*.cpp $(SRC_DIR)/**/*.cpp $(SRC_DIR)/*.cpp))
 CPP_OBJS := $(CPP_SRCS:.cpp=.o)
 
@@ -19,7 +17,6 @@ TARGET := main
 
 all: build $(TARGET) post_build
 
-# Rule for building the application
 $(TARGET): $(OBJS)
 	g++ -o $@ $^ $(LDFLAGS)
 	@chmod a+rx $(TARGET)
@@ -29,8 +26,6 @@ $(TARGET): $(OBJS)
 
 %.o: %.c
 	gcc $(CFLAGS) -c $< -o $@
-
-.PHONY: build post_build clean_objects clean
 
 .PHONY: build post_build clean_objects clean
 

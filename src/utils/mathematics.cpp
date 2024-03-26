@@ -1,8 +1,7 @@
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "utils/mathematics.hpp"
-
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 
 int positiveMod(int x, int y) {
     return ((x % y) + y) % y;

@@ -5,6 +5,8 @@
 #include <malloc.h>
 #include "entities.hpp"
 
+class Entity;
+
 typedef enum __attribute__ ((__packed__)) {
     // IDLE events are placeholders, or waiting turns.
     IDLE,

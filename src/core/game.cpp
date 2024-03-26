@@ -1,10 +1,11 @@
 // This file has components that drive the game, or otherwise is a very centerpiece part of the project
 
 #include <unistd.h>
+#include <cstdlib>
 #include "core/game.hpp"
 #include "graphics/artist.hpp"
 #include "entity/pathfinding.hpp"
-#include "entity/map_ai.hpp"
+#include "entity/ai/map_ai.hpp"
 #include "graphics/renderer.hpp"
 #include "core/input.hpp"
 #include "contexts/ctx_battle_view.hpp"
@@ -40,7 +41,7 @@ void gameLoop() {
             Entity* actor = event->actor;
 
             // If it's a player event, break the event loop.
-            if (actor->type == PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;
+            if (actor->type == EntityEnum::PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;
 
             // Delegate the event action to the entity manager
             resolveEvent(event);
@@ -66,7 +67,7 @@ void gameLoop() {
             }
 
             // Queue next event for this entity
-            Event* newEvent = constructEventOnTurn(actor);
+            Event* newEvent = actor->constructEventOnTurn();
             newEvent->resolveTime = GAME.time + newEvent->cost;
             enqueueEvent(newEvent);
 
@@ -101,8 +102,6 @@ void gameLoop() {
 // Must be called whenever the map changes
 void setupGameOnMapLoad(MapEntryProps* entryProps) {
     // TODO: Put the manager in a map
-    // Clean up previous EntityManager, if any
-    if (GAME.entManager != nullptr) disposeEntityManager(GAME.entManager);
 
     // Load useful pointers
     Player* player = GAME.player;
@@ -116,9 +115,19 @@ void setupGameOnMapLoad(MapEntryProps* entryProps) {
     GAME.entManager = new EntityManager(OPTIONS.numTrainers);
     GAME.time = 0;
 
+    // Add an input event for the player that resolves immediately
+    enqueueInputBlockingEvent(0);
+
     // Place trainers on the map
     // Possible trainer types
-    EntityEnum types[] = {HIKER, RIVAL, PACER, WANDERER, SENTRY, EXPLORER};
+    EntityEnum types[] = {
+        EntityEnum::HIKER,
+        EntityEnum::RIVAL,
+        EntityEnum::PACER,
+        EntityEnum::WANDERER,
+        EntityEnum::SENTRY,
+        EntityEnum::EXPLORER
+    };
     int numTypes = 6;
 
     // Start placing numTrainers NPCs, or until we stop prematurely if it got too crowded
@@ -129,11 +138,11 @@ void setupGameOnMapLoad(MapEntryProps* entryProps) {
         // Keep retrying to place the trainer until we land on a valid spot
         for (int _ = 0; _ < MAX_ITERATIONS && entity == nullptr; _++) {
             // Get the type of the new trainer
-            if (i == 0) entType = HIKER;
-            else if (i == 1) entType = RIVAL;
+            if (i == 0) entType = EntityEnum::HIKER;  // First entity always a hiker
+            else if (i == 1) entType = EntityEnum::RIVAL;  // Second entity always a rival
             else entType = types[randomInt(0, numTypes - 1)];
 
-            // Don't spawn the NPC on the border or right next to it
+            // Don't spawnNPC the NPC on the border or right next to it
             // While we can do (1, -2) instead, it's just my preference to leave a 1 tile padding
             int x = randomInt(2, MAP_WIDTH - 3);
             int y = randomInt(2, MAP_HEIGHT - 3);
@@ -141,9 +150,9 @@ void setupGameOnMapLoad(MapEntryProps* entryProps) {
             // Check if the terrain cost was infinite
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
-            entity = new Entity(entType, x, y);
-            if (entity != NULL) GAME.entManager->addEntity(entity);
-
+            // If all previous checks were successful, then try spawning a new NPC
+            entity = Entity::spawnNPC(entType, x, y);
+            if (entity != nullptr) GAME.entManager->addEntity(entity);
             // spawnEntity might return NULL, indicating an unsuccessful placement
             // if so then entity = nullptr and we try again
         }
@@ -157,8 +166,9 @@ void setupGameOnMapLoad(MapEntryProps* entryProps) {
         entity->activeBattle = true;
 
         // Try creating and queueing a new event.
-        Event* event = constructEventOnTurn(entity);
+        Event* event = entity->constructEventOnTurn();
         if (event == nullptr) continue;
+
         // Event initialization was successful, so we add it to the queue
         event->resolveTime = GAME.time + event->cost;
         enqueueEvent(event);
@@ -176,7 +186,7 @@ Map* moveInWorldDirection(char dir, MapEntryProps* entryProps) {
     int playerSpawnX;
     int playerSpawnY;
 
-    // Calculates where to spawn the player, by considering the gate position.
+    // Calculates where to spawnNPC the player, by considering the gate position.
     // The gate positions are given by the global hash function
     switch (dir) {
         case 'n':dy = -1;

@@ -377,7 +377,7 @@ void generateMap(Map* map, MapEntryProps* entryProps, int worldSeed, bool useBad
                 rx, ry - 3 * dir, 2, 2
             );
 
-            // Make player spawn here, if it's the spawn map
+            // Make player spawn here, if it's the spawnNPC map
             if (map->isSpawnMap) {
                 entryProps->playerSpawnX = horizontalPlacementX;
                 entryProps->playerSpawnY = ry;

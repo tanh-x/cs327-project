@@ -1,6 +1,7 @@
 #ifndef ENTITY_MANAGER_H
 #define ENTITY_MANAGER_H
 
+#include "vector"
 #include "core/constants.hpp"
 #include "entities.hpp"
 #include "utils/arraylist.hpp"
@@ -20,11 +21,12 @@ public:
     // * The 2D Entity array
     ~EntityManager();
 
-    // An array list of entities currently in use
-    ArrayList* entities;
+    std::vector<Entity*> entities;
+
     // A 2D array of nullable Entity pointers, which allows the game to know whether there's an entity at a specific
     // position on the map. The 2D array has the same capacity as the map.
     Entity* entMap[MAP_HEIGHT][MAP_WIDTH] {};
+
     // A heap that contains queued Event objects, sorted by the time at which they will be resolved.
     heap_t* eventQueue;
 

@@ -1,13 +1,9 @@
 
 #include "utils/mathematics.hpp"
-#include "entity/map_ai.hpp"
+#include "entity/ai/map_ai.hpp"
 #include "entity/pathfinding.hpp"
-#include "entity/npc/pacer.hpp"
-#include "entity/npc/wanderer.hpp"
-#include "entity/npc/explorer.hpp"
 #include "core/game_manager.hpp"
 
-#define DEFAULT_IDLE_COST 8
 #define TIE_BREAKING_PROBABILITY 0.3f
 
 // Gradient descent based movement AI
@@ -62,46 +58,11 @@ bool gradientDescentAI(Event* event, Entity* entity) {
     return true;
 }
 
-// Sentries do nothing
-bool sentryMovementAI(Event* event, Entity* entity) {
-    event->type = IDLE;
-    event->cost = 500;  // Arbitrarily large value
-
-    return true;
-}
-
-
 // Creates a new event according to the entity's AI
-Event* constructEventOnTurn(Entity* entity) {
-    // Initialize new event object
-    auto* event = static_cast<Event*>(malloc(sizeof(Event)));
-    event->type = MOVEMENT;
-    event->dx = 0;
-    event->dy = 0;
-    event->actor = entity;
-
-    bool success;
-    // Check if the entity wants to fight the player or not
-    if (entity->activeBattle) {
-        // Delegate the movement to the corresponding AI handler function
-//        bool (* handler)(Event*, Entity*) = dispatchMovementAIHandler(entity->type);
-//        success = handler(event, entity);
-        success = entity->moveAI(event);
-    } else {
-        // If the entity doesn't want to fight the player, don't pathfind towards them
-        success = false;
-    }
-
-    // If we didn't succeed, that mean the AI couldn't find a valid move for this turn, or activeBattle is false
-    // Just wait for a tiny bit if this is the case.
-    if (!success) {
-        disposeEvent(event);
-        return constructIdleEvent(entity, DEFAULT_IDLE_COST);
-    }
-
-    return event;
-}
-
+//Event* constructEventOnTurn(Entity* entity) {
+// // Moved to Entity::constructEventOnTurn()
+//}
+//
 
 // Takes in an EntityEnum, and returns a pointer to a function, called a movement AI handler, corresponding to the
 // given entity type's movement AI.

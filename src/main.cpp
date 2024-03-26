@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     // Generate the first map outside the game loop, prevents it from regenerating in the game loop.
     generateMap(map, &entryProps, world.worldSeed, doBadApple);
 
-    // Also manually call the setup function on the spawn map instead of doing it in the game loop
+    // Also manually call the setup function on the spawnNPC map instead of doing it in the game loop
     setupGameOnMapLoad(&entryProps);
 
     // Override game loop if using bad apple, DON'T PORT TO NCURSES!
@@ -97,7 +97,6 @@ int main(int argc, char* argv[]) {
 
     // Clean up
     disposeWorld(&world);
-    disposeEntityManager(GAME.entManager);
     free(map);
     cleanUpRenderer();
     return 0;

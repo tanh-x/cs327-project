@@ -1,5 +1,5 @@
 #include "entity/entities.hpp"
-#include "entity/npc/pacer.hpp"
+#include "entity/entity_types//pacer.hpp"
 #include "core/game.hpp"
 #include "entity/pathfinding.hpp"
 

@@ -1,8 +1,6 @@
 #ifndef EXPLORER_H
 #define EXPLORER_H
 
-#include "utils/mathematics.hpp"
-
 // Explorers walk in one direction, and turns in a random direction if they can't walk forward.
 class Explorer : public Entity {
 public:
@@ -12,7 +10,7 @@ public:
 
 private:
     // A 2D int vector that stores the current walking direction
-    Int2D walk;
+    Int2D walk {};
 };
 
 #endif

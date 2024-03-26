@@ -116,21 +116,21 @@ char tileToChar(Tile *tile) {
 
 char entityToChar(Entity *entity) {
     switch (entity->type) {
-        case PLAYER:
+        case EntityEnum::PLAYER:
             return '@';
-        case HIKER:
+        case EntityEnum::HIKER:
             return 'h';
-        case RIVAL:
+        case EntityEnum::RIVAL:
             return 'r';
-        case SWIMMER:
+        case EntityEnum::SWIMMER:
             return 'm';
-        case PACER:
+        case EntityEnum::PACER:
             return 'p';
-        case WANDERER:
+        case EntityEnum::WANDERER:
             return 'w';
-        case SENTRY:
+        case EntityEnum::SENTRY:
             return 's';
-        case EXPLORER:
+        case EntityEnum::EXPLORER:
             return 'e';
         default:
             return '?';

@@ -5,8 +5,9 @@
 #include "event.hpp"
 #include "entity/entity_types/entity_enum.hpp"
 
-typedef struct GameManager GameManager;
+class Event;
 
+typedef struct GameManager GameManager;
 
 // An Entity is an abstract class that lives inside an EntityManager, and holds data for events on the map
 // Thus, the lifespan and existence of the entity object is bound to the map.
@@ -14,8 +15,6 @@ typedef struct GameManager GameManager;
 // Whenever the map changes, all entities as well as the current EntityManager is cleared and disposed of.
 /* abstract */ class Entity {
 public:
-    Entity(EntityEnum type, int x, int y);
-
     ~Entity();
 
     // The type of entity
@@ -32,7 +31,6 @@ public:
     // have this value as false
     bool activeBattle;
 
-
     // Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
     // Returns a boolean indicating whether it was successful. If it was not, no side effects will have been made.
     // If it was unsuccessful (false return), it will be one of the three following scenarios:
@@ -41,8 +39,17 @@ public:
     // - The tile is already occupied by another entity
     bool moveBy(int dx, int dy);
 
+    static Entity* spawnNPC(EntityEnum type, int mapX, int mapY);
+
+    // Creates a new event according to the entity's AI
+    Event* constructEventOnTurn();
+
     // Abstract
-    virtual bool moveAI(Event* event) {};
+    virtual bool moveAI(Event* event) = 0;
+
+protected:
+    Entity(EntityEnum type, int x, int y);
 };
+
 
 #endif
