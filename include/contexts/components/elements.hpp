@@ -1,8 +1,8 @@
 #ifndef ELEMENTS_H
 #define ELEMENTS_H
 
-#include "contexts/context_facade.hpp"
+#include "contexts/abstract_context.hpp"
 
-void windowTitle(Context* context, const char* title);
+void windowTitle(AbstractContext* context, const char* title);
 
 #endif

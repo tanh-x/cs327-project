@@ -1,9 +1,9 @@
 // This file holds functionalities related to the player
 
 #include "core/game.hpp"
-#include "entity/entity_manager.hpp"
+#include "entities/entity_manager.hpp"
 #include "contexts/ctx_battle_view.hpp"
-#include "entity/pathfinding.hpp"
+#include "entities/pathfinding.hpp"
 #include "core/player.hpp"
 
 
@@ -45,7 +45,7 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
 
     // If we get an entity encounter, try start a battle
     if (scenario == EncounterScenario::ENTITY_ENCOUNTER) {
-        Entity* opponent = entManager->entMap[player->mapY][player->mapX];
+        AbstractEntity* opponent = entManager->entMap[player->mapY][player->mapX];
 
         if (opponent != nullptr && opponent->activeBattle) {
             enterPlaceholderBattle(opponent);
@@ -61,7 +61,7 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
 // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE
 // or out of bounds.
 EncounterScenario Player::attemptMove(int dx, int dy) {
-    Entity* playerEnt = this->currentEntity;
+    AbstractEntity* playerEnt = this->currentEntity;
     int newX = this->mapX + dx;
     int newY = this->mapY + dy;
 

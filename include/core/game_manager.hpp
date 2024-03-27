@@ -4,8 +4,8 @@
 #include "world/world.hpp"
 #include "player.hpp"
 #include "game.hpp"
-#include "contexts/context_facade.hpp"
-#include "entity/entity_manager.hpp"
+#include "contexts/abstract_context.hpp"
+#include "entities/entity_manager.hpp"
 
 // Stores the game options, specified via arguments passed by the user.
 typedef struct {
@@ -25,7 +25,7 @@ typedef struct GameManager {
     World* world;
     Player* player;
     EntityManager* currentEntManager;
-    Context* context;
+    AbstractContext* context;
     bool quit_game;
 } GameManager;
 

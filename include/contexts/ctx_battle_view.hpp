@@ -5,6 +5,6 @@
 
 #define DIALOG_WINDOW_HEIGHT 6
 
-void enterPlaceholderBattle(Entity* opponent);
+void enterPlaceholderBattle(AbstractEntity* opponent);
 
 #endif

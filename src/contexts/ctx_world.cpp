@@ -1,8 +1,16 @@
 #include "contexts/ctx_world.hpp"
-#include "entity/event.hpp"
+#include "entities/event.hpp"
 #include "contexts/ctx_trainer_list.hpp"
 #include "contexts/ctx_building.hpp"
 
+
+// Instantiates the root context. Called once when initializing the game.
+WorldContext::WorldContext() : AbstractContext(
+    stdscr,
+    ContextType::WORLD_CONTEXT,
+    nullptr,
+    {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}
+) {}
 
 bool worldContextInputHandler(int key) {
     Player* player = GAME.player;

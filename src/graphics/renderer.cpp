@@ -35,9 +35,9 @@ void renderGameUpdate() {
 //    mvprintw(MAP_LINE_OFFSET, 0, "%s", mapStr);
 
     // Draw entities
-    std::vector<Entity*> entities = GAME.currentEntManager->entities;
+    std::vector<AbstractEntity*> entities = GAME.currentEntManager->entities;
     for (auto &entity: entities) {
-        auto* ent = static_cast<Entity*>(entity);
+        auto* ent = static_cast<AbstractEntity*>(entity);
         mvaddch(MAP_LINE_OFFSET + ent->mapY, ent->mapX, entityToChar(ent));
     }
 

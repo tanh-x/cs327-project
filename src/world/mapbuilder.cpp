@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "core/game_manager.hpp"
-#include "entity/pathfinding.hpp"
+#include "entities/pathfinding.hpp"
 #include "graphics/parse_frame.hpp"
 #include "utils/mathematics.hpp"
 #include "utils/voronoi_noise.hpp"

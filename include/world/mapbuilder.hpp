@@ -2,7 +2,7 @@
 #define MAPBUILDER_H
 
 #include "core/constants.hpp"
-#include "entity/entity_manager.hpp"
+#include "entities/entity_manager.hpp"
 
 #define DISTANCE_FIELD_MEMOIZATION_SIZE 40
 

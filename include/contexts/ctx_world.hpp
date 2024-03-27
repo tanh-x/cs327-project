@@ -3,6 +3,12 @@
 
 #include "core/game.hpp"
 
+class WorldContext : public AbstractContext {
+public:
+    // Instantiates the root context. Called once when initializing the game.
+    WorldContext();
+};
+
 bool worldContextInputHandler(int key);
 
 EncounterScenario tryPlayerMovementInput(Player* player, int key);

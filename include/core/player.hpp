@@ -3,7 +3,7 @@
 
 // This file holds functionalities related to the player
 
-#include "entity/entities.hpp"
+#include "entities/abstract_entity.hpp"
 #include "world/mapbuilder.hpp"
 
 constexpr int PLAYER_SPECIAL_ACTION_IDLE_TIME = 5;
@@ -24,7 +24,7 @@ public:
     int mapX;
     int mapY;
 
-    Entity* currentEntity;
+    AbstractEntity* currentEntity;
 
     Player() : globalX(0), globalY(0), mapX(0), mapY(0), currentEntity(nullptr) {}
 

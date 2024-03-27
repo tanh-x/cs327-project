@@ -23,7 +23,7 @@ void startTrainerListWindow() {
     expandWindowVertical(windowDimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    Context* context = constructChildWindowContext(ContextType::TRAINER_LIST_CONTEXT, windowDimensions);
+    AbstractContext* context = constructChildWindowContext(ContextType::TRAINER_LIST_CONTEXT, windowDimensions);
 
     // Add extra stuff
     windowTitle(context, "Trainer list");
@@ -45,15 +45,16 @@ void startTrainerListWindow() {
 void trainerListEntry() {
     assert(GAME.context->type == ContextType::TRAINER_LIST_CONTEXT);
     WINDOW* window = GAME.context->window;
-    std::vector<Entity*> entities = GAME.currentEntManager->entities;
+    std::vector<AbstractEntity*> entities = GAME.currentEntManager->entities;
     Player* player = GAME.player;
 
+    int numEnities = int(entities.size());
     int scroll = 0;
-    int maxScroll = entities.size() - TRAINER_LIST_WINDOW_HEIGHT + 2;
+    int maxScroll = numEnities - TRAINER_LIST_WINDOW_HEIGHT + 2;
     while (true) {
         // List entities
-        for (int i = 1; i < min(entities.size(), TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
-            auto* ent = static_cast<Entity*>(entities[i + scroll]);
+        for (int i = 1; i < min(numEnities, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
+            AbstractEntity* ent = entities[i + scroll];
 
             // Format the string
             char entityString[TRAINER_LIST_WINDOW_WIDTH - 1];

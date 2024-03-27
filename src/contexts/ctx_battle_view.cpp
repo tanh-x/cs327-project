@@ -5,7 +5,7 @@
 #include "graphics/artist.hpp"
 #include "contexts/components/animations.hpp"
 
-void enterPlaceholderBattle(Entity* opponent) {
+void enterPlaceholderBattle(AbstractEntity* opponent) {
     // Define dimensions of the new window
     Rect2D windowDimensions;
     windowDimensions.width = WINDOW_WIDTH;
@@ -18,8 +18,8 @@ void enterPlaceholderBattle(Entity* opponent) {
     battleTransition(INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    Context* context = constructChildWindowContext(ContextType::BATTLE_CONTEXT, windowDimensions);
-    WINDOW* window = context->window;
+    AbstractContext* context = AbstractContext::constructChildWindowContext(ContextType::BATTLE_CONTEXT, windowDimensions);
+    WINDOW* window = context.window;
     // Add a placeholder title
     mvwprintw(window, 1, 2, "PLACEHOLDER BATTLE INTERFACE");
     // We're done with the main window

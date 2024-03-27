@@ -2,11 +2,11 @@
 #include <unistd.h>
 #include "core/game.hpp"
 #include "graphics/artist.hpp"
-#include "entity/pathfinding.hpp"
+#include "entities/pathfinding.hpp"
 #include "graphics/renderer.hpp"
 #include "core/input.hpp"
 #include "contexts/ctx_battle_view.hpp"
-#include "entity/entity_manager.hpp"
+#include "entities/entity_manager.hpp"
 
 #define BATTLE_INITIATION_COOLDOWN 24
 
@@ -29,7 +29,7 @@ void gameLoop() {
             // Time travelling is strictly prohibited
             entManager->eventTime = max(entManager->eventTime, event->resolveTime);
 
-            Entity* actor = event->actor;
+            AbstractEntity* actor = event->actor;
 
             // If it's a player event, break the event loop.
             if (actor->type == EntityEnum::PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;

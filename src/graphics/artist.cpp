@@ -114,7 +114,7 @@ char tileToChar(Tile *tile) {
     }
 }
 
-char entityToChar(Entity *entity) {
+char entityToChar(AbstractEntity *entity) {
     switch (entity->type) {
         case EntityEnum::PLAYER:
             return '@';

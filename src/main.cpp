@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     // Initial set up
     GAME.currentEntManager = nullptr;
     GAME.quit_game = false;
-    GAME.context = instantiateRootContext();
+    GAME.context = AbstractContext::instantiateRootContext();
 
     // Create a player
     Player player;
