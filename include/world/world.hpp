@@ -13,7 +13,7 @@ typedef struct {
 
 void initializeWorld(World *world, int worldSeed);
 
-Map *getMap(World *world, MapEntryProps *entryProps, int globalX, int globalY, bool generateIfNull);
+Map* getMap(World* world, int globalX, int globalY, bool generateIfNull);
 
 // Used to synchronize gate position between maps. See README for more info
 int globalHashFunction(int x, int y, int worldSeed);

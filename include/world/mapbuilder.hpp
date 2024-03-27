@@ -2,9 +2,11 @@
 #define MAPBUILDER_H
 
 #include "core/constants.hpp"
+#include "entity/entity_manager.hpp"
 
 #define DISTANCE_FIELD_MEMOIZATION_SIZE 40
 
+class EntityManager;
 struct DistanceField;
 
 typedef enum __attribute__ ((__packed__)) {
@@ -23,31 +25,49 @@ typedef enum __attribute__ ((__packed__)) {
     JOULDER,    // )    <2nd pass>
 } TileType;
 
+
+
 typedef struct {
     TileType type;
 } Tile;
-
-typedef struct {
-    Tile tileset[MAP_HEIGHT][MAP_WIDTH];
-    struct DistanceField* memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE];
-
-    int mapSeed;
-    int globalX;
-    int globalY;
-    bool isSpawnMap;
-
-    float overgrowth;
-} Map;
-
 
 typedef struct {
     int playerSpawnX;
     int playerSpawnY;
 } MapEntryProps;
 
-void generateMap(Map* map, MapEntryProps* entryProps, int worldSeed, bool useBadApple);
+class Map {
+public:
+    // Initializes the map, but does not yet generate the terrain, which is deferred until the method
+    // generateTerrain(int worldSeed) is invoked. It also does not initialize an entity manager, which
+    // is deferred until setupGameOnMapLoad is called for the first time on this map.
+    Map(int globalX, int globalY, int initialSeed);
 
-void disposeMap(Map* map);
+    ~Map();
+
+    int mapSeed;
+    int globalX;
+    int globalY;
+    bool isSpawnMap;
+    float overgrowth;
+
+
+    Tile tileset[MAP_HEIGHT][MAP_WIDTH] {};
+    DistanceField* memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE] {};
+    EntityManager* entityManager;
+
+    MapEntryProps generateTerrain(int worldSeed);
+
+private:
+    bool placeRoad(int x, int y, int edgeBitmask);
+
+    void placeChunk(TileType type, int x, int y, int sizeX, int sizeY);
+
+    void placeKernelChunk(TileType type, int x, int y, float kernelRadius);
+
+    void applyBiomeBlending(int tx, int ty, TileType biome);
+};
+
 
 // Checks whether the position is inside the map, including the borders.
 bool isInsideMapBounds(int x, int y);

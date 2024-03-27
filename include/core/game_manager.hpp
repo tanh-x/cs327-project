@@ -15,6 +15,8 @@ typedef struct {
     int numTrainers;
     // The number of microseconds to wait between drawing each frame.
     int frameTimeMicros;
+
+    bool doBadApple;
 } GameOptions;
 
 // Singleton object that stores pointers to core components of the game, as well as other information.
@@ -22,9 +24,8 @@ typedef struct {
 typedef struct GameManager {
     World* world;
     Player* player;
-    EntityManager* entManager;
+    EntityManager* currentEntManager;
     Context* context;
-    int time;
     bool quit_game;
 } GameManager;
 

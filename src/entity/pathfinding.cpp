@@ -46,14 +46,14 @@ int getTerrainCostPlayer(TileType tileType) {
 
     // Reduced costs, so the player can more easily outrun NPCs
     switch (tileType) {
-        case FLAT:          return 8;
+        case FLAT:          return 5;
         case BOULDER:       return UNCROSSABLE;
         case BORDER:        return UNCROSSABLE;
         case MOUNTAIN:      return UNCROSSABLE;
-        case GATE:          return 5;
-        case ROAD:          return 5;
-        case BOULDER_ROAD:  return 8;
-        case TALL_GRASS:    return 15;
+        case GATE:          return 3;
+        case ROAD:          return 3;
+        case BOULDER_ROAD:  return 6;
+        case TALL_GRASS:    return 10;
         case WATER:         return UNCROSSABLE;
         case TREE:          return UNCROSSABLE;
         case POKECENTER:    return 10;

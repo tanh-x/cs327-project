@@ -109,3 +109,11 @@
     Evening:
     - Started porting to C++
     - First successful compile, no warnings
+* Day 2 (2024-03-26)
+    Evening:
+    - Refactored the entity system to OOP
+* Day 3 (2024-03-27)
+    Afternoon:
+    - Refactored the map building system to OOP
+    - Refactored entity system to live inside each map, instead of on the game itself
+    - Can now move between adjacent maps via gates

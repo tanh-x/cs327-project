@@ -8,12 +8,6 @@ int eventComparator(const void* event, const void* other) {
     return ((Event*) event)->resolveTime - ((Event*) other)->resolveTime;
 }
 
-// Adds the given event into the EntityManager's event queue.
-void enqueueEvent(Event* event) {
-    event->resolveTime = GAME.time + event->cost;
-    heap_insert(GAME.entManager->eventQueue, event);
-}
-
 // Resolves the event by carrying out the specified action.
 // Called on the event when it is polled from the event queue.
 void resolveEvent(Event* event) {
@@ -47,5 +41,5 @@ Event* constructIdleEvent(Entity* entity, int cost) {
 void enqueueInputBlockingEvent(int delay) {
     Event* event = constructIdleEvent(GAME.player->currentEntity, delay);
     event->type = PLAYER_INPUT_BLOCKING;
-    enqueueEvent(event);
+    GAME.currentEntManager->enqueueEvent(event);
 }

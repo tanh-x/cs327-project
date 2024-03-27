@@ -6,22 +6,35 @@
 #include "entities.hpp"
 #include "utils/arraylist.hpp"
 #include "utils/heap.h"
+#include "entity/entity_types/player_vessel.hpp"
+#include "world/mapbuilder.hpp"
+
+class Map;
 
 // The EventManager stores the current state of entities on the map.
-// It is always bound to the GameManager singleton, but is cleared and disposed of every time we switch to a new map,
-// or whenever the current map gets disposed of.
+// It is always bound to the GameManager singleton, but is cleared and disposed of every time
+// we switch to a new map, or whenever the current map gets disposed of.
 class EntityManager {
 public:
-    // Initializes a new EntityManager and assign it to the game->entManager pointer, and also returns it.
+    // Initializes a new EntityManager and assign it to the game->currentEntManager pointer, and also returns it.
     // Should be called when loading a new map.
-    explicit EntityManager(int initialNumEntities);
+    EntityManager();
 
     // Frees all dynamically allocated memory associated with the EntityManager, which includes:
     // * The eventQueue heap
     // * The 2D Entity array
     ~EntityManager();
 
+    int eventTime;
+
+    // Used to prevent NPCs from spamming too many battle initiations with the player
+    int nextBattleInitiationTime;
+
+    // List of entities
     std::vector<Entity*> entities;
+
+    // Pointer to the unique player vessel entity in the entity manager
+    PlayerVessel* vesselEntity;
 
     // A 2D array of nullable Entity pointers, which allows the game to know whether there's an entity at a specific
     // position on the map. The 2D array has the same capacity as the map.
@@ -31,6 +44,11 @@ public:
     heap_t* eventQueue;
 
     void addEntity(Entity* entity);
+
+    void spawnTrainers(Map* map, int numTrainers);
+
+    // Adds the given event into the EntityManager's event queue.
+    void enqueueEvent(Event* event) const;
 };
 
 #endif

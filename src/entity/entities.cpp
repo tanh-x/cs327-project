@@ -22,7 +22,7 @@ Entity::Entity(EntityEnum type, int x, int y) {
     this->activeBattle = true;
 
     // If they're an NPC, give them a random name
-    if (type != EntityEnum::PLAYER) this->name = "Player";
+    if (type == EntityEnum::PLAYER) this->name = "Player";
     else this->name = trainerNames[randomInt(0, NUM_TRAINER_NAMES - 1)];
 
     // Add it to the entity list, and then return it
@@ -42,7 +42,7 @@ Entity::~Entity() {
 // - The specified position was out of bounds
 // - The tile is already occupied by another entity
 bool Entity::moveBy(int dx, int dy) {
-    EntityManager* entManager = GAME.entManager;
+    EntityManager* entManager = GAME.currentEntManager;
     if (!entManager) return false;
 
     int newX = this->mapX + dx;

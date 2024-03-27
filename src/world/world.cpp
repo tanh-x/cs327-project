@@ -1,4 +1,3 @@
-#include <cmath>
 #include <cstdlib>
 #include "world/world.hpp"
 
@@ -7,8 +6,6 @@
 #define p2 298482817
 #define p3 709348097
 #define p4 485820427
-
-#define OVERGROWTH_FACTOR 12.6277f
 
 void initializeWorld(World* world, int worldSeed) {
     for (auto &mapRow: world->maps) {
@@ -19,19 +16,15 @@ void initializeWorld(World* world, int worldSeed) {
     world->worldSeed = worldSeed;
 }
 
-Map* getMap(World* world, MapEntryProps* entryProps, int globalX, int globalY, bool generateIfNull) {
+Map* getMap(World* world, int globalX, int globalY, bool generateIfNull) {
     int i = globalX + WORLD_X_SPAN;
     int j = globalY + WORLD_Y_SPAN;
     if (i < 0 || i >= WORLD_WIDTH || j < 0 || j >= WORLD_HEIGHT) return nullptr;
 
     if (world->maps[j][i] == nullptr) {
-        Map* newMap = (Map*) malloc(sizeof(Map));
-        newMap->globalX = globalX;
-        newMap->globalY = globalY;
-        newMap->mapSeed = globalHashFunction(globalX, globalY, world->worldSeed + p4);
-        newMap->overgrowth = OVERGROWTH_FACTOR * sqrt(abs(globalX) + abs(globalY));
-        if (generateIfNull) generateMap(newMap, entryProps, world->worldSeed, false);
+        Map* newMap = new Map(globalX, globalY, world->worldSeed + p4);
         world->maps[j][i] = newMap;
+        if (generateIfNull) newMap->generateTerrain(world->worldSeed);
     }
 
     return world->maps[j][i];
@@ -74,7 +67,6 @@ void disposeWorld(World* world) {
     for (auto &i: world->maps) {
         for (auto &map: i) {
             if (map == nullptr) continue;
-            disposeMap(map);
             map = nullptr;
         }
     }

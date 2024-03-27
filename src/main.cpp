@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <cstdio>
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"
@@ -14,19 +13,20 @@ int main(int argc, char* argv[]) {
     // Default game option arguments
     bool doColoring = true;
     bool doBadApple = false;
-    int numTrainers = 10;
+    int numTrainers = 6;
     int frameTimeMicros = 1000000 / 60;
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
         char* flag = argv[i];
         if (strcmp(flag, "--nocolor") == 0) doColoring = false;
-//        else if (strcmp(flag, "--badapple") == 0) doBadApple = true;
+        else if (strcmp(flag, "--badapple") == 0) doBadApple = true;
         else if (strcmp(flag, "--numtrainers") == 0) numTrainers = (int) strtol(argv[i + 1], nullptr, 10);
         else if (strcmp(flag, "--frametime") == 0) frameTimeMicros = (int) strtol(argv[i + 1], nullptr, 10);
     }
 
     // Initialize options to reflect the parsed arguments
+    OPTIONS.doBadApple = doBadApple;
     OPTIONS.doColoring = doColoring;
     OPTIONS.numTrainers = max(0, numTrainers);
     OPTIONS.frameTimeMicros = frameTimeMicros;
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     // TODO: Main menu?
 
     // Initial set up
-    GAME.entManager = nullptr;
+    GAME.currentEntManager = nullptr;
     GAME.quit_game = false;
     GAME.context = instantiateRootContext();
 
@@ -61,9 +61,8 @@ int main(int argc, char* argv[]) {
     initializeWorld(&world, timeSeedMilli);
     GAME.world = &world;
 
-    // Get and generate the central map
-    MapEntryProps entryProps;
-    Map* map = getMap(&world, &entryProps, player.globalX, player.globalY, false);
+    // Get and initialize the central map
+    Map* map = getMap(&world, player.globalX, player.globalY, false);
 
     // Set the current map to this map, allowing for convenient future reference
     world.current = map;
@@ -71,17 +70,17 @@ int main(int argc, char* argv[]) {
     // Initialize the memoized distance fields array
     for (auto &distanceField: map->memoizedDistanceFields) distanceField = nullptr;
 
-    // spawnMap will allow for special case world generation
+//    // spawnMap will allow for special case world generation
     map->isSpawnMap = true;
-
-    // Override seed for the center map
+//
+//    // Override seed for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
 
     // Generate the first map outside the game loop, prevents it from regenerating in the game loop.
-    generateMap(map, &entryProps, world.worldSeed, doBadApple);
+    MapEntryProps entryProps = map->generateTerrain(world.worldSeed);
 
     // Also manually call the setup function on the spawnNPC map instead of doing it in the game loop
-    setupGameOnMapLoad(&entryProps);
+    setupGameOnMapLoad(entryProps);
 
     // Override game loop if using bad apple, DON'T PORT TO NCURSES!
 //    if (doBadApple) {

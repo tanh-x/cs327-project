@@ -45,7 +45,7 @@ void startTrainerListWindow() {
 void trainerListEntry() {
     assert(GAME.context->type == ContextType::TRAINER_LIST_CONTEXT);
     WINDOW* window = GAME.context->window;
-    std::vector<Entity*> entities = GAME.entManager->entities;
+    std::vector<Entity*> entities = GAME.currentEntManager->entities;
     Player* player = GAME.player;
 
     int scroll = 0;

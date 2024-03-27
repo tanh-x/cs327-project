@@ -13,6 +13,7 @@ enum class EncounterScenario {
     INVALID,
     STANDARD,
     UNCROSSABLE_TERRAIN,
+    BORDER_APPROACH,
     ENTITY_ENCOUNTER
 };
 
@@ -30,6 +31,8 @@ public:
     // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE
     // or out of bounds.
     EncounterScenario attemptMove(int dx, int dy);
+
+    void possessEntity(PlayerVessel* entity);
 };
 
 void dispatchPlayerEncounter(EncounterScenario scenario);

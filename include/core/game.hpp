@@ -9,11 +9,11 @@ void gameLoop();
 
 // Set up the current map (as determined by player global position) for gameplay.
 // Must be called whenever the map changes
-void setupGameOnMapLoad(MapEntryProps* entryProps);
+void setupGameOnMapLoad(MapEntryProps entryProps);
 
 // Moves the player to an adjacent map.
 // Returns the pointer to that map
-Map* moveInWorldDirection(char cmd, MapEntryProps* entryProps);
+void moveInWorldDirection(CardinalDir dir);
 
 // Moves the player to a map at the specified parameters (globalX, globalY).
 // Returns the pointer to that map

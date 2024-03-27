@@ -139,7 +139,7 @@ char entityToChar(Entity *entity) {
 
 void worldToString(char *str) {
     Map* currentMap = GAME.world->current;
-    EntityManager* entManager = GAME.entManager;
+    EntityManager* entManager = GAME.currentEntManager;
 
     int idx = 0;
     for (int y = 0; y < MAP_HEIGHT; y++) {
