@@ -56,6 +56,12 @@
 
 #define VORONOI_POINTS_BASE_SEED 21679733
 
+std::string locationNamePrefixes[] = LOCATION_NAME_PREFIXES;
+std::string locationNameSuffixes[] = LOCATION_NAME_SUFFIXES;
+int prefixesSize = sizeof(locationNamePrefixes) / sizeof(locationNamePrefixes[0]);
+int suffixesSize = sizeof(locationNameSuffixes) / sizeof(locationNameSuffixes[0]);
+
+
 // Initializes the map, but does not yet generate the terrain, which is deferred until the method
 // generateTerrain(int worldSeed) is invoked. It also does not initialize an entity manager, which
 // is deferred until setupGameOnMapLoad is called for the first time on this map.
@@ -66,6 +72,15 @@ Map::Map(int globalX, int globalY, int initialSeed) {
     this->mapSeed = globalHashFunction(globalX, globalY, initialSeed);
     this->overgrowth = OVERGROWTH_FACTOR * sqrt(abs(globalX) + abs(globalY));
     this->entityManager = nullptr;
+
+    srand(mapSeed);
+    // Get a random prefix and suffix
+    int prefixIndex = rand() % prefixesSize;
+    int suffixIndex = rand() % suffixesSize;
+
+    // Concatenate the random name
+    this->name = locationNamePrefixes[prefixIndex] + " " + locationNameSuffixes[suffixIndex];
+
 }
 
 Map::~Map() {

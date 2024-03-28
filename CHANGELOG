@@ -117,3 +117,7 @@
     - Refactored the map building system to OOP
     - Refactored entity system to live inside each map, instead of on the game itself
     - Can now move between adjacent maps via gates
+    Evening:
+    - Created world map window
+    - Implemented flying
+    - Finalized things for submission

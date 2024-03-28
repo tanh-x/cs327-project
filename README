@@ -1,14 +1,9 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│  The game is now rendered using ncurses library, with a new input handling   │
-│  and context switching system to handle the increased complexity of the new  │
-│  features. Players can move in the world with the specified keys or WASD.    │
-│  Interfaces like trainer list, battles, and buildings have also been added.  │
+│ The game is now ported to C++. In addition, map traversal is now once again  │
+│ possible, either via entering gates or through the fly menu, which also acts │
+│ as a world map. Also, player terrain costs has been decreased.               │
 │                                                                              │
-│  Opening most interfaces also triggers an animation.                         │
-│                                                                              │
-│  Escape key input is slightly delayed, and I'm not sure why, so I aliased    │
-│  every escape input to ~/` (tilde/grave) as well,                            │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 Flags:

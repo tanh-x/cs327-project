@@ -56,6 +56,7 @@ bool worldContextInputHandler(int key) {
             break;
         }
 
+        case 'm':
         case 'f': {
             // OPEN WORLD MAP
             enqueueInputBlockingEvent(0);

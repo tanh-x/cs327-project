@@ -7,6 +7,7 @@
 #define FOOTER_OFFSET 16
 #define SALIENCY_THRESHOLD 243
 #define PIVOT_SPEED 1
+#define SIXTY_FOUR_SPACES "                                                                "
 
 WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : AbstractContext(
     ContextType::WORLD_MAP_CONTEXT,
@@ -27,8 +28,8 @@ WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : Abstra
     horizontalSeparator(this, FOOTER_OFFSET);
 
     // Write the footer navigation guide
-    mvwaddstr(window, dimensions.height - 1, 2,
-              "[  w/a/s/d: Navigate  |  esc/~/f/m: Exit  |  enter/t: Fly  |  c: Recenter  ]");
+    mvwaddstr(window, dimensions.height - 1, 3,
+              "[  wasd/arrow: Navigate  |  esc/f/m: Exit  |  enter/t: Fly  |  c: Focus  ]");
 
     // We're done with initialization
 }
@@ -68,7 +69,7 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY) {
             bool isCurrent = mapX == world->current->globalX && mapY == world->current->globalY;
 
             int sparsityFactor = manhattan_dist(0, 0, 2 * mapX, mapY) / 2 + (mapEccentricity - 128) / 40;
-            int colorId = max(30,(mapEccentricity % 6 + 36) - clamp(sparsityFactor, -2, 8));
+            int colorId = max(30, (mapEccentricity % 6 + 36) - clamp(sparsityFactor, -2, 8));
             if (isPivoted) colorId = 22;            // 22 if pivoted (selected)
             else if (isExplored) colorId = 21;      // 21 if explored but not pivoted
 
@@ -95,8 +96,6 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY) {
             wattroff(window, pair);
         }
     }
-
-    refreshContext();
 }
 
 
@@ -130,9 +129,21 @@ void WorldMapContext::worldMapEntry() {
         sprintf(coordString, "%s, %s", xCoordString, yCoordString);
         windowTitle(this, coordString, dimensions.width - 16);
 
-
+        // Draw the world map
         drawWorldMap(pivotX, pivotY);
 
+        Map* pivotedMap = world->maps[pivotY + WORLD_Y_SPAN][pivotX + WORLD_X_SPAN];
+        // Clear the line
+        mvwaddstr(window, FOOTER_OFFSET + 1, 2, SIXTY_FOUR_SPACES);
+        // Write down the name of the map
+        if (pivotedMap != nullptr) {
+            mvwaddstr(window, FOOTER_OFFSET + 1, 2, pivotedMap->name.c_str());
+        } else {
+            mvwaddstr(window, FOOTER_OFFSET + 1, 2, "UNEXPLORED AREA");
+        }
+
+
+        refreshContext();
         int ch = getch();
         switch (ch) {
             case ESCAPE_KEY:
@@ -163,12 +174,19 @@ void WorldMapContext::worldMapEntry() {
                 return;
             }
 
+            case KEY_UP:
             case 'w': pivotY = clamp(pivotY - PIVOT_SPEED, -WORLD_Y_SPAN + 1, WORLD_Y_SPAN - 1);
                 continue;
+
+            case KEY_DOWN:
             case 's': pivotY = clamp(pivotY + PIVOT_SPEED, -WORLD_Y_SPAN + 1, WORLD_Y_SPAN - 1);
                 continue;
+
+            case KEY_LEFT:
             case 'a': pivotX = clamp(pivotX - PIVOT_SPEED, -WORLD_X_SPAN + 1, WORLD_X_SPAN - 1);
                 continue;
+
+            case KEY_RIGHT:
             case 'd': pivotX = clamp(pivotX + PIVOT_SPEED, -WORLD_X_SPAN + 1, WORLD_X_SPAN - 1);
                 continue;
 
