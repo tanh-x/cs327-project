@@ -144,7 +144,7 @@ void worldToString(char *str) {
     int idx = 0;
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            if (entManager->entMap[y][x] != NULL) {
+            if (entManager->entMap[y][x] != nullptr) {
                 str[idx++] = entityToChar(entManager->entMap[y][x]);
             } else {
                 str[idx++] = tileToChar(&currentMap->tileset[y][x]);

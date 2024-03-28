@@ -99,8 +99,10 @@ int main(int argc, char* argv[]) {
     gameLoop();
 
     // Clean up
+    GAME.currentEntManager = nullptr;
+    free(GAME.context);
+    GAME.context = nullptr;
     disposeWorld(&world);
-    free(map);
     cleanUpRenderer();
     return 0;
 }

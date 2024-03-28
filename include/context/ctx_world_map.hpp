@@ -16,7 +16,7 @@ private:
 
     void worldMapEntry();
 
-    void drawWorldMap(int pivotX, int pivotY);
+    void drawWorldMap(int pivotX, int pivotY, int zoom);
 };
 
 

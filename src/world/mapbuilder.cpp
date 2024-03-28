@@ -48,7 +48,7 @@
 #define ROAD_TARGET_ATTRACTION_FACTOR 2.2572f
 
 #define EDGE_STUB_PADDING_X 13
-#define EDGE_STUB_PADDING_Y 5
+#define EDGE_STUB_PADDING_Y 6
 #define EDGE_WEST_BITMASK 1
 #define EDGE_EAST_BITMASK 2
 #define EDGE_SOUTH_BITMASK 4
@@ -85,6 +85,7 @@ Map::Map(int globalX, int globalY, int initialSeed) {
 
 Map::~Map() {
     invalidateMemoization(memoizedDistanceFields);
+    this->entityManager = nullptr;
 }
 
 
@@ -250,15 +251,15 @@ MapEntryProps Map::generateTerrain(int worldSeed) {
     }
 
     if (edgeBitmask & EDGE_WEST_BITMASK) {
-        placeChunk(WATER, 1, 1, EDGE_STUB_PADDING_X, MAP_HEIGHT);
+        placeChunk(WATER, 1, 1, EDGE_STUB_PADDING_X, MAP_HEIGHT - 2);
     } else if (edgeBitmask & EDGE_EAST_BITMASK) {
-        placeChunk(WATER, MAP_WIDTH - EDGE_STUB_PADDING_X, 1, EDGE_STUB_PADDING_X, MAP_HEIGHT);
+        placeChunk(WATER, MAP_WIDTH - EDGE_STUB_PADDING_X, 1, EDGE_STUB_PADDING_X, MAP_HEIGHT - 2);
     }
 
     if (edgeBitmask & EDGE_NORTH_BITMASK) {
-        placeChunk(WATER, 1, 1, MAP_WIDTH, EDGE_STUB_PADDING_Y + 3);
+        placeChunk(WATER, 1, 1, MAP_WIDTH - 2, EDGE_STUB_PADDING_Y + 3);
     } else if (edgeBitmask & EDGE_SOUTH_BITMASK) {
-        placeChunk(WATER, 1, MAP_HEIGHT - EDGE_STUB_PADDING_Y - 4, MAP_WIDTH, EDGE_STUB_PADDING_Y + 3);
+        placeChunk(WATER, 1, MAP_HEIGHT - EDGE_STUB_PADDING_Y - 4, MAP_WIDTH - 2, EDGE_STUB_PADDING_Y + 3);
     }
 
     // 2. Second pass: "Biome blending" / quasi cellular automaton

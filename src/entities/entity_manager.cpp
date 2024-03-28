@@ -50,16 +50,15 @@ EntityManager::~EntityManager() {
     heap_delete(eventQueue);
     free(eventQueue);
     eventQueue = nullptr;
-
-    // Free the entity map
-//    free(currentEntManager->entMap);
-
-//    free(currentEntManager);
 }
 
 
 void EntityManager::reinitializeEventQueue() {
-    if (eventQueue != nullptr) heap_delete(eventQueue);
+    if (eventQueue != nullptr) {
+        heap_delete(eventQueue);
+        free(eventQueue);
+        eventQueue = nullptr;
+    }
 
     // Create a new heap
     this->eventQueue = static_cast<heap_t*>(malloc(sizeof(heap_t)));

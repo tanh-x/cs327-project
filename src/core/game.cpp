@@ -188,29 +188,3 @@ Map* moveToMap(int globalX, int globalY, MapEntryProps* entryProps) {
 
     return newMap;
 }
-/*
- *
-            } else if (first == 'n' || first == 'w' || first == 's' || first == 'e') {
-                // nswe: Move along the world in cardinal directions
-                MapEntryProps entryProps;
-                map = moveInWorldDirection(game, cmd[0], &entryProps);
-                setupGameOnMapLoad(game, &entryProps);
-                if (map != NULL) break;  // NULL only if invalid move
-
-                // Else, it was an invalid move, so let it exit the if body,
-                promptOverride = "You reached the map border, try again: ";
-
-            } else if (first == 'f') {
-                // f <x> <y>: Fly to a specific map
-                int x, y;
-                int parsedItems = sscanf(cmd, "f %d %d", &x, &y);
-                if (parsedItems == 2) {
-                    MapEntryProps entryProps;
-                    map = moveToMap(game, x, y, &entryProps);
-                    entryProps.playerSpawnX = 0;
-                    entryProps.playerSpawnY = hashWithMapCardinalDir(x, y, WEST, world->worldSeed);
-                    setupGameOnMapLoad(game, &entryProps);
-                    if (map != NULL) break;  // NULL if invalid move
-                    // Else, let it exit the if body
-                }
- * */

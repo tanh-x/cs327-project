@@ -9,7 +9,7 @@
 
 void initializeWorld(World* world, int worldSeed) {
     for (int y = 0; y < WORLD_HEIGHT; y++) {
-        for (int x= 0; x < WORLD_WIDTH; x++) {
+        for (int x = 0; x < WORLD_WIDTH; x++) {
             world->maps[y][x] = nullptr;
             world->eccentricity[y][x] = static_cast<uint8_t>(rand());
         }
@@ -68,6 +68,10 @@ void disposeWorld(World* world) {
     for (auto &i: world->maps) {
         for (auto &map: i) {
             if (map == nullptr) continue;
+
+            free(map->entityManager);
+            map->entityManager = nullptr;
+            free(map);
             map = nullptr;
         }
     }

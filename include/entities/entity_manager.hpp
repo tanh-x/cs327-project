@@ -12,8 +12,7 @@
 class Map;
 
 // The EventManager stores the current state of entities on the map.
-// It is always bound to the GameManager singleton, but is cleared and disposed of every time
-// we switch to a new map, or whenever the current map gets disposed of.
+// It is bound to each and every map, and goes inactive everytime the player steps out of the map.
 class EntityManager {
 public:
     // Initializes a new EntityManager and assign it to the game->currentEntManager pointer, and also returns it.
