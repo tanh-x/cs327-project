@@ -19,13 +19,15 @@ AbstractEntity::AbstractEntity(EntityEnum type, int x, int y) {
     this->mapX = x;
     this->mapY = y;
 
-    this->activeBattle = true;
 
-    // If they're an NPC, give them a random name
-    if (type == EntityEnum::PLAYER) this->name = "Player";
-    else this->name = trainerNames[randomInt(0, NUM_TRAINER_NAMES - 1)];
-
-    // Add it to the entity list, and then return it
+    if (type == EntityEnum::PLAYER) {
+        this->name = "Player";
+        this->activeBattle = false;
+    } else {
+        // If they're an NPC, give them a random name
+        this->name = trainerNames[randomInt(0, NUM_TRAINER_NAMES - 1)];
+        this->activeBattle = true;
+    }
 }
 
 // When we destruct the entity, make sure to set the player's pointer to this entity as null
