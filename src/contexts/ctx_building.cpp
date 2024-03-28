@@ -5,7 +5,7 @@
 BuildingContext::BuildingContext(WorldContext* parent, TileType type) : AbstractContext(
     ContextType::BUILDING_CONTEXT,
     parent,
-    getDimensions()
+    {3, 3, WINDOW_WIDTH - 6, WINDOW_HEIGHT - 6}
 ) {
     // Do a fancy animation
     expandWindowVertical(dimensions, INTERVAL_30FPS_MICROS);
@@ -18,9 +18,12 @@ BuildingContext::BuildingContext(WorldContext* parent, TileType type) : Abstract
     else if (type == POKECENTER) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMON CENTER INTERFACE");
 
     // We're done with initialization
-    refreshContext();
+}
 
-    // Only accepts </[ to exit, no other keys are handled.
+void BuildingContext::start() {
+    AbstractContext::start();
+
+    // Only accepts `<`/`[` to exit, no other keys are handled.
     while (true) {
         int ch = getch();
         if (ch == '<' || ch == '[') break;
@@ -29,17 +32,4 @@ BuildingContext::BuildingContext(WorldContext* parent, TileType type) : Abstract
     // If we got here, </[ has been pressed
 
     returnToParentContext();
-}
-
-Rect2D BuildingContext::getDimensions() {
-    // Define dimensions of the new window
-    Rect2D windowDimensions;
-    windowDimensions.width = WINDOW_WIDTH - 6;
-    windowDimensions.height = WINDOW_HEIGHT - 6;
-
-    // Find the center of the parent window
-    windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
-    windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
-
-    return windowDimensions;
 }

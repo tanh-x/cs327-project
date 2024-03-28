@@ -5,39 +5,49 @@
 #include "graphics/artist.hpp"
 #include "contexts/components/animations.hpp"
 
-void enterPlaceholderBattle(AbstractEntity* opponent) {
-    // Define dimensions of the new window
-    Rect2D windowDimensions;
-    windowDimensions.width = WINDOW_WIDTH;
-    windowDimensions.height = WINDOW_HEIGHT;
+BattleViewContext::BattleViewContext(
+    AbstractContext* parent,
+    AbstractEntity* opponent
+) : AbstractContext(
+    ContextType::BATTLE_CONTEXT,
+    parent,
+    {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}
+) {
+    // Store the pointer to the opponent first
+    this->opponent = opponent;
 
-    // Find the center of the parent window
-    windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
-    windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
-
+    // Play a funny animation
     battleTransition(INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    AbstractContext* context = AbstractContext::constructChildWindowContext(ContextType::BATTLE_CONTEXT, windowDimensions);
-    WINDOW* window = context.window;
+    constructWindow();
+
     // Add a placeholder title
     mvwprintw(window, 1, 2, "PLACEHOLDER BATTLE INTERFACE");
-    // We're done with the main window
+    // We're done with initializing the main window
 
-    // TIme to build the dialog window
-    Rect2D dialogDimensions;
-    dialogDimensions.x = 1;
-    dialogDimensions.y = WINDOW_HEIGHT - DIALOG_WINDOW_HEIGHT;
-    dialogDimensions.width = WINDOW_WIDTH - 2;
-    dialogDimensions.height = DIALOG_WINDOW_HEIGHT;
-    wrefresh(window);
+    // Refresh the window once before adding the dialog window
+    refreshContext();
+
+    // Wait a little bit to create a delay before the dialog animation starts
     usleep(STD_SLOW_FRAME_DELAY);
 
+    // Time to build the dialog window
+
+    // Define the dimensions of the dialog window
+    Rect2D dialogRect;
+    dialogRect.x = 1;
+    dialogRect.y = WINDOW_HEIGHT - DIALOG_WINDOW_HEIGHT;
+    dialogRect.width = WINDOW_WIDTH - 2;
+    dialogRect.height = DIALOG_WINDOW_HEIGHT;
+
     // Start with an animation
-    expandWindowVertical(dialogDimensions, INTERVAL_30FPS_MICROS);
+    expandWindowVertical(dialogRect, INTERVAL_30FPS_MICROS);
 
     // Then build the actual dialog window
-    WINDOW* dialogWindow = constructWindow(dialogDimensions);
+    WINDOW* dialogWindow = newwin(dialogRect.height, dialogRect.width, dialogRect.y, dialogRect.x);
+    keypad(dialogWindow, true);
+    box(dialogWindow, 0, 0);
 
     // Print out text to the dialog window
     mvwprintw(
@@ -50,7 +60,11 @@ void enterPlaceholderBattle(AbstractEntity* opponent) {
     );
 
     // We're done with building the window
-    wrefresh(dialogWindow);
+    refreshContext();
+}
+
+void BattleViewContext::start() {
+    AbstractContext::start();
 
     // Only accepts ESC to exit, no other keys are handled.
     while (true) {
@@ -59,8 +73,8 @@ void enterPlaceholderBattle(AbstractEntity* opponent) {
     }
 
     // If we got here, ESC has been pressed
-    clear();
     opponent->activeBattle = false;
-    GAME.context = context->parent;
-    returnToParentContext(context);
+    returnToParentContext();
 }
+
+

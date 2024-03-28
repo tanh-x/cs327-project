@@ -47,14 +47,15 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
     if (scenario == EncounterScenario::ENTITY_ENCOUNTER) {
         AbstractEntity* opponent = entManager->entMap[player->mapY][player->mapX];
 
+        // Check if the opponent can be fought
         if (opponent != nullptr && opponent->activeBattle) {
-            enterPlaceholderBattle(opponent);
+            auto* battleCtx = new BattleViewContext(GAME.context, opponent);
+            battleCtx->start();
+            // Blocking call until the battle is finished
         }
 
-        player->
-            mapX = player->currentEntity->mapX;
-        player->
-            mapY = player->currentEntity->mapY;
+        player->mapX = player->currentEntity->mapX;
+        player->mapY = player->currentEntity->mapY;
     }
 }
 

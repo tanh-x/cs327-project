@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "contexts/abstract_context.hpp"
 #include "contexts/ctx_world.hpp"
 #include "contexts/ctx_trainer_list.hpp"
@@ -9,22 +10,18 @@ AbstractContext::AbstractContext(ContextType type, AbstractContext* parent, Rect
     this->dimensions = dimensions;
 }
 
-// Disposes of the context, and restores the terminal to the parent window.
-// The caller must change the context of the game manager back to the parent context before this.
+// Disposes of the context, which is assumed to be the current context, and restores the terminal to the parent window.
+// Additionally, restores the
 void AbstractContext::returnToParentContext() {
-    if (parent != nullptr) {
-        delwin(window);
-        wrefresh(parent->window);
-    }
-    GAME.context
-}
+    // Do not call this method on a context that is not the current context, or if it's the root context
+    if (GAME.context != this || parent == nullptr) exit(1);
 
-// Instantiates the child context as well as a constructed window.
-//AbstractContext* AbstractContext::constructChildWindowContext(ContextType contextType, Rect2D rect) {
-//    auto* ctx = new AbstractContext(contextType, this, rect);
-//    ctx->constructWindow();
-//    return ctx;
-//}
+    // Destroy the context and restore the parent
+    delwin(window);
+    wrefresh(parent->window);
+    GAME.context = parent;
+    free(this);
+}
 
 // Constructs a basic popup window, and sets the current window to it
 WINDOW* AbstractContext::constructWindow() {
@@ -41,15 +38,20 @@ WINDOW* AbstractContext::constructWindow() {
     return newWindow;
 }
 
-void AbstractContext::refreshContext() {
+void AbstractContext::refreshContext() const {
     wrefresh(window);
+}
+
+void AbstractContext::start() {
+    GAME.context = this;
+    refreshContext();
 }
 
 bool emptyInputHandler(int key) {
     return false;
 }
 
-// TODO: refactor this into polymorphism
+// TODO: old C code, refactor this into polymorphism
 // Given the current context type, returns the pointer to a 3-ary function, called the input handler, corresponding
 // to the current context type. The input handler takes in the key from getch() to carry out the correct action
 // with respect to the current game context; returning whether the input was caught. If not, the key will be

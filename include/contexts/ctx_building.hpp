@@ -5,12 +5,10 @@
 #include "ctx_world.hpp"
 
 class BuildingContext : public AbstractContext {
+public:
     BuildingContext(WorldContext* parent, TileType type);
 
-private:
-    static Rect2D getDimensions();
+    void start() override;
 };
-
-void enterPlaceholderBuilding(TileType type);
 
 #endif

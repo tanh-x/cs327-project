@@ -4,6 +4,7 @@
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"
+#include "contexts/ctx_world.hpp"
 
 
 GameManager GAME;
@@ -48,7 +49,7 @@ int main(int argc, char* argv[]) {
     // Initial set up
     GAME.currentEntManager = nullptr;
     GAME.quit_game = false;
-    GAME.context = AbstractContext::instantiateRootContext();
+    GAME.context = new WorldContext();
 
     // Create a player
     Player player;

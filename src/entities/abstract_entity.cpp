@@ -28,6 +28,7 @@ AbstractEntity::AbstractEntity(EntityEnum type, int x, int y) {
     // Add it to the entity list, and then return it
 }
 
+// When we destruct the entity, make sure to set the player's pointer to this entity as null
 AbstractEntity::~AbstractEntity() {
     if (this->type == EntityEnum::PLAYER) {
         Player* player = GAME.player;
@@ -75,17 +76,19 @@ bool AbstractEntity::moveBy(int dx, int dy) {
     return true;
 }
 
+// @formatter:off
 AbstractEntity* AbstractEntity::spawnNPC(EntityEnum type, int mapX, int mapY) {
     switch (type) {
-        case EntityEnum::HIKER: return new Hiker(mapX, mapY);
-        case EntityEnum::RIVAL: return new Rival(mapX, mapY);
-        case EntityEnum::PACER: return new Pacer(mapX, mapY);
-        case EntityEnum::WANDERER: return new Wanderer(mapX, mapY);
-        case EntityEnum::SENTRY: return new Sentry(mapX, mapY);
-        case EntityEnum::EXPLORER: return new Explorer(mapX, mapY);
+        case EntityEnum::HIKER:     return new Hiker(mapX, mapY);
+        case EntityEnum::RIVAL:     return new Rival(mapX, mapY);
+        case EntityEnum::PACER:     return new Pacer(mapX, mapY);
+        case EntityEnum::WANDERER:  return new Wanderer(mapX, mapY);
+        case EntityEnum::SENTRY:    return new Sentry(mapX, mapY);
+        case EntityEnum::EXPLORER:  return new Explorer(mapX, mapY);
         default: return nullptr;
     }
 }
+// @formatter:on
 
 // Creates a new event according to the entity's AI
 Event* AbstractEntity::constructEventOnTurn() {
@@ -99,9 +102,7 @@ Event* AbstractEntity::constructEventOnTurn() {
     bool success;
     // Check if the entity wants to fight the player or not
     if (activeBattle) {
-        // Delegate the movement to the corresponding AI handler function
-//        bool (* handler)(Event*, AbstractEntity*) = dispatchMovementAIHandler(entity->type);
-//        success = handler(event, entity);
+        // If so, then move according to the entity's AI function
         success = moveAI(event);
     } else {
         // If the entity doesn't want to fight the player, don't pathfind towards them

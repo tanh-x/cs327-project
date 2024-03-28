@@ -3,13 +3,23 @@
 
 #include <ncurses.h>
 #include "core/game.hpp"
+#include "contexts/ctx_world.hpp"
 
 #define TRAINER_LIST_WINDOW_WIDTH 48
 #define TRAINER_LIST_WINDOW_HEIGHT 10
 
-void startTrainerListWindow();
+class TrainerListContext : public AbstractContext {
+public:
+    std::vector<AbstractEntity*>* entityList;
 
-void trainerListEntry();
+    TrainerListContext(WorldContext* parent, std::vector<AbstractEntity*>* entityList);
+
+    void start() override;
+
+private:
+    void trainerListEntry();
+};
+
 
 bool trainerListInputHandler(int key);
 

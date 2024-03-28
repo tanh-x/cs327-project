@@ -7,6 +7,8 @@ class WorldContext : public AbstractContext {
 public:
     // Instantiates the root context. Called once when initializing the game.
     WorldContext();
+
+    void start() override {};
 };
 
 bool worldContextInputHandler(int key);

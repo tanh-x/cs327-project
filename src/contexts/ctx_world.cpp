@@ -6,7 +6,6 @@
 
 // Instantiates the root context. Called once when initializing the game.
 WorldContext::WorldContext() : AbstractContext(
-    stdscr,
     ContextType::WORLD_CONTEXT,
     nullptr,
     {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}
@@ -35,7 +34,12 @@ bool worldContextInputHandler(int key) {
         case 't': {
             // LIST TRAINERS
             enqueueInputBlockingEvent(0);
-            startTrainerListWindow();
+            auto* trainerListCtx = new TrainerListContext(
+                dynamic_cast<WorldContext*>(GAME.context),
+                &GAME.currentEntManager->entities
+            );
+            trainerListCtx->start();
+            // Blocking call until trainer list context completes its operations
             break;
         }
 
@@ -45,7 +49,9 @@ bool worldContextInputHandler(int key) {
             if (type != POKECENTER && type != POKEMART) return false;
 
             enqueueInputBlockingEvent(1);
-            enterPlaceholderBuilding(type);
+            auto* buildingCtx = new BuildingContext(dynamic_cast<WorldContext*>(GAME.context), type);
+            buildingCtx->start();
+            // Blocking call until the player exits the building
             break;
         }
 

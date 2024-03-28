@@ -11,10 +11,17 @@ typedef struct GameManager GameManager;
 
 // An AbstractEntity is an abstract class that lives inside an EntityManager, and holds data for events on the map
 // Thus, the lifespan and existence of the entity object is bound to the map.
-// Entities have a type (incl. PLAYER), and have a map coordinate tuple. It also has a "soul" (see below).
-// Whenever the map changes, all entities as well as the current EntityManager is cleared and disposed of.
+//
+// Entities have a type (incl. PLAYER), and have a map coordinate tuple.
+//
+// Whenever the map changes, all entities is stored in current EntityManager, and will be inactive until
+// the map is loaded again
 class AbstractEntity {
+protected:
+    AbstractEntity(EntityEnum type, int x, int y);
+
 public:
+    // When we destruct the entity, make sure to set the player's pointer to this entity as null
     ~AbstractEntity();
 
     // The type of entity
@@ -44,11 +51,11 @@ public:
     // Creates a new event according to the entity's AI
     Event* constructEventOnTurn();
 
-    // Abstract
+    // A movement AI is a function that takes in an event pointer argument, which should be a placeholder event.
+    // It returns a boolean that indicates whether the event creation was successful or not.
+    //
+    // The event will be of movement type, with dx, dy, and cost correctly written into.
     virtual bool moveAI(Event* event) = 0;
-
-protected:
-    AbstractEntity(EntityEnum type, int x, int y);
 };
 
 

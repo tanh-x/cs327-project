@@ -1,5 +1,4 @@
 #include <ncurses.h>
-#include <cassert>
 #include "contexts/ctx_trainer_list.hpp"
 #include "graphics/artist.hpp"
 #include "utils/string_helpers.hpp"
@@ -9,42 +8,45 @@
 
 #define WINDOW_LEFT_PADDING 2
 
-void startTrainerListWindow() {
-    // Define dimensions of the new window
-    Rect2D windowDimensions;
-    windowDimensions.width = TRAINER_LIST_WINDOW_WIDTH;
-    windowDimensions.height = TRAINER_LIST_WINDOW_HEIGHT;
-
-    // Find the center of the parent window
-    windowDimensions.x = (WINDOW_WIDTH - windowDimensions.width) / 2;
-    windowDimensions.y = (WINDOW_HEIGHT - windowDimensions.height) / 2;
+TrainerListContext::TrainerListContext(
+    WorldContext* parent,
+    std::vector<AbstractEntity*>* entityList
+) : AbstractContext(
+    ContextType::TRAINER_LIST_CONTEXT,
+    parent,
+    {
+        (WINDOW_WIDTH - TRAINER_LIST_WINDOW_WIDTH) / 2,
+        (WINDOW_HEIGHT - TRAINER_LIST_WINDOW_HEIGHT) / 2,
+        TRAINER_LIST_WINDOW_WIDTH,
+        TRAINER_LIST_WINDOW_HEIGHT,
+    }
+) {
+    // Save the pointer to the entity list
+    this->entityList = entityList;
 
     // Do a fancy animation
-    expandWindowVertical(windowDimensions, INTERVAL_30FPS_MICROS);
+    expandWindowVertical(dimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    AbstractContext* context = constructChildWindowContext(ContextType::TRAINER_LIST_CONTEXT, windowDimensions);
+    constructWindow();
 
     // Add extra stuff
-    windowTitle(context, "Trainer list");
+    windowTitle(this, "Trainer list");
+}
+
+void TrainerListContext::start() {
+    AbstractContext::start();
 
     // Enter the main loop, which is where it will be wrefresh()'d
     trainerListEntry();
-
     // trainerListEntry() only returns upon exit, so we want to destroy the window and the context
-    // First, swap the context back to the parent
-    assert(GAME.context->parent != nullptr);
-    GAME.context = GAME.context->parent;
 
-    // Then, dispose it, and return back to the parent window.
-    returnToParentContext(context);
-
+    // Swap the context back to the parent
+    returnToParentContext();
     // We are done with the trainer list, so exit back to the call site
 }
 
-void trainerListEntry() {
-    assert(GAME.context->type == ContextType::TRAINER_LIST_CONTEXT);
-    WINDOW* window = GAME.context->window;
+void TrainerListContext::trainerListEntry() {
     std::vector<AbstractEntity*> entities = GAME.currentEntManager->entities;
     Player* player = GAME.player;
 
@@ -56,14 +58,20 @@ void trainerListEntry() {
         for (int i = 1; i < min(numEnities, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
             AbstractEntity* ent = entities[i + scroll];
 
-            // Format the string
+            // Initialize variables for string formatting
             char entityString[TRAINER_LIST_WINDOW_WIDTH - 1];
             char dxString[11];
             char indexString[13];
+
+            // Format the dx part
             sprintf(dxString, "dx=%d,", ent->mapX - player->mapX);
             rightPad(dxString, 7);
+
+            // Format the index part
             sprintf(indexString, "%d.", i + scroll);
             rightPad(indexString, 5);
+
+            // Concatenate everything together
             sprintf(
                 entityString, "%s%c @ (%s dy=%d)",
                 indexString,
@@ -76,6 +84,8 @@ void trainerListEntry() {
             // Print it out
             mvwprintw(window, i, WINDOW_LEFT_PADDING, "%s", entityString);
         }
+
+        // Add an indicator if scroll is available
         if (entities.size() >= TRAINER_LIST_WINDOW_HEIGHT) {
             if (scroll != maxScroll) {
                 mvwprintw(
@@ -90,7 +100,8 @@ void trainerListEntry() {
             }
 
         }
-        wrefresh(window);
+
+        refreshContext();
 
         // Listen for input
         int ch = getch();
@@ -102,17 +113,14 @@ void trainerListEntry() {
             case '~':  // Near-esc alias
             case 't':  // Toggle alias
                 return;  // Exit the loop
-
             case KEY_UP: {
                 scroll = clamp(scroll - 1, 0, maxScroll);
                 continue;
             }
-
             case KEY_DOWN: {
                 scroll = clamp(scroll + 1, 0, maxScroll);
                 continue;
             }
-
             default: {}
         }
 

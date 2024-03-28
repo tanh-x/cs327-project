@@ -5,6 +5,14 @@
 
 #define DIALOG_WINDOW_HEIGHT 6
 
-void enterPlaceholderBattle(AbstractEntity* opponent);
+class BattleViewContext : public AbstractContext {
+public:
+    BattleViewContext(AbstractContext* parent, AbstractEntity* opponent);
+
+    // The opponent we're fighting against
+    AbstractEntity* opponent;
+
+    void start() override;
+};
 
 #endif

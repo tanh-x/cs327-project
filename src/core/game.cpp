@@ -47,7 +47,9 @@ void gameLoop() {
                 usleep(STD_SLOW_FRAME_DELAY);
 
                 // Then enter the battle
-                enterPlaceholderBattle(actor);
+                auto* battleCtx = new BattleViewContext(GAME.context, actor);
+                battleCtx->start();
+                // Blocking call until the battle is finished
 
                 // Do another render when we're done
                 clear();
