@@ -87,7 +87,7 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
                 }
             }
 
-            int sparsityFactor = manhattan_dist(0, 0, 2 * mapX, mapY) / 2 + (mapEccentricity - 128) / 40;
+            int sparsityFactor = manhanttanDist(0, 0, 2 * mapX, mapY) / 2 + (mapEccentricity - 128) / 40;
             int colorId = max(30, (mapEccentricity % 6 + 36) - clamp(sparsityFactor, -2, 8));
             if (isPivoted) colorId = 22;            // 22 if pivoted (selected)
             else if (isExplored) colorId = 21;      // 21 if explored but not pivoted
@@ -103,7 +103,8 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
 
             // Format the 3-character string representing the map at this position
             char mapTileString[4];
-            sprintf(mapTileString, "[%c]", tileChar);
+            if (isPivoted) sprintf(mapTileString, ">%c<", tileChar);
+            else sprintf(mapTileString, "[%c]", tileChar);
 
             // Print it out
             wattron(window, pair);

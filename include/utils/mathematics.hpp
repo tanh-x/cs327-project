@@ -47,7 +47,7 @@ int signum(int x);
 
 float signumf(float x);
 
-int manhattan_dist(int x1, int y1, int x2, int y2);
+int manhanttanDist(int x1, int y1, int x2, int y2);
 
 typedef struct {
     int x;

@@ -81,6 +81,6 @@ float signumf(float x) {
 }
 
 
-int manhattan_dist(int x1, int y1, int x2, int y2) {
+int manhanttanDist(int x1, int y1, int x2, int y2) {
     return abs(x2 - x1) + abs(y2 - y1);
 }
