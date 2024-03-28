@@ -43,6 +43,10 @@ public:
     // A heap that contains queued Event objects, sorted by the time at which they will be resolved.
     heap_t* eventQueue;
 
+    void reinitializeEventQueue();
+
+    void fillFirstTurns();
+
     void addEntity(AbstractEntity* entity);
 
     void spawnTrainers(Map* map, int numTrainers);

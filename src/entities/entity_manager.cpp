@@ -17,8 +17,8 @@ EntityManager::EntityManager() {
     }
 
     // Initialize the eventQueue heap
-    this->eventQueue = static_cast<heap_t*>(malloc(sizeof(heap_t)));
-    heap_init(this->eventQueue, eventComparator, disposeEvent);
+    this->eventQueue = nullptr;
+    reinitializeEventQueue();
 
     this->eventTime = 0;
     this->nextBattleInitiationTime = 0;
@@ -56,6 +56,33 @@ EntityManager::~EntityManager() {
 
 //    free(currentEntManager);
 }
+
+
+void EntityManager::reinitializeEventQueue() {
+    if (eventQueue != nullptr) heap_delete(eventQueue);
+
+    // Create a new heap
+    this->eventQueue = static_cast<heap_t*>(malloc(sizeof(heap_t)));
+    heap_init(this->eventQueue, eventComparator, disposeEvent);
+}
+
+void EntityManager::fillFirstTurns() {
+    for (auto &entity: entities) {
+        // If it was a player, simply add the first input blocking event
+        if (entity->type == EntityEnum::PLAYER) {
+            enqueueInputBlockingEvent(0);
+            continue;
+        }
+
+        // Try creating and queueing a new event.
+        Event* event = entity->constructEventOnTurn();
+        if (event == nullptr) continue;
+
+        // Event initialization was successful, so we add it to the queue
+        enqueueEvent(event);
+    }
+}
+
 
 void EntityManager::addEntity(AbstractEntity* entity) {
     int x = entity->mapX;
@@ -117,13 +144,6 @@ void EntityManager::spawnTrainers(Map* map, int numTrainers) {
 
         // Make them follow and try to fight the player
         entity->activeBattle = true;
-
-        // Try creating and queueing a new event.
-        Event* event = entity->constructEventOnTurn();
-        if (event == nullptr) continue;
-
-        // Event initialization was successful, so we add it to the queue
-        enqueueEvent(event);
     }
 }
 

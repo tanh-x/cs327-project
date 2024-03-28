@@ -28,8 +28,10 @@ WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : Abstra
     horizontalSeparator(this, FOOTER_OFFSET);
 
     // Write the footer navigation guide
-    mvwaddstr(window, dimensions.height - 1, 3,
-              "[  wasd/arrow: Navigate  |  esc/f/m: Exit  |  enter/t: Fly  |  c: Focus  ]");
+    mvwaddstr(
+        window, dimensions.height - 1, 3,
+        "[  wasd/arrow: Navigate  |  esc/f/m: Exit  |  enter/t: Fly  |  c: Focus  ]"
+    );
 
     // We're done with initialization
 }
@@ -79,6 +81,7 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY) {
             // Find which character to use
             char tileChar = ' ';
             if (isCurrent) tileChar = '@';
+            else if (mapX == 0 && mapY == 0) tileChar = 'O';
             else if (mapEccentricity > SALIENCY_THRESHOLD) tileChar = '?';
 
             // Format the 3-character string representing the map at this position

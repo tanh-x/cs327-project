@@ -39,7 +39,7 @@ void gameLoop() {
 
             // If the entity is near the player, and they haven't been defeated, and there isn't an active cooldown
             if (actor->activeBattle
-                && manhattan_dist(actor->mapX, actor->mapY, player->mapX, player->mapY) <= 1
+                && max(abs(actor->mapX - player->mapX), abs(actor->mapY - player->mapY)) <= 1
                 && entManager->eventTime >= entManager->nextBattleInitiationTime) {
 
                 // Render the game before entering battle
@@ -108,11 +108,12 @@ void setupGameOnMapLoad(MapEntryProps entryProps) {
     EntityManager* entManager = map->entityManager;
     GAME.currentEntManager = entManager;
 
+    // (Re-)initialize the event system
+    entManager->reinitializeEventQueue();
+    entManager->fillFirstTurns();
+
     // Set the player vessel entity position to the player's new position (set in move)
     player->possessEntity(entManager->vesselEntity);
-
-    // Add an input event for the player that resolves immediately
-    enqueueInputBlockingEvent(0);
 }
 
 // Moves the player to an adjacent map, and makes a call to setupGameOnMapLoad
