@@ -72,8 +72,8 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
             bool isSalient = false;
 
             // Go over every map in the zoomed out chunk
-            for (int zx = mapX; zx < min(mapX + zoom, WORLD_X_SPAN); zx++) {
-                for (int zy = mapY; zy < min(mapY + zoom, WORLD_Y_SPAN); zy++) {
+            for (int zx = mapX; zx < min(mapX + zoom, WORLD_X_SPAN + 1); zx++) {
+                for (int zy = mapY; zy < min(mapY + zoom, WORLD_Y_SPAN + 1); zy++) {
                     // Get the map at this position
                     map = world->maps[zy + WORLD_Y_SPAN][zx + WORLD_X_SPAN];
                     mapEccentricity = world->eccentricity[zy + WORLD_Y_SPAN][zx + WORLD_X_SPAN];
@@ -82,7 +82,6 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
                     isExplored |= map != nullptr;
                     isPivoted |= zx == pivotX && zy == pivotY;
                     isCurrent |= zx == world->current->globalX && zy == world->current->globalY;
-
 
                     isSalient |= mapEccentricity > SALIENCY_THRESHOLD;
                 }
