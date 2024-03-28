@@ -6,7 +6,7 @@
 
 class BuildingContext : public AbstractContext {
 public:
-    BuildingContext(WorldContext* parent, TileType type);
+    BuildingContext(MainContext* parent, TileType type);
 
     void start() override;
 };

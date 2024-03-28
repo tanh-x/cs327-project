@@ -2,7 +2,7 @@
 
 #include "core/game.hpp"
 #include "entities/entity_manager.hpp"
-#include "contexts/ctx_battle_view.hpp"
+#include "context/ctx_battle_view.hpp"
 #include "entities/pathfinding.hpp"
 #include "core/player.hpp"
 
@@ -17,8 +17,6 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
     // Normal movement is already handled within attemptMove()
     if (scenario == EncounterScenario::STANDARD) return;
 
-    // Otherwise, enqueue an idle event for the player, and continue with other scenarios
-    enqueueInputBlockingEvent(PLAYER_SPECIAL_ACTION_IDLE_TIME);
 
     // Check if the player can go to an adjacent map
     if (scenario == EncounterScenario::BORDER_APPROACH) {
@@ -30,7 +28,11 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
         else if (map->tileset[player->mapY + 1][player->mapX].type == GATE) moveInWorldDirection(SOUTH);
         else if (map->tileset[player->mapY][player->mapX - 1].type == GATE) moveInWorldDirection(WEST);
         else if (map->tileset[player->mapY][player->mapX + 1].type == GATE) moveInWorldDirection(EAST);
-        else return; // Otherwise, we just hit the border, so just make it return
+        else {
+            // Otherwise, we just hit the border, so just make it return
+            enqueueInputBlockingEvent(PLAYER_SPECIAL_ACTION_IDLE_TIME);
+            return;
+        }
 
         // A successful call to any of the world movement functions will land us here
 
@@ -39,6 +41,9 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
         // We're already done here, so move on to rerender in game.cpp
         return;
     }
+
+    // Otherwise, enqueue an idle event for the player, and continue with other scenarios
+    enqueueInputBlockingEvent(PLAYER_SPECIAL_ACTION_IDLE_TIME);
 
     // If we hit uncrossable terrain, just do nothing and wait.
     if (scenario == EncounterScenario::UNCROSSABLE_TERRAIN) return;

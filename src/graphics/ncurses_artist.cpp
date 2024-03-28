@@ -18,6 +18,23 @@ void initializeExtendedColors() {
     init_pair(10, 196, 0); // full red
     init_pair(11, 216, 0); // light pink
     init_pair(12, 16, 196); // black, deep red bg
+
+    init_pair(21, 221, COLOR_BLACK);  // light yellow
+    init_pair(22, 45, COLOR_BLACK);  // light blue
+
+    init_pair(30, 236, COLOR_BLACK);
+    init_pair(31, 237, COLOR_BLACK);
+    init_pair(32, 238, COLOR_BLACK);
+    init_pair(33, 239, COLOR_BLACK);
+    init_pair(34, 240, COLOR_BLACK);
+    init_pair(35, 241, COLOR_BLACK);
+    init_pair(36, 242, COLOR_BLACK);
+    init_pair(37, 243, COLOR_BLACK);
+    init_pair(38, 244, COLOR_BLACK);
+    init_pair(39, 239, COLOR_BLACK);
+    init_pair(40, 238, COLOR_BLACK);
+    init_pair(41, 245, COLOR_BLACK);
+    init_pair(42, 238, COLOR_BLACK);
 }
 
 // @formatter:off

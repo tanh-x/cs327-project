@@ -9,10 +9,14 @@ class BattleViewContext : public AbstractContext {
 public:
     BattleViewContext(AbstractContext* parent, AbstractEntity* opponent);
 
+    void start() override;
+
+private:
     // The opponent we're fighting against
     AbstractEntity* opponent;
 
-    void start() override;
+    // Pointer to the dialog window that will be created in the constructor
+    WINDOW* dialogWindow;
 };
 
 #endif

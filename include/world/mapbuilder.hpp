@@ -7,6 +7,7 @@
 #define DISTANCE_FIELD_MEMOIZATION_SIZE 40
 
 class EntityManager;
+
 struct DistanceField;
 
 typedef enum __attribute__ ((__packed__)) {
@@ -24,7 +25,6 @@ typedef enum __attribute__ ((__packed__)) {
     POKEMART,   // M    <2nd pass>
     JOULDER,    // )    <2nd pass>
 } TileType;
-
 
 
 typedef struct {
@@ -50,7 +50,6 @@ public:
     int globalY;
     bool isSpawnMap;
     float overgrowth;
-
 
     Tile tileset[MAP_HEIGHT][MAP_WIDTH] {};
     DistanceField* memoizedDistanceFields[DISTANCE_FIELD_MEMOIZATION_SIZE] {};

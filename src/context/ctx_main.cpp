@@ -1,12 +1,13 @@
-#include "contexts/ctx_world.hpp"
+#include "context/ctx_world.hpp"
 #include "entities/event.hpp"
-#include "contexts/ctx_trainer_list.hpp"
-#include "contexts/ctx_building.hpp"
+#include "context/ctx_trainer_list.hpp"
+#include "context/ctx_building.hpp"
+#include "context/ctx_world_map.hpp"
 
 
 // Instantiates the root context. Called once when initializing the game.
-WorldContext::WorldContext() : AbstractContext(
-    ContextType::WORLD_CONTEXT,
+MainContext::MainContext() : AbstractContext(
+    ContextType::MAIN_CONTEXT,
     nullptr,
     {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}
 ) {}
@@ -35,7 +36,7 @@ bool worldContextInputHandler(int key) {
             // LIST TRAINERS
             enqueueInputBlockingEvent(0);
             auto* trainerListCtx = new TrainerListContext(
-                dynamic_cast<WorldContext*>(GAME.context),
+                dynamic_cast<MainContext*>(GAME.context),
                 &GAME.currentEntManager->entities
             );
             trainerListCtx->start();
@@ -49,9 +50,21 @@ bool worldContextInputHandler(int key) {
             if (type != POKECENTER && type != POKEMART) return false;
 
             enqueueInputBlockingEvent(1);
-            auto* buildingCtx = new BuildingContext(dynamic_cast<WorldContext*>(GAME.context), type);
+            auto* buildingCtx = new BuildingContext(dynamic_cast<MainContext*>(GAME.context), type);
             buildingCtx->start();
             // Blocking call until the player exits the building
+            break;
+        }
+
+        case 'f': {
+            // OPEN WORLD MAP
+            enqueueInputBlockingEvent(0);
+            auto* worldMapCtx = new WorldMapContext(
+                GAME.context,
+                GAME.world
+            );
+            worldMapCtx->start();
+            // Blocking call until the map is exited, or if a fly operation was carried out
             break;
         }
 

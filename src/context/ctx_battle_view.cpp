@@ -1,9 +1,9 @@
 #include <ncurses.h>
 #include <unistd.h>
-#include "contexts/ctx_battle_view.hpp"
+#include "context/ctx_battle_view.hpp"
 #include "core/game_manager.hpp"
 #include "graphics/artist.hpp"
-#include "contexts/components/animations.hpp"
+#include "context/components/animations.hpp"
 
 BattleViewContext::BattleViewContext(
     AbstractContext* parent,
@@ -45,7 +45,7 @@ BattleViewContext::BattleViewContext(
     expandWindowVertical(dialogRect, INTERVAL_30FPS_MICROS);
 
     // Then build the actual dialog window
-    WINDOW* dialogWindow = newwin(dialogRect.height, dialogRect.width, dialogRect.y, dialogRect.x);
+    this->dialogWindow = newwin(dialogRect.height, dialogRect.width, dialogRect.y, dialogRect.x);
     keypad(dialogWindow, true);
     box(dialogWindow, 0, 0);
 
@@ -60,7 +60,7 @@ BattleViewContext::BattleViewContext(
     );
 
     // We're done with building the window
-    refreshContext();
+    wrefresh(dialogWindow);
 }
 
 void BattleViewContext::start() {

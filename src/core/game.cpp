@@ -5,7 +5,7 @@
 #include "entities/pathfinding.hpp"
 #include "graphics/renderer.hpp"
 #include "core/input.hpp"
-#include "contexts/ctx_battle_view.hpp"
+#include "context/ctx_battle_view.hpp"
 #include "entities/entity_manager.hpp"
 
 #define BATTLE_INITIATION_COOLDOWN 24
@@ -176,7 +176,7 @@ Map* moveToMap(int globalX, int globalY, MapEntryProps* entryProps) {
 
         if (entryProps != nullptr) {
             // Place the player entity on the western gate (arbitrary choice)
-            entryProps->playerSpawnX = 1;
+            entryProps->playerSpawnX = 2;
             entryProps->playerSpawnY = hashWithMapCardinalDir(
                 globalX, globalY,
                 WEST,

@@ -4,13 +4,14 @@
 // we're in normal gameplay, a battle, or navigating a menu
 
 #include <ncurses.h>
-#include "context_type.hpp"
+#include "context_enum.hpp"
 #include "utils/mathematics.hpp"
 
 class AbstractContext {
 public:
     WINDOW* window;
     ContextType type;
+    Rect2D dimensions {};
 
     // The main loop of the context UI
     virtual void start();
@@ -27,7 +28,6 @@ public:
 
 protected:
     AbstractContext* parent;
-    Rect2D dimensions {};
 
     // Constructs a basic popup window, and sets the current window to it
     WINDOW* constructWindow();

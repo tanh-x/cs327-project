@@ -6,12 +6,16 @@
 #include "core/constants.hpp"
 
 typedef struct {
-    Map *maps[WORLD_HEIGHT][WORLD_WIDTH];
-    Map *current;
+    Map* maps[WORLD_HEIGHT][WORLD_WIDTH];
+
+    // Mystery number
+    uint8_t eccentricity[WORLD_HEIGHT][WORLD_WIDTH];
+
+    Map* current;
     int worldSeed;
 } World;
 
-void initializeWorld(World *world, int worldSeed);
+void initializeWorld(World* world, int worldSeed);
 
 Map* getMap(World* world, int globalX, int globalY, bool generateIfNull);
 
@@ -21,6 +25,6 @@ int globalHashFunction(int x, int y, int worldSeed);
 // Wrapper around the hash function for more convenient usage
 int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed);
 
-void disposeWorld(World *world);
+void disposeWorld(World* world);
 
 #endif

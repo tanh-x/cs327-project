@@ -1,15 +1,15 @@
 #include <ncurses.h>
-#include "contexts/ctx_trainer_list.hpp"
+#include "context/ctx_trainer_list.hpp"
 #include "graphics/artist.hpp"
 #include "utils/string_helpers.hpp"
 #include "core/input.hpp"
-#include "contexts/components/elements.hpp"
-#include "contexts/components/animations.hpp"
+#include "context/components/elements.hpp"
+#include "context/components/animations.hpp"
 
 #define WINDOW_LEFT_PADDING 2
 
 TrainerListContext::TrainerListContext(
-    WorldContext* parent,
+    MainContext* parent,
     std::vector<AbstractEntity*>* entityList
 ) : AbstractContext(
     ContextType::TRAINER_LIST_CONTEXT,
@@ -24,14 +24,14 @@ TrainerListContext::TrainerListContext(
     // Save the pointer to the entity list
     this->entityList = entityList;
 
-    // Do a fancy animation
+    // Do a funny animation
     expandWindowVertical(dimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
     constructWindow();
 
     // Add extra stuff
-    windowTitle(this, "Trainer list");
+    windowTitle(this, "Trainer list", 2);
 }
 
 void TrainerListContext::start() {
@@ -50,12 +50,12 @@ void TrainerListContext::trainerListEntry() {
     std::vector<AbstractEntity*> entities = GAME.currentEntManager->entities;
     Player* player = GAME.player;
 
-    int numEnities = int(entities.size());
+    int numEntities = int(entities.size());
     int scroll = 0;
-    int maxScroll = numEnities - TRAINER_LIST_WINDOW_HEIGHT + 2;
+    int maxScroll = max(numEntities - TRAINER_LIST_WINDOW_HEIGHT + 2, 0);
     while (true) {
         // List entities
-        for (int i = 1; i < min(numEnities, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
+        for (int i = 1; i < min(numEntities, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
             AbstractEntity* ent = entities[i + scroll];
 
             // Initialize variables for string formatting
@@ -86,7 +86,7 @@ void TrainerListContext::trainerListEntry() {
         }
 
         // Add an indicator if scroll is available
-        if (entities.size() >= TRAINER_LIST_WINDOW_HEIGHT) {
+        if (numEntities >= TRAINER_LIST_WINDOW_HEIGHT - 1) {
             if (scroll != maxScroll) {
                 mvwprintw(
                     window, TRAINER_LIST_WINDOW_HEIGHT - 2, WINDOW_LEFT_PADDING,

@@ -1,8 +1,8 @@
 #include <ncurses.h>
-#include "contexts/ctx_building.hpp"
-#include "contexts/components/animations.hpp"
+#include "context/ctx_building.hpp"
+#include "context/components/animations.hpp"
 
-BuildingContext::BuildingContext(WorldContext* parent, TileType type) : AbstractContext(
+BuildingContext::BuildingContext(MainContext* parent, TileType type) : AbstractContext(
     ContextType::BUILDING_CONTEXT,
     parent,
     {3, 3, WINDOW_WIDTH - 6, WINDOW_HEIGHT - 6}

@@ -25,7 +25,7 @@ void renderGameUpdate() {
 //    clear();
 
     // First line
-    mvprintw(0, 0, "Event time: %d", GAME.currentEntManager->eventTime);
+    mvprintw(0, 0, "Event time: %d\t\t", GAME.currentEntManager->eventTime);
 
     // Draw the map
     ncursesPrintMap(GAME.world->current, OPTIONS.doColoring, MAP_LINE_OFFSET, 0);
@@ -42,8 +42,8 @@ void renderGameUpdate() {
     }
 
     // Last two lines
-    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET, 0, "Map position: (%d, %d)", GAME.player->globalX, GAME.player->globalY);
-    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET + 1, 0, "PC position: (%d, %d)", GAME.player->mapX, GAME.player->mapY);
+    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET, 0, "Map position: (%d, %d)\t\t", GAME.player->globalX, GAME.player->globalY);
+    mvprintw(MAP_HEIGHT + MAP_LINE_OFFSET + 1, 0, "PC position: (%d, %d)\t\t", GAME.player->mapX, GAME.player->mapY);
 
     refresh();
 }

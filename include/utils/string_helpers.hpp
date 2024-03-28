@@ -4,4 +4,6 @@
 
 void rightPad(char* str, int width);
 
+void leftPad(char* str, int width);
+
 #endif

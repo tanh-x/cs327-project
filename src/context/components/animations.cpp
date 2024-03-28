@@ -1,6 +1,6 @@
 #include <unistd.h>
-#include "contexts/components/animations.hpp"
-#include "contexts/components/keyframes.hpp"
+#include "context/components/animations.hpp"
+#include "context/components/keyframes.hpp"
 
 #define EIGHT_SPACES "        "
 

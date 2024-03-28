@@ -1,12 +1,12 @@
-#ifndef CTX_WORLD_CONTEXT_H
-#define CTX_WORLD_CONTEXT_H
+#ifndef CTX_WORLD_H
+#define CTX_WORLD_H
 
 #include "core/game.hpp"
 
-class WorldContext : public AbstractContext {
+class MainContext : public AbstractContext {
 public:
     // Instantiates the root context. Called once when initializing the game.
-    WorldContext();
+    MainContext();
 
     void start() override {};
 };

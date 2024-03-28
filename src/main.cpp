@@ -4,7 +4,7 @@
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"
-#include "contexts/ctx_world.hpp"
+#include "context/ctx_world.hpp"
 
 
 GameManager GAME;
@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     // Default game option arguments
     bool doColoring = true;
     bool doBadApple = false;
-    int numTrainers = 6;
+    int numTrainers = 8;
     int frameTimeMicros = 1000000 / 60;
 
     // Parse arguments
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     // Initial set up
     GAME.currentEntManager = nullptr;
     GAME.quit_game = false;
-    GAME.context = new WorldContext();
+    GAME.context = new MainContext();
 
     // Create a player
     Player player;

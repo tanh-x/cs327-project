@@ -1,6 +1,6 @@
 #include <ncurses.h>
 #include "core/input.hpp"
-#include "contexts/abstract_context.hpp"
+#include "context/abstract_context.hpp"
 
 bool globalInputHandler(int key) {
     switch (key) {

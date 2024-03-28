@@ -8,9 +8,10 @@
 #define p4 485820427
 
 void initializeWorld(World* world, int worldSeed) {
-    for (auto &mapRow: world->maps) {
-        for (auto &map: mapRow) {
-            map = nullptr;
+    for (int y = 0; y < WORLD_HEIGHT; y++) {
+        for (int x= 0; x < WORLD_WIDTH; x++) {
+            world->maps[y][x] = nullptr;
+            world->eccentricity[y][x] = static_cast<uint8_t>(rand());
         }
     }
     world->worldSeed = worldSeed;

@@ -1,7 +1,7 @@
 #include <cstdlib>
-#include "contexts/abstract_context.hpp"
-#include "contexts/ctx_world.hpp"
-#include "contexts/ctx_trainer_list.hpp"
+#include "context/abstract_context.hpp"
+#include "context/ctx_world.hpp"
+#include "context/ctx_trainer_list.hpp"
 
 AbstractContext::AbstractContext(ContextType type, AbstractContext* parent, Rect2D dimensions) {
     this->window = nullptr;
@@ -19,6 +19,7 @@ void AbstractContext::returnToParentContext() {
     // Destroy the context and restore the parent
     delwin(window);
     wrefresh(parent->window);
+    clear();
     GAME.context = parent;
     free(this);
 }
@@ -58,7 +59,7 @@ bool emptyInputHandler(int key) {
 // propagated to the next input handler.
 bool (* dispatchContextInputHandler(ContextType type))(int key) {
     switch (type) {
-        case ContextType::WORLD_CONTEXT: return worldContextInputHandler;
+        case ContextType::MAIN_CONTEXT: return worldContextInputHandler;
         case ContextType::TRAINER_LIST_CONTEXT: return trainerListInputHandler;
         default: return emptyInputHandler;
     }
