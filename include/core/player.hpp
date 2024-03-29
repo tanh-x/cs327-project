@@ -32,7 +32,7 @@ public:
     // or out of bounds.
     EncounterScenario attemptMove(int dx, int dy);
 
-    void possessEntity(PlayerVessel* entity);
+    void possessEntity(PlayerVessel* entity, EntityManager* entManager);
 };
 
 void dispatchPlayerEncounter(EncounterScenario scenario);

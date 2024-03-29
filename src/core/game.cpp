@@ -113,7 +113,7 @@ void setupGameOnMapLoad(MapEntryProps entryProps) {
     entManager->fillFirstTurns();
 
     // Set the player vessel entity position to the player's new position (set in move)
-    player->possessEntity(entManager->vesselEntity);
+    player->possessEntity(entManager->vesselEntity, entManager);
 }
 
 // Moves the player to an adjacent map, and makes a call to setupGameOnMapLoad

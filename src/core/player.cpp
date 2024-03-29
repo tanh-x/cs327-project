@@ -97,8 +97,10 @@ EncounterScenario Player::attemptMove(int dx, int dy) {
     }
 }
 
-void Player::possessEntity(PlayerVessel* entity) {
+void Player::possessEntity(PlayerVessel* entity, EntityManager* entManager) {
+    entManager->entMap[entity->mapY][entity->mapX] = nullptr;
     entity->mapX = mapX;
     entity->mapY = mapY;
+    entManager->entMap[mapY][mapX] = entity;
     currentEntity = entity;
 }
