@@ -3,7 +3,7 @@
 
 
 #include "context/abstract_context.hpp"
-#include "ctx_world.hpp"
+#include "ctx_main.hpp"
 
 class WorldMapContext : public AbstractContext {
 public:

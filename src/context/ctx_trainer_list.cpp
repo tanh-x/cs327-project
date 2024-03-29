@@ -25,7 +25,7 @@ TrainerListContext::TrainerListContext(
     this->entityList = entityList;
 
     // Do a funny animation
-    expandWindowVertical(dimensions, INTERVAL_30FPS_MICROS);
+    verticalExpandAnimation(dimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
     constructWindow();

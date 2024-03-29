@@ -61,7 +61,6 @@ std::string locationNameSuffixes[] = LOCATION_NAME_SUFFIXES;
 int prefixesSize = sizeof(locationNamePrefixes) / sizeof(locationNamePrefixes[0]);
 int suffixesSize = sizeof(locationNameSuffixes) / sizeof(locationNameSuffixes[0]);
 
-
 // Initializes the map, but does not yet generate the terrain, which is deferred until the method
 // generateTerrain(int worldSeed) is invoked. It also does not initialize an entity manager, which
 // is deferred until setupGameOnMapLoad is called for the first time on this map.
@@ -87,7 +86,6 @@ Map::~Map() {
     invalidateMemoization(memoizedDistanceFields);
     this->entityManager = nullptr;
 }
-
 
 float calculateBuildingProbability(int globalX, int globalY) {
     return (-BUILDING_FALLOFF_FACTOR * (float) (abs(globalX) + abs(globalY)) / 200.0f + BUILDING_FALLOFF_INTERCEPT) /
@@ -137,7 +135,6 @@ void Map::placeChunk(TileType type, int x, int y, int sizeX, int sizeY) {
     }
 }
 
-
 void Map::placeKernelChunk(TileType type, int x, int y, float kernelRadius) {
     int rad = (int) floorf(kernelRadius);
     float kernelRadiusSq = kernelRadius * kernelRadius;
@@ -148,7 +145,6 @@ void Map::placeKernelChunk(TileType type, int x, int y, float kernelRadius) {
         }
     }
 }
-
 
 MapEntryProps Map::generateTerrain(int worldSeed) {
     MapEntryProps entryProps;

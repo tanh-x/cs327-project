@@ -42,7 +42,7 @@ post_build: $(TARGET)
 	@echo -e "\n  ┌───────────"
 	@echo -e "  │ Finished all Makefile rules. Binary should be \"$(TARGET)\""
 	@echo -e "  │ "
-	@echo -e "  │ See README file for optional flags."
+	@echo -e "  │ PLEASE READ THE README FILE BEFORE PROCEEDING."
 	@echo -e "  └──\n"
 
 clean_objects:

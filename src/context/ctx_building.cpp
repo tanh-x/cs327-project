@@ -8,7 +8,7 @@ BuildingContext::BuildingContext(MainContext* parent, TileType type) : AbstractC
     {3, 3, WINDOW_WIDTH - 6, WINDOW_HEIGHT - 6}
 ) {
     // Do a fancy animation
-    expandWindowVertical(dimensions, INTERVAL_30FPS_MICROS);
+    verticalExpandAnimation(dimensions, INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
     constructWindow();

@@ -1,26 +1,31 @@
 #ifndef CONTEXT_FACADE_H
 #define CONTEXT_FACADE_H
-// Contexts are different stages of the game. The functionality of the game is different depending on whether
-// we're in normal gameplay, a battle, or navigating a menu
 
 #include <ncurses.h>
 #include "context_enum.hpp"
 #include "utils/mathematics.hpp"
 
+// Contexts are different stages of the game. The functionality of the game is different depending on whether
+// we're in normal gameplay, a battle, or navigating a menu. Contexts are invoked by a constructor call, which
+// initializes the context. The caller MUST then invoke Context::start() to begin operation of the context window.
+// Not calling Context::start() *may* result in undefined behaviour, as there can potentially be side effects that
+// have already been made during the constructor call.
 class AbstractContext {
 public:
     WINDOW* window;
     ContextType type;
     Rect2D dimensions {};
 
-    // The main loop of the context UI
-    virtual void start();
-
     // Instantiates a new context, but doesn't yet switch the game to it
     AbstractContext(ContextType type, AbstractContext* parent, Rect2D dimensions);
 
-    // Disposes of the context, and restores the terminal to the parent window.
-    // The caller must change the context of the game manager back to the parent context
+    // The main loop of the context UI.
+    // Every start() implementation MUST end with a singular returnToParentContext() call
+    // When start() returns, the context is guaranteed to have been restored to the parent context. No additional
+    // handling is necessary
+    virtual void start();
+
+    // Disposes of the context, which is assumed to be the current context, and restores the parent window.
     void returnToParentContext();
 
     // Calls wrefresh on the current window

@@ -4,7 +4,7 @@
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"
-#include "context/ctx_world.hpp"
+#include "context/ctx_main.hpp"
 
 
 GameManager GAME;

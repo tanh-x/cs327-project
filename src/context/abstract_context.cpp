@@ -1,8 +1,13 @@
 #include <cstdlib>
 #include "context/abstract_context.hpp"
-#include "context/ctx_world.hpp"
+#include "context/ctx_main.hpp"
 #include "context/ctx_trainer_list.hpp"
 
+// Contexts are different stages of the game. The functionality of the game is different depending on whether
+// we're in normal gameplay, a battle, or navigating a menu. Contexts are invoked by a constructor call, which
+// initializes the context. The caller MUST then invoke Context::start() to begin operation of the context window.
+// Not calling Context::start() *may* result in undefined behaviour, as there can potentially be side effects that
+// have already been made during the constructor call.
 AbstractContext::AbstractContext(ContextType type, AbstractContext* parent, Rect2D dimensions) {
     this->window = nullptr;
     this->type = type;
@@ -10,8 +15,16 @@ AbstractContext::AbstractContext(ContextType type, AbstractContext* parent, Rect
     this->dimensions = dimensions;
 }
 
-// Disposes of the context, which is assumed to be the current context, and restores the terminal to the parent window.
-// Additionally, restores the
+// The main loop of the context UI.
+// Every start() implementation MUST end with a singular returnToParentContext() call
+// When start() returns, the context is guaranteed to have been restored to the parent context. No additional
+// handling is necessary
+void AbstractContext::start() {
+    GAME.context = this;
+    refreshContext();
+}
+
+// Disposes of the context, which is assumed to be the current context, and restores the parent window.
 void AbstractContext::returnToParentContext() {
     // Do not call this method on a context that is not the current context, or if it's the root context
     if (GAME.context != this || parent == nullptr) exit(1);
@@ -41,11 +54,6 @@ WINDOW* AbstractContext::constructWindow() {
 
 void AbstractContext::refreshContext() const {
     wrefresh(window);
-}
-
-void AbstractContext::start() {
-    GAME.context = this;
-    refreshContext();
 }
 
 bool emptyInputHandler(int key) {

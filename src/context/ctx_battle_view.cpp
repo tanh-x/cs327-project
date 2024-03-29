@@ -17,7 +17,7 @@ BattleViewContext::BattleViewContext(
     this->opponent = opponent;
 
     // Play a funny animation
-    battleTransition(INTERVAL_30FPS_MICROS);
+    battleTransitionAnimation(INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
     constructWindow();
@@ -42,7 +42,7 @@ BattleViewContext::BattleViewContext(
     dialogRect.height = DIALOG_WINDOW_HEIGHT;
 
     // Start with an animation
-    expandWindowVertical(dialogRect, INTERVAL_30FPS_MICROS);
+    verticalExpandAnimation(dialogRect, INTERVAL_30FPS_MICROS);
 
     // Then build the actual dialog window
     this->dialogWindow = newwin(dialogRect.height, dialogRect.width, dialogRect.y, dialogRect.x);

@@ -2,7 +2,7 @@
 #define CTX_BUILDING_H
 
 #include "core/game_manager.hpp"
-#include "ctx_world.hpp"
+#include "ctx_main.hpp"
 
 class BuildingContext : public AbstractContext {
 public:

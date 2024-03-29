@@ -1,4 +1,4 @@
-#include "context/ctx_world.hpp"
+#include "context/ctx_main.hpp"
 #include "entities/event.hpp"
 #include "context/ctx_trainer_list.hpp"
 #include "context/ctx_building.hpp"
@@ -46,10 +46,13 @@ bool worldContextInputHandler(int key) {
 
         case '>':
         case ']': {  // [ ] alias
+            // Check if the player can enter a building
             TileType type = GAME.world->current->tileset[player->mapY][player->mapX].type;
             if (type != POKECENTER && type != POKEMART) return false;
 
-            enqueueInputBlockingEvent(1);
+            enqueueInputBlockingEvent(0);
+
+            // Enter the building
             auto* buildingCtx = new BuildingContext(dynamic_cast<MainContext*>(GAME.context), type);
             buildingCtx->start();
             // Blocking call until the player exits the building
@@ -60,10 +63,7 @@ bool worldContextInputHandler(int key) {
         case 'f': {
             // OPEN WORLD MAP
             enqueueInputBlockingEvent(0);
-            auto* worldMapCtx = new WorldMapContext(
-                GAME.context,
-                GAME.world
-            );
+            auto* worldMapCtx = new WorldMapContext(GAME.context, GAME.world);
             worldMapCtx->start();
             // Blocking call until the map is exited, or if a fly operation was carried out
             break;

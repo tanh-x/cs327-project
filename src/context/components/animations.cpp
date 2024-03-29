@@ -1,11 +1,15 @@
+// This file contains small standalone animation components that can be invoked pretty much everywhere
+// They generally do not require coupling or even knowledge of the current context
+
 #include <unistd.h>
 #include "context/components/animations.hpp"
 #include "context/components/keyframes.hpp"
 
-#define EIGHT_SPACES "        "
-
-
-void expandWindowVertical(Rect2D dimensions, int intervalMicros) {
+// Window opening animation, every intervalMicros, the window expands by 2 tiles vertically
+// The function returns once the animation is complete. The context at the invocation site should now
+// be able to draw their own graphics over it normally. (Note that the border is not shared)
+// Takes in the size of the window, and the interval between each frame in micros
+void verticalExpandAnimation(Rect2D dimensions, int intervalMicros) {
     int half = dimensions.y + dimensions.height / 2;
 
     for (int span = 0; half - span >= dimensions.y; span++) {
@@ -22,10 +26,12 @@ void expandWindowVertical(Rect2D dimensions, int intervalMicros) {
     }
 }
 
-
+// Keyframes for the battle transition, which are sequential (x, y) positions of blacked out chunks
 int battleTransitionKeyframes[NUM_BATTLE_TRANSITION_KEYFRAMES] = BATTLE_TRANSITION_KEYFRAMES;
 
-void battleTransition(int intervalMicros) {
+// A spiral animation that plays when a battle is initiated. Should be played before drawing the
+// main window. The function returns once the animation is complete
+void battleTransitionAnimation(int intervalMicros) {
     for (int i = 0; i < NUM_BATTLE_TRANSITION_KEYFRAMES; i += 2) {
         int top = battleTransitionKeyframes[i];
         int left = battleTransitionKeyframes[i + 1];

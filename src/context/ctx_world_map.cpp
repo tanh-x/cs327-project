@@ -6,7 +6,7 @@
 
 #define FOOTER_OFFSET 16
 #define SALIENCY_THRESHOLD 244
-#define PIVOT_SPEED 1 * zoom
+#define PIVOT_SPEED (1 * zoom)
 #define SIXTY_FOUR_SPACES "                                                                "
 
 WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : AbstractContext(
@@ -18,7 +18,7 @@ WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : Abstra
     this->world = world;
 
     // Do a funny animation
-    expandWindowVertical(dimensions, INTERVAL_60FPS_MICROS);
+    verticalExpandAnimation(dimensions, INTERVAL_60FPS_MICROS);
 
     // Construct the main window and switch to it
     constructWindow();
@@ -125,7 +125,7 @@ void WorldMapContext::start() {
 
     // Enter the main loop
     worldMapEntry();
-    // worldMapEntry() only returns upon exit or we moved maps, so we destroy the window and the context
+    // worldMapEntry() only returns upon exit, or we moved maps, so we destroy the window and the context
 
     // Swap the context back to the parent
     returnToParentContext();
@@ -138,7 +138,7 @@ void WorldMapContext::worldMapEntry() {
     int zoom = 1;
 
     while (true) {
-        // Coordinates are always 4 characters or less (3 digit, 1 sign)
+        // Coordinates are always 4 characters or fewer (3 digit, 1 sign)
         char xCoordString[5];
         sprintf(xCoordString, "%d", pivotX);
         leftPad(xCoordString, 4);
