@@ -7,9 +7,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 
 NOTES:
-* The game uses extended 256 colors. If your terminal doesn't support it, use the
---nocolor flag, which disables coloring entirely. While the game is intended to
-be played with colors, all essential visual indicators can be discerned without it.
+* The game uses extended 256 colors. If your terminal doesn't support it, use
+the --nocolor flag, which disables coloring entirely. While the game is intended
+to be played with colors, all essential visual indicators can be discerned
+without it.
 
 * Most tile types use standard display characters, with these exceptions:
     - Borders: &, white background
@@ -28,7 +29,8 @@ FLAGS:
 
 LEGACY FLAGS:
 --frametime
-    The time (in microseconds) to wait between drawing each frame. Defaults to 200ms.
+    The time (in microseconds) to wait between drawing each frame.
+    Defaults to 200ms.
 
 --badapple
     Generate a standard map, but initial boulder placement is determined
@@ -151,8 +153,9 @@ need to pass data around.
     ─────────────────────────<  Assignment 1.04  >──────────────────────────
 
 [ Event System ]
-Instead of placing characters in the queue, instead, events are created every time
-a character wants to perform an action, then those events are enqueued in the heap.
+Instead of placing characters in the queue, instead, events are created every
+time a character wants to perform an action, then those events are enqueued in
+the heap.
 
     ─────────────────────────<  Assignment 1.05  >──────────────────────────
 
@@ -171,26 +174,29 @@ restored to the parent context. No additional handling is necessary
     ─────────────────────────<  Assignment 1.06  >──────────────────────────
 
 [ World Map ]
-The world map is my take on the flying functionality. The world map can be opened
-with F or M.
+The world map is my take on the flying functionality. The world map can be
+opened with F or M.
 
-Each map has a randomly generated name, which is a concatenation between a randomly
-chosen prefix and suffix. Here is the list of all such affixes:
+Each map has a randomly generated name, which is a concatenation between a
+randomly chosen prefix and suffix. Here is the list of all such affixes:
 * Prefix: PEWTER, CERULEAN, LAVENDER, VIRIDIAN, SAFFRON, GOLDENROD, ECRUTEAK,
           FORTREE, LILYCOVE, SUNYSHORE, CASTELIA, LUMIOSE, MOTOSTOKE, VIRIDIAN,
           CINNABAR, FUCHSIA, OLIVINE, AZALEA, BLACKTHORN, MOSSDEEP, SOOTOPOLIS,
-          VEILSTONE, HEARTHOME, NIMBASA, DRIFTVEIL, OPELUCID, SNOWPOINT, PACIFIDLOG,
-          FLOAROMA, CANALAVE, MYSTIC, OMINOUS, FLOWERY, MYSTERIOUS, LUSH, LAVENDER,
-          GRASSY
-* Suffix: WOODLAND, LAKES, WOODS, FOREST, HILLS, ZONE, ROADS, PATH, MARSH, PRAIRIE,
-          GROVE, GARDEN, FIELDS, PLAINS, CLIFFS, ORCHARD, CLEARING
+          VEILSTONE, HEARTHOME, NIMBASA, DRIFTVEIL, OPELUCID, SNOWPOINT,
+          PACIFIDLOG, FLOAROMA, CANALAVE, MYSTIC, OMINOUS, FLOWERY, MYSTERIOUS,
+          LUSH, LAVENDER, GRASSY
+* Suffix: WOODLAND, LAKES, WOODS, FOREST, HILLS, ZONE, ROADS, PATH, MARSH,
+          PRAIRIE, GROVE, GARDEN, FIELDS, PLAINS, CLIFFS, ORCHARD, CLEARING
 The map at the origin (0, 0) is always called "PALLET TOWN".
 
-Explored areas are colored yellow, while unexplored areas are colored with varying
-shades of gray with different lightness values. Maps closer to the origin, which is
-"PALLET TOWN", are colored in lighter shades of gray. Random maps are highlighted
-with a question mark "?", which doesn't mean anything right now, but it looks fun.
+Explored areas are colored yellow, while unexplored areas are colored with
+varying shades of gray with different lightness values. Maps closer to the
+origin, which is "PALLET TOWN", are colored in lighter shades of gray. Random
+maps are highlighted with a question mark "?", which doesn't mean anything right
+now, but it looks fun.
 
-The centered ("pivoted") map is colored in light blue and bounded by inwards facing
-angle bracket pairs, >@<, instead of square brackets, [@]. Pressing Enter or T will
-fly / teleport the player to this map.
+The centered ("pivoted") map is colored in light blue and bounded by inwards
+facing angle bracket pairs, >@<, instead of square brackets, [@]. Pressing
+Enter or T will fly / teleport the player to this map.
+
+Pressing z and x will zoom out and in on the world map, respectively.
