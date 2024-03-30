@@ -43,7 +43,6 @@ void TrainerListContext::start() {
 
     // Swap the context back to the parent
     returnToParentContext();
-    // We are done with the trainer list, so exit back to the call site
 }
 
 void TrainerListContext::trainerListEntry() {

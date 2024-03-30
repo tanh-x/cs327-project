@@ -2,11 +2,13 @@
 #include "graphics/artist.hpp"
 #include "graphics/ncurses_artist.hpp"
 #include <ncurses.h>
+#include <locale>
 
 #define MAP_LINE_OFFSET 1
 
 // Initializes the ncurses library
 void initializeRenderer(bool enableColor) {
+    std::locale::global(std::locale("en_US.UTF-8"));
     initscr();
     cbreak();
     noecho();

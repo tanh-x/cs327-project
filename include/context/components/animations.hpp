@@ -13,6 +13,9 @@
 // Takes in the size of the window, and the interval between each frame in micros
 void verticalExpandAnimation(Rect2D dimensions, int intervalMicros);
 
+// Like verticalExpandAnimation(), but horizontal
+void horizontalExpandAnimation(Rect2D dimensions, int intervalMicros);
+
 // A spiral animation that plays when a battle is initiated. Should be played before drawing the
 // main window. The function returns once the animation is complete
 void battleTransitionAnimation(int intervalMicros);

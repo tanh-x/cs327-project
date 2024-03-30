@@ -4,7 +4,7 @@
 #include "context/components/elements.hpp"
 #include "utils/string_helpers.hpp"
 
-#define FOOTER_OFFSET 16
+#define FOOTER_OFFSET (WINDOW_HEIGHT - 8)
 #define SALIENCY_THRESHOLD 244
 #define PIVOT_SPEED (1 * zoom)
 #define SIXTY_FOUR_SPACES "                                                                "
