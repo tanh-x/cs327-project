@@ -1,7 +1,7 @@
 #ifndef EXPERIENCE_DATA_H
 #define EXPERIENCE_DATA_H
 
-#include "deserializers.hpp"
+#include "abstract_deserializable.hpp"
 
 #define EXPERIENCE_DATA_CSV_NAME "experience.csv"
 

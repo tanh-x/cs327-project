@@ -2,7 +2,7 @@
 #define POKEMON_MOVES_H
 
 #include <string>
-#include "deserializers.hpp"
+#include "abstract_deserializable.hpp"
 
 #define POKEMON_MOVES_DATA_CSV_NAME "pokemon_moves.csv"
 

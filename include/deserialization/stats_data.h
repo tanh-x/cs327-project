@@ -1,9 +1,8 @@
 #ifndef STATS_DATA_H
 #define STATS_DATA_H
 
-#include <utility>
-
-#include "deserializers.hpp"
+#include <string>
+#include "abstract_deserializable.hpp"
 
 #define STATS_DATA_CSV_NAME "stats.csv"
 

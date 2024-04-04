@@ -77,4 +77,3 @@ std::string toStringOrDefault(bool x) {
 bool parseToBool(const std::string &s) {
     return s == "1";
 }
-

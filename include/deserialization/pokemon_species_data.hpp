@@ -1,8 +1,8 @@
 #ifndef POKEMON_SPECIES_H
 #define POKEMON_SPECIES_H
 
-#include "deserializers.hpp"
 #include <string>
+#include "abstract_deserializable.hpp"
 
 #define POKEMON_SPECIES_DATA_CSV_NAME "pokemon_species.csv"
 
@@ -31,7 +31,7 @@ public:
 
     PokemonSpeciesData(
         int id,
-        const std::string& identifier,
+        const std::string &identifier,
         int generationId,
         int evolvesFromSpeciesId,
         int evolutionChainId,
@@ -76,7 +76,6 @@ public:
 
     static PokemonSpeciesData* deserialize(const std::string &line);
 };
-
 
 
 #endif

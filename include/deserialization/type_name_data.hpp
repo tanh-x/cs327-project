@@ -1,9 +1,9 @@
 #ifndef TYPE_NAME_DATA_H
 #define TYPE_NAME_DATA_H
 
-#include <utility>
 
-#include "deserializers.hpp"
+#include <string>
+#include "abstract_deserializable.hpp"
 
 #define TYPE_NAME_DATA_CSV_NAME "type_names.csv"
 

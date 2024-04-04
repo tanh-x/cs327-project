@@ -2,7 +2,7 @@
 #define POKEMON_TYPES_DATA_H
 
 #include <string>
-#include "deserializers.hpp"
+#include "abstract_deserializable.hpp"
 
 #define POKEMON_TYPE_DATA_CSV_NAME "pokemon_types.csv"
 

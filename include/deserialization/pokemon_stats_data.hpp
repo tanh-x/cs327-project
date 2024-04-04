@@ -1,7 +1,8 @@
 #ifndef POKEMON_STATS_DATA_H
 #define POKEMON_STATS_DATA_H
 
-#include "deserializers.hpp"
+#include <string>
+#include "abstract_deserializable.hpp"
 
 #define POKEMON_STATS_DATA_CSV_NAME "pokemon_stats.csv"
 

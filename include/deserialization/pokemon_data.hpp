@@ -2,9 +2,7 @@
 #define POKEMON_DATA_HPP
 
 #include <string>
-#include <memory>
-#include <vector>
-#include "deserializers.hpp"
+#include "abstract_deserializable.hpp"
 
 #define POKEMON_DATA_CSV_NAME "pokemon.csv"
 
