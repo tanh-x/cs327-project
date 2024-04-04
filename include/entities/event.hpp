@@ -34,16 +34,13 @@ public:
     int cost;
 
     // The cost plus time at which this event was queued.
-    // This value will be written into during a enqueueEvent() call.
+    // This value will be written into during an EntityManager::enqueueEvent call.
     int resolveTime;
 };
 
 
 // Comparator for the event's resolveTime, for purposes of using the event queue
 int eventComparator(const void* event, const void* other);
-
-// Adds the given event into the EntityManager's event queue.
-void enqueueEvent(Event* event);
 
 // Resolves the event by carrying out the specified action.
 // Called on the event when it is polled from the event queue.

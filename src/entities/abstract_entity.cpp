@@ -79,7 +79,7 @@ bool AbstractEntity::moveBy(int dx, int dy) {
 }
 
 // @formatter:off
-AbstractEntity* AbstractEntity::spawnNPC(EntityEnum type, int mapX, int mapY) {
+AbstractEntity* AbstractEntity::spawnNpc(EntityEnum type, int mapX, int mapY) {
     switch (type) {
         case EntityEnum::HIKER:     return new Hiker(mapX, mapY);
         case EntityEnum::RIVAL:     return new Rival(mapX, mapY);

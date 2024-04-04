@@ -5,6 +5,7 @@
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"
 #include "context/ctx_main.hpp"
+#include "deserialization/deserializers.hpp"
 
 
 GameManager GAME;
@@ -19,11 +20,13 @@ int main(int argc, char* argv[]) {
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
-        char* flag = argv[i];
-        if (strcmp(flag, "--nocolor") == 0) doColoring = false;
-        else if (strcmp(flag, "--badapple") == 0) doBadApple = true;
-        else if (strcmp(flag, "--numtrainers") == 0) numTrainers = (int) strtol(argv[i + 1], nullptr, 10);
-        else if (strcmp(flag, "--frametime") == 0) frameTimeMicros = (int) strtol(argv[i + 1], nullptr, 10);
+        auto flag = std::string(argv[i]);
+
+        if (flag == "--nocolor") doColoring = false;
+        else if (flag == "--badapple") doBadApple = true;
+        else if (flag == "--numtrainers") numTrainers = (int) strtol(argv[i + 1], nullptr, 10);
+        else if (flag == "--frametime") frameTimeMicros = (int) strtol(argv[i + 1], nullptr, 10);
+        else checkCsvParseFlag(flag);
     }
 
     // Initialize options to reflect the parsed arguments
@@ -41,8 +44,6 @@ int main(int argc, char* argv[]) {
     timespec_get(&timeNano, TIME_UTC);
     int timeSeedMilli = (int) ((timeNano.tv_sec * 1000LL + timeNano.tv_nsec / 1000000LL) - invocationStartTime);
 
-    // Initialize ncurses
-    initializeRenderer(OPTIONS.doColoring);
 
     // TODO: Main menu?
 
@@ -83,7 +84,7 @@ int main(int argc, char* argv[]) {
     // Generate the first map outside the game loop, prevents it from regenerating in the game loop.
     MapEntryProps entryProps = map->generateTerrain(world.worldSeed);
 
-    // Also manually call the setup function on the spawnNPC map instead of doing it in the game loop
+    // Also manually call the setup function on the spawnNpc map instead of doing it in the game loop
     setupGameOnMapLoad(entryProps);
 
     // Override game loop if using bad apple, DON'T PORT TO NCURSES!
@@ -94,6 +95,9 @@ int main(int argc, char* argv[]) {
 //        prettyPrint(mapStr, OPTIONS.doColoring);
 //        return 0;
 //    }
+
+    // Initialize ncurses
+    initializeRenderer(OPTIONS.doColoring);
 
     // Enter game loop
     gameLoop();

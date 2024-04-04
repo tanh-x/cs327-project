@@ -11,7 +11,7 @@
 typedef struct {
     // Whether to color the map when printing to stdout.
     bool doColoring;
-    // The number of trainers (NPCs) to spawnNPC on every map load.
+    // The number of trainers (NPCs) to spawnNpc on every map load.
     int numTrainers;
     // The number of microseconds to wait between drawing each frame.
     int frameTimeMicros;

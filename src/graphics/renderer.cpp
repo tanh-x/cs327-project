@@ -15,6 +15,9 @@ void initializeRenderer(bool enableColor) {
     keypad(stdscr, TRUE);
     curs_set(0);
 
+//    clear();
+//    refresh();
+//    wrefresh(GAME.context->window);
 
     if (enableColor && has_colors()) initializeExtendedColors();
 }

@@ -121,3 +121,7 @@
     - Created world map window
     - Implemented flying
     - Finalized things for submission
+
+
+    TODO: 
+    - Entity moveBy currently coupled to the current EntityManager. Make sure to check whether the entity actually lies inside the current ent manager

@@ -46,16 +46,15 @@ void TrainerListContext::start() {
 }
 
 void TrainerListContext::trainerListEntry() {
-    std::vector<AbstractEntity*> entities = GAME.currentEntManager->entities;
     Player* player = GAME.player;
 
-    int numEntities = int(entities.size());
+    int numEntities = int(entityList->size());
     int scroll = 0;
     int maxScroll = max(numEntities - TRAINER_LIST_WINDOW_HEIGHT + 2, 0);
     while (true) {
         // List entities
         for (int i = 1; i < min(numEntities, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
-            AbstractEntity* ent = entities[i + scroll];
+            AbstractEntity* ent = entityList->at(i + scroll);
 
             // Initialize variables for string formatting
             char entityString[TRAINER_LIST_WINDOW_WIDTH - 1];

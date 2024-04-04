@@ -349,7 +349,7 @@ MapEntryProps Map::generateTerrain(int worldSeed) {
                 rx, ry - 3 * dir, 2, 2
             );
 
-            // Make player spawn here, if it's the spawnNPC map
+            // Make player spawn here, if it's the spawnNpc map
             if (isSpawnMap) {
                 entryProps.playerSpawnX = horizontalPlacementX;
                 entryProps.playerSpawnY = ry;

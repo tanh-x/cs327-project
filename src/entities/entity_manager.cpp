@@ -87,7 +87,7 @@ void EntityManager::addEntity(AbstractEntity* entity) {
     int x = entity->mapX;
     int y = entity->mapY;
 
-    // Don't spawnNPC the entity if the current cell is already occupied
+    // Don't spawnNpc the entity if the current cell is already occupied
     if (entMap[y][x] != nullptr) return;
 
     // Add it to the entity map
@@ -121,7 +121,7 @@ void EntityManager::spawnTrainers(Map* map, int numTrainers) {
             else if (i == 1) entType = EntityEnum::RIVAL;  // Second entity always a rival
             else entType = types[randomInt(0, numTypes - 1)];
 
-            // Don't spawnNPC the NPC on the border or right next to it
+            // Don't spawnNpc the NPC on the border or right next to it
             // While we can do (1, -2) instead, it's just my preference to leave a 1 tile padding
             int x = randomInt(2, MAP_WIDTH - 3);
             int y = randomInt(2, MAP_HEIGHT - 3);
@@ -130,7 +130,7 @@ void EntityManager::spawnTrainers(Map* map, int numTrainers) {
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
             // If all previous checks were successful, then try spawning a new NPC
-            entity = AbstractEntity::spawnNPC(entType, x, y);
+            entity = AbstractEntity::spawnNpc(entType, x, y);
             if (entity != nullptr) addEntity(entity);
             // spawnEntity might return NULL, indicating an unsuccessful placement
             // if so then entity = nullptr and we try again

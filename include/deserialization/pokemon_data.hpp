@@ -1,0 +1,47 @@
+#ifndef POKEMON_DATA_HPP
+#define POKEMON_DATA_HPP
+
+#include <string>
+#include <memory>
+#include <vector>
+#include "deserializers.hpp"
+
+#define POKEMON_DATA_CSV_NAME "pokemon.csv"
+
+class PokemonData : public AbstractDeserializable {
+public:
+    int id;
+    std::string identifier;
+    int speciesId;
+    int height;
+    int weight;
+    int baseExperience;
+    int order;
+    bool isDefault;
+
+    PokemonData(
+        int id,
+        std::string identifier,
+        int speciesId,
+        int height,
+        int weight,
+        int baseExperience,
+        int order,
+        bool isDefault
+    ) : AbstractDeserializable(),
+        id(id),
+        identifier(std::move(identifier)),
+        speciesId(speciesId),
+        height(height),
+        weight(weight),
+        baseExperience(baseExperience),
+        order(order),
+        isDefault(isDefault) {}
+
+    // Deserializes a single line in the CSV file, and instantiates a new PokemonData
+    static PokemonData* deserialize(const std::string &line);
+
+    void printSelf() const override;
+};
+
+#endif

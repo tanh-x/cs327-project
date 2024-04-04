@@ -46,7 +46,7 @@ public:
     // - The tile is already occupied by another entity
     bool moveBy(int dx, int dy);
 
-    static AbstractEntity* spawnNPC(EntityEnum type, int mapX, int mapY);
+    static AbstractEntity* spawnNpc(EntityEnum type, int mapX, int mapY);
 
     // Creates a new event according to the entity's AI
     Event* constructEventOnTurn();

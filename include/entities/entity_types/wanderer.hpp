@@ -1,7 +1,7 @@
 #ifndef WANDERER_H
 #define WANDERER_H
 
-// Wanderers walk in one direction, and never leaves their spawnNPC terrain.
+// Wanderers walk in one direction, and never leaves their spawnNpc terrain.
 class Wanderer : public AbstractEntity {
 public:
     Wanderer(int x, int y);

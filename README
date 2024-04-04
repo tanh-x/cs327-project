@@ -1,8 +1,7 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│ The game is now ported to C++. In addition, map traversal is now once again  │
-│ possible, either via entering gates or through the fly menu, which also acts │
-│ as a world map. Also, player terrain costs has been decreased.               │
+│ Parses CSV files into structs with commands given in the specifications.     │
+│ The code for parsing each file is in [include|src]/deserialization.          │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 
@@ -27,7 +26,7 @@ FLAGS:
 --numtrainers
     The number of trainers to generate per map. Defaults to 15.
 
-LEGACY FLAGS:
+OLD FLAGS:
 --frametime
     The time (in microseconds) to wait between drawing each frame.
     Defaults to 200ms.
