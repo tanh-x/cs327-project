@@ -1,12 +1,12 @@
-#include <memory>
 #include <iostream>
 #include "deserialization/pokemon_data.hpp"
-#include "deserialization/deserializers.hpp"
 #include "utils/string_helpers.hpp"
 
-
 void PokemonData::printSelf() const {
-    std::string paddedIdentifier = rightPad(truncateToEllipses(identifier, 20), 20);
+    std::string paddedIdentifier = rightPad(
+        truncateToEllipses(identifier, MAX_STRING_COLUMN_WIDTH),
+        MAX_STRING_COLUMN_WIDTH
+    );
 
     // @formatter:off
     std::cout
@@ -18,12 +18,11 @@ void PokemonData::printSelf() const {
         << toStringOrDefault(baseExperience)    << COLUMN_SEPARATOR
         << toStringOrDefault(order)             << COLUMN_SEPARATOR
         << (isDefault ? "TRUE" : "FALSE")       << COLUMN_SEPARATOR
-        << std::endl;
+    << std::endl;
     // @formatter:on
 }
 
-// Deserializes a single line in the CSV file, and instantiates a new PokemonData
-PokemonData* PokemonData::deserialize(const std::string &line) {
+[[maybe_unused]] PokemonData* PokemonData::deserialize(const std::string &line) {
     std::vector<std::string> tokens = splitString(line, ',');
 
     if (tokens.size() != 8) return nullptr;
@@ -36,7 +35,7 @@ PokemonData* PokemonData::deserialize(const std::string &line) {
     int weight              = toIntOrDefault(tokens[4]);
     int baseExperience      = toIntOrDefault(tokens[5]);
     int order               = toIntOrDefault(tokens[6]);
-    bool isDefault          = tokens[7] == "1";
+    bool isDefault          = parseToBool(tokens[7]);
     // @formatter:on
 
     return new PokemonData(

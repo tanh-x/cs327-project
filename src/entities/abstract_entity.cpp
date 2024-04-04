@@ -38,6 +38,7 @@ AbstractEntity::~AbstractEntity() {
     }
 }
 
+// TODO: Entity moveBy currently coupled to the current EntityManager. Make sure to check whether the entity actually lies inside the current ent manager
 // Moves the entity to the new location, doing all the necessary checks to make sure it's a valid move.
 // Returns a boolean indicating whether it was successful. If it was not, no side effects will have been made.
 // If it was unsuccessful (false return), it will be one of the three following scenarios:

@@ -123,5 +123,9 @@
     - Finalized things for submission
 
 
-    TODO: 
-    - Entity moveBy currently coupled to the current EntityManager. Make sure to check whether the entity actually lies inside the current ent manager
+-- Assignment 1.07 --
+* Day 1 (2024-04-03)
+    Evening:
+    - Started writing the first data class
+    - First successful parse and print
+    - Wrote the rest following the same structure

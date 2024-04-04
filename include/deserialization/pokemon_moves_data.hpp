@@ -30,10 +30,9 @@ public:
         level(level),
         order(order) {}
 
-    // Deserializes a single line in the CSV file, and instantiates a new PokemonMovesData
-    static PokemonMovesData* deserialize(const std::string &line);
-
     void printSelf() const override;
+
+    [[maybe_unused]] static PokemonMovesData* deserialize(const std::string &line);
 };
 
 

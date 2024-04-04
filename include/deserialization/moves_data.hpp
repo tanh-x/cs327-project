@@ -6,7 +6,7 @@
 
 #define MOVE_DATA_CSV_NAME "moves.csv"
 
-class MoveData : public AbstractDeserializable {
+class MovesData : public AbstractDeserializable {
 public:
     int id;
     std::string identifier;
@@ -24,7 +24,7 @@ public:
     int contestEffectId;
     int superContestEffectId;
 
-    MoveData(
+    MovesData(
         int id,
         std::string identifier,
         int generationId,
@@ -57,9 +57,9 @@ public:
         contestEffectId(contestEffectId),
         superContestEffectId(superContestEffectId) {}
 
-    [[maybe_unused]] static MoveData* deserialize(const std::string &line);
-
     void printSelf() const override;
+
+    [[maybe_unused]] static MovesData* deserialize(const std::string &line);
 };
 
 

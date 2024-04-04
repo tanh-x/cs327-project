@@ -38,10 +38,9 @@ public:
         order(order),
         isDefault(isDefault) {}
 
-    // Deserializes a single line in the CSV file, and instantiates a new PokemonData
-    static PokemonData* deserialize(const std::string &line);
-
     void printSelf() const override;
+
+    [[maybe_unused]] static PokemonData* deserialize(const std::string &line);
 };
 
 #endif

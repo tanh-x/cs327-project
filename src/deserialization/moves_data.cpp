@@ -1,36 +1,33 @@
-#include <vector>
 #include <iostream>
-#include "deserialization/move_data.hpp"
+#include "deserialization/moves_data.hpp"
 #include "utils/string_helpers.hpp"
-#include "deserialization/deserializers.hpp"
 
-
-void MoveData::printSelf() const {
+void MovesData::printSelf() const {
     std::string paddedIdentifier = rightPad(truncateToEllipses(identifier, 20), 20);
 
     // @formatter:off
     std::cout
-        << toStringOrDefault(id)                        << COLUMN_SEPARATOR
-        << paddedIdentifier                             << COLUMN_SEPARATOR
-        << toStringOrDefault(generationId)              << COLUMN_SEPARATOR
-        << toStringOrDefault(typeId)                    << COLUMN_SEPARATOR
-        << toStringOrDefault(power)                     << COLUMN_SEPARATOR
-        << toStringOrDefault(pp)                        << COLUMN_SEPARATOR
-        << toStringOrDefault(accuracy)                  << COLUMN_SEPARATOR
-        << toStringOrDefault(priority)                  << COLUMN_SEPARATOR
-        << toStringOrDefault(targetId)                  << COLUMN_SEPARATOR
-        << toStringOrDefault(damageClassId)             << COLUMN_SEPARATOR
-        << toStringOrDefault(effectId)                  << COLUMN_SEPARATOR
-        << toStringOrDefault(effectChance)              << COLUMN_SEPARATOR
-        << toStringOrDefault(contestTypeId)             << COLUMN_SEPARATOR
-        << toStringOrDefault(contestEffectId)           << COLUMN_SEPARATOR
-        << toStringOrDefault(superContestEffectId)      << COLUMN_SEPARATOR
-        << std::endl;
+        << toStringOrDefault(id)                    << COLUMN_SEPARATOR
+        << paddedIdentifier                         << COLUMN_SEPARATOR
+        << toStringOrDefault(generationId)          << COLUMN_SEPARATOR
+        << toStringOrDefault(typeId)                << COLUMN_SEPARATOR
+        << toStringOrDefault(power)                 << COLUMN_SEPARATOR
+        << toStringOrDefault(pp)                    << COLUMN_SEPARATOR
+        << toStringOrDefault(accuracy)              << COLUMN_SEPARATOR
+        << toStringOrDefault(priority)              << COLUMN_SEPARATOR
+        << toStringOrDefault(targetId)              << COLUMN_SEPARATOR
+        << toStringOrDefault(damageClassId)         << COLUMN_SEPARATOR
+        << toStringOrDefault(effectId)              << COLUMN_SEPARATOR
+        << toStringOrDefault(effectChance)          << COLUMN_SEPARATOR
+        << toStringOrDefault(contestTypeId)         << COLUMN_SEPARATOR
+        << toStringOrDefault(contestEffectId)       << COLUMN_SEPARATOR
+        << toStringOrDefault(superContestEffectId)  << COLUMN_SEPARATOR
+    << std::endl;
     // @formatter:on
 }
 
 
-MoveData* MoveData::deserialize(const std::string &line) {
+MovesData* MovesData::deserialize(const std::string &line) {
     std::vector<std::string> tokens = splitString(line, ',');
 
     if (tokens.size() != 15) return nullptr;
@@ -53,7 +50,7 @@ MoveData* MoveData::deserialize(const std::string &line) {
     int superContestEffectId    = toIntOrDefault(tokens[14]);
     // @formatter:on
 
-    return new MoveData(
+    return new MovesData(
         id, identifier, generationId, typeId, power, pp, accuracy, priority, targetId,
         damageClassId, effectId, effectChance, contestTypeId, contestEffectId, superContestEffectId
     );

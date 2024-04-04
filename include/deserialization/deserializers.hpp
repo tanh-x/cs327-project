@@ -7,9 +7,11 @@
 #include <climits>
 #include <fstream>
 
+#define VERBOSE_CSV_PARSING true
 #define EMPTY_INT (INT_MAX)
 #define STR_FOR_EMPTY_INT ("-")
 #define COLUMN_SEPARATOR "\t| "
+#define MAX_STRING_COLUMN_WIDTH 20
 
 class AbstractDeserializable {
 public:
@@ -31,8 +33,12 @@ int toIntOrDefault(const std::string &s);
 
 std::string toStringOrDefault(int x);
 
+std::string toStringOrDefault(bool x);
+
+bool parseToBool(const std::string &s);
+
 template<typename T>
-std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName, bool verbose) {
+std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName) {
     // Assert the covariance property
     static_assert(
         std::is_base_of<AbstractDeserializable, T>::value,
@@ -46,7 +52,7 @@ std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName, bool
     // Get the first line of the CSV, which is the header line
     std::string line;
     getline(file, line);
-    if (verbose) printf("\n\n\n");
+    if (VERBOSE_CSV_PARSING) printf("\n\n");  // NOLINT
 
     // Read through every line in the .csv
     while (getline(file, line)) {
@@ -60,7 +66,7 @@ std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName, bool
         result.push_back(std::unique_ptr<T>(entry));
 
         // Also print it out if specified
-        if (verbose) entry->printSelf();
+        if (VERBOSE_CSV_PARSING) entry->printSelf();  // NOLINT
     }
 
     return result;
