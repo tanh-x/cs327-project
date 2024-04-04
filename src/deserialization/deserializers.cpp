@@ -53,7 +53,7 @@ void checkCsvParseFlag(const std::string &flag) {
     } else if (flag == "stats") {
         loadFromCsv<StatsData>(STATS_DATA_CSV_NAME);
         exit(0);
-    } else if (flag == "stats") {
+    } else if (flag == "pokemon_types") {
         loadFromCsv<PokemonTypeData>(POKEMON_TYPE_DATA_CSV_NAME);
         exit(0);
     }
