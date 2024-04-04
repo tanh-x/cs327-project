@@ -2,6 +2,7 @@
 #define MOVE_DATA_HPP
 
 #include <string>
+#include <utility>
 #include "abstract_deserializable.hpp"
 
 #define MOVE_DATA_CSV_NAME "moves.csv"

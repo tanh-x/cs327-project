@@ -2,6 +2,7 @@
 #define POKEMON_SPECIES_H
 
 #include <string>
+#include <utility>
 #include "abstract_deserializable.hpp"
 
 #define POKEMON_SPECIES_DATA_CSV_NAME "pokemon_species.csv"
@@ -31,7 +32,7 @@ public:
 
     PokemonSpeciesData(
         int id,
-        const std::string &identifier,
+        std::string identifier,
         int generationId,
         int evolvesFromSpeciesId,
         int evolutionChainId,
@@ -52,7 +53,7 @@ public:
         int conquestOrder
     ) : AbstractDeserializable(),
         id(id),
-        identifier(identifier),
+        identifier(std::move(identifier)),
         generationId(generationId),
         evolvesFromSpeciesId(evolvesFromSpeciesId),
         evolutionChainId(evolutionChainId),
