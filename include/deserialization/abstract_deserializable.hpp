@@ -26,7 +26,7 @@ template<typename T>
 std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName) {
     // Assert the covariance property
     static_assert(
-        std::is_base_of<AbstractDeserializable, T>::value,
+        std::is_base_of_v<AbstractDeserializable, T>,
         "T must be a subtype of AbstractDeserializable"
     );
 

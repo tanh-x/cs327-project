@@ -23,7 +23,7 @@ public:
 
     void printSelf() const override;
 
-    [[maybe_unused]] static PokemonTypeData* deserialize(const std::string &line);
+    [[maybe_unused]] static auto deserialize(const std::string &line) -> PokemonTypeData*;
 };
 
 #endif

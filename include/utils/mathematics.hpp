@@ -37,9 +37,7 @@ float vec3_dot(Float3D v1, Float3D v2);
 
 float vec3_norm(Float3D v);
 
-Float3D vec3_normalized(Float3D v);
-
-void printVector(Float3D v);
+[[maybe_unused]] Float3D vec3_normalized(Float3D v);
 
 float distanceSq(Float3D p1, Float3D p2);
 
@@ -47,7 +45,7 @@ int signum(int x);
 
 float signumf(float x);
 
-int manhanttanDist(int x1, int y1, int x2, int y2);
+int manhattanDist(int x1, int y1, int x2, int y2);
 
 typedef struct {
     int x;

@@ -3,7 +3,6 @@
 cmake-build-debug/
 .clang-tidy
 **.o
-main
 assets/sequence
 
 vgcore*

@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include "utils/mathematics.hpp"
 #include "world/mapbuilder.hpp"
 #include "entities/pathfinding.hpp"
@@ -178,7 +177,7 @@ DistanceField* generateDistanceField(Map* map, int sourceX, int sourceY, EntityE
 
     // Start carrying out Dijkstra's algorithm
     TileNode* u;
-    while ((u = static_cast<TileNode*>(heap_remove_min(&heap)))) {
+    while ((u = static_cast<TileNode*>(heap_remove_min(&heap))) != nullptr) {
         for (int vx = max(u->tileX - 1, 0); vx <= min(u->tileX + 1, MAP_WIDTH - 1); vx++) {
             for (int vy = max(u->tileY - 1, 0); vy <= min(u->tileY + 1, MAP_HEIGHT - 1); vy++) {
                 // Check if the neighboring tile is uncrossable

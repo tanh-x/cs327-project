@@ -25,7 +25,7 @@ void gameLoop() {
         EntityManager* entManager = GAME.currentEntManager;
 
         // Note: the first event ever (resolveTime = 0) is always the Player's first event
-        while ((event = static_cast<Event*>(heap_remove_min(entManager->eventQueue)))) {
+        while ((event = static_cast<Event*>(heap_remove_min(entManager->eventQueue))) != nullptr) {
             // Time travelling is strictly prohibited
             entManager->eventTime = max(entManager->eventTime, event->resolveTime);
 
@@ -79,7 +79,7 @@ void gameLoop() {
         renderGameUpdate();
 
         // Also, the distance field cache must be invalidated in case the player moved or took some other action
-        invalidateMemoization(map->memoizedDistanceFields);
+        invalidateMemoization((DistanceField**) map->memoizedDistanceFields);
     }
 }
 
@@ -96,7 +96,7 @@ void setupGameOnMapLoad(MapEntryProps entryProps) {
     player->mapY = entryProps.playerSpawnY;
 
     // Clear all distance fields on this map
-    invalidateMemoization(map->memoizedDistanceFields);
+    invalidateMemoization((DistanceField**) map->memoizedDistanceFields);
 
     // Generate a new entity manager if needed
     if (map->entityManager == nullptr) {

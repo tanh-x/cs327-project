@@ -87,14 +87,14 @@ EncounterScenario Player::attemptMove(int dx, int dy) {
 
         // The movement is successful, and nothing else needs to be done, so we return.
         return EncounterScenario::STANDARD;
-    } else {
-        // If the return was false, it means we have encountered another entity at this location.
-        // Set the player to be at this location, but not the player entity.
-        // We will rectify this difference once the battle is complete
-        this->mapX = newX;
-        this->mapY = newY;
-        return EncounterScenario::ENTITY_ENCOUNTER;
     }
+
+    // If the return was false, it means we have encountered another entity at this location.
+    // Set the player to be at this location, but not the player entity.
+    // We will rectify this difference once the battle is complete
+    this->mapX = newX;
+    this->mapY = newY;
+    return EncounterScenario::ENTITY_ENCOUNTER;
 }
 
 void Player::possessEntity(PlayerVessel* entity, EntityManager* entManager) {

@@ -47,7 +47,7 @@ AbstractEntity::~AbstractEntity() {
 // - The tile is already occupied by another entity
 bool AbstractEntity::moveBy(int dx, int dy) {
     EntityManager* entManager = GAME.currentEntManager;
-    if (!entManager) return false;
+    if (entManager == nullptr) return false;
 
     int newX = this->mapX + dx;
     int newY = this->mapY + dy;

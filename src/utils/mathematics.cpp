@@ -1,6 +1,5 @@
 #include "utils/mathematics.hpp"
 #include <cstdlib>
-#include <cstdio>
 #include <cmath>
 
 int positiveMod(int x, int y) {
@@ -35,30 +34,26 @@ float randomFloat(float low, float high) {
     return low + (float) rand() / (float) (RAND_MAX) * (high - low);
 }
 
-Float3D vec3_add(Float3D v1, Float3D v2) {
+[[maybe_unused]] Float3D vec3_add(Float3D v1, Float3D v2) {
     Float3D result = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
     return result;
 }
 
-Float3D vec3_mult(Float3D v, float scalar) {
+[[maybe_unused]] Float3D vec3_mult(Float3D v, float scalar) {
     Float3D result = {v.x * scalar, v.y * scalar, v.z * scalar};
     return result;
 }
 
-float vec3_dot(Float3D v1, Float3D v2) {
+[[maybe_unused]] float vec3_dot(Float3D v1, Float3D v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-float vec3_norm(Float3D v) {
+[[maybe_unused]] float vec3_norm(Float3D v) {
     return sqrtf(v.x * v.x + v.y * v.y + v.z + v.z);
 }
 
-Float3D vec3_normalized(Float3D v) {
+[[maybe_unused]] Float3D vec3_normalized(Float3D v) {
     return vec3_mult(v, vec3_norm(v));
-}
-
-void printVector(Float3D v) {
-    printf("(%f, %f, %f)\n", v.x, v.y, v.z);
 }
 
 float distanceSq(Float3D p1, Float3D p2) {
@@ -70,17 +65,17 @@ float distanceSq(Float3D p1, Float3D p2) {
 
 int signum(int x) {
     if (x > 0) return 1;
-    else if (x < 0) return -1;
-    else return 0;
+    if (x < 0) return -1;
+    return 0;
 }
 
 float signumf(float x) {
     if (x > 0) return 1.0f;
-    else if (x < 0) return -1.0f;
-    else return 0.0f;
+    if (x < 0) return -1.0f;
+    return 0.0f;
 }
 
 
-int manhanttanDist(int x1, int y1, int x2, int y2) {
+int manhattanDist(int x1, int y1, int x2, int y2) {
     return abs(x2 - x1) + abs(y2 - y1);
 }

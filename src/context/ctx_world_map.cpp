@@ -87,7 +87,7 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
                 }
             }
 
-            int sparsityFactor = manhanttanDist(0, 0, 2 * mapX, mapY) / 2 + (mapEccentricity - 128) / 40;
+            int sparsityFactor = manhattanDist(0, 0, 2 * mapX, mapY) / 2 + (mapEccentricity - 128) / 40;
             int colorId = max(30, (mapEccentricity % 6 + 36) - clamp(sparsityFactor, -2, 8));
             if (isPivoted) colorId = 22;            // 22 if pivoted (selected)
             else if (isExplored) colorId = 21;      // 21 if explored but not pivoted

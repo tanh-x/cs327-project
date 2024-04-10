@@ -1,10 +1,10 @@
 #ifndef ENTITY_MANAGER_H
 #define ENTITY_MANAGER_H
 
+#include <array>
 #include "vector"
 #include "core/constants.hpp"
 #include "abstract_entity.hpp"
-#include "utils/arraylist.hpp"
 #include "utils/heap.h"
 #include "entities/entity_types/player_vessel.hpp"
 #include "world/mapbuilder.hpp"
@@ -37,7 +37,7 @@ public:
 
     // A 2D array of nullable AbstractEntity pointers, which allows the game to know whether there's an entity at a specific
     // position on the map. The 2D array has the same capacity as the map.
-    AbstractEntity* entMap[MAP_HEIGHT][MAP_WIDTH] {};
+    std::array<std::array<AbstractEntity*, MAP_WIDTH>, MAP_HEIGHT> entMap {};
 
     // A heap that contains queued Event objects, sorted by the time at which they will be resolved.
     heap_t* eventQueue;

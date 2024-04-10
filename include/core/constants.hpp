@@ -6,13 +6,15 @@
 #define MAX_ITERATIONS_SMALL 32
 #define MAX_ITERATIONS 8192
 
-// Dimensions of the window
+// Dimensions of the window and map
 #define WINDOW_WIDTH 80
 #define WINDOW_HEIGHT 24
-
-// Dimensions of the map
 #define MAP_WIDTH 80
 #define MAP_HEIGHT 21
+//#define WINDOW_WIDTH 120
+//#define WINDOW_HEIGHT 36
+//#define MAP_WIDTH 120
+//#define MAP_HEIGHT 33
 
 // Dimensions of the world. Recommended to be an odd number
 #define WORLD_WIDTH 401
