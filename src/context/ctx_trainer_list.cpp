@@ -48,7 +48,7 @@ void TrainerListContext::start() {
 void TrainerListContext::trainerListEntry() {
     Player* player = GAME.player;
 
-    int numEntities = int(entityList->size());
+    int numEntities = static_cast<int>(entityList->size());
     int scroll = 0;
     int maxScroll = max(numEntities - TRAINER_LIST_WINDOW_HEIGHT + 2, 0);
     while (true) {

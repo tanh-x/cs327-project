@@ -6,6 +6,7 @@
 #include "entities/entity_manager.hpp"
 
 #define DISTANCE_FIELD_MEMOIZATION_SIZE 10
+#define SALIENCY_THRESHOLD 244
 
 #define LOCATION_NAME_PREFIXES { "PEWTER", "CERULEAN", "LAVENDER", "VIRIDIAN", "SAFFRON", "GOLDENROD", "ECRUTEAK", "FORTREE", "LILYCOVE", "SUNYSHORE", "CASTELIA", "LUMIOSE", "MOTOSTOKE", "VIRIDIAN", "CINNABAR", "FUCHSIA", "OLIVINE", "AZALEA", "BLACKTHORN", "MOSSDEEP", "SOOTOPOLIS", "VEILSTONE", "HEARTHOME", "NIMBASA", "DRIFTVEIL", "OPELUCID", "SNOWPOINT", "PACIFIDLOG", "FLOAROMA", "CANALAVE", "MYSTIC", "OMINOUS", "FLOWERY", "MYSTERIOUS", "LUSH", "LAVENDER", "GRASSY"}
 #define LOCATION_NAME_SUFFIXES { "WOODLAND", "LAKES", "WOODS", "FOREST", "HILLS", "ZONE", "ROADS", "PATH", "MARSH", "PRAIRIE", "GROVE", "GARDEN", "FIELDS", "PLAINS", "CLIFFS", "ORCHARD", "CLEARING"}
@@ -14,7 +15,7 @@ class EntityManager;
 
 struct DistanceField;
 
-typedef enum __attribute__ ((__packed__)) {
+typedef enum __attribute__((__packed__)) {
     FLAT,       // .    <1st pass>
     BOULDER,    // %    <1st pass>
     BORDER,     // %    <border pass>
@@ -53,7 +54,25 @@ public:
     int globalX;
     int globalY;
     bool isSpawnMap;
+
+    // Maps further away from the center of the map are use more iterations during the
+    // blending pass. Since the blending process favours the proliferation of foliage,
+    // an increased number of iterations will lead to a more "overgrown" forest. This
+    // has the effect of both impeding traversal and creating more threats against the
+    // player.
     float overgrowth;
+
+    // The manhattan distance from the origin, with an extra perturbation on top.
+    // Determines the power level of Pokemons encountered on this map.
+    float menaceLevel;
+
+    // The chance that a Pokemon will spawn whenever a player walks through a tall grass
+    // tile. Also inversely proportional to the number of trainers that will spawn on the
+    // map upon first entry.
+    // Every time the player defeats or captures a Pokemon, this chance decays slightly.
+    float wildernessLevel;
+
+    int numOpponents;
 
     // A randomly generated name
     std::string name;
@@ -65,7 +84,7 @@ public:
     MapEntryProps generateTerrain(int worldSeed);
 
 private:
-    bool placeRoad(int x, int y, int edgeBitmask);
+    bool placeRoad(int x, int y, uint8_t edgeBitmask);
 
     void placeChunk(TileType type, int x, int y, int sizeX, int sizeY);
 
@@ -80,5 +99,7 @@ bool isInsideMapBounds(int x, int y);
 
 // Checks whether the position is within the map borders, i.e. excluding the borders and the gate.
 bool isInsideMapBorders(int x, int y);
+
+float getMenaceLevel(int globalX, int globalY, float eccentricity, int worldSeed);
 
 #endif

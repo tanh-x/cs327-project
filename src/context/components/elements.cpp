@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cmath>
 #include "context/components/elements.hpp"
 
 void windowTitle(AbstractContext* context, const char* title, int x) {
@@ -5,15 +7,15 @@ void windowTitle(AbstractContext* context, const char* title, int x) {
     mvwprintw(window, 0, x, "[ %s ]", title);
 }
 
-void horizontalSeparator(AbstractContext* context, int y) {
+void horizontalSeparator(AbstractContext* context, int x, int y, int width) {
     WINDOW* window = context->window;
 
     // Draw the separator
-    wmove(window, y, 0);
+    wmove(window, y, x);
 
     // ACS_LTEE is '├'
     waddch(window, ACS_LTEE);
-    for (int i = 0; i < context->dimensions.width - 2; i++) {
+    for (int i = 0; i < width - 2; i++) {
         // ACS_HLINE is '─'
         waddch(window, ACS_HLINE);
     }
@@ -22,5 +24,76 @@ void horizontalSeparator(AbstractContext* context, int y) {
     waddch(window, ACS_RTEE);
 
     // Refresh the window
+    wrefresh(window);
+}
+
+void verticalSeparator(AbstractContext* context, int x, int y, int height) {
+    WINDOW* window = context->window;
+
+    // Draw the separator
+    wmove(window, y, x);
+
+    // ACS_TTEE is '┬'
+    waddch(window, ACS_TTEE);
+    for (int i = 0; i < height - 2; i++) {
+        // Move cursor down one line
+        wmove(window, y + i + 1, x);
+
+        // ACS_VLINE is '│'
+        waddch(window, ACS_VLINE);
+    }
+
+    // Move cursor to the last position
+    wmove(window, y + height - 1, x);
+
+    // ACS_BTEE is '┴'
+    waddch(window, ACS_BTEE);
+
+    // Refresh the window
+    wrefresh(window);
+}
+
+
+void spaces(AbstractContext* context, int x, int y, int width) {
+    WINDOW* window = context->window;
+
+    wmove(window, y, x);
+    for (int i = 0; i < width; i++) {
+        waddch(window, ' ');
+    }
+
+    // Refresh the window
+    wrefresh(window);
+}
+
+
+void sequentialColoredBar(
+    AbstractContext* context, int x, int y,
+    int width, float value,
+    int cmapPaletteOffset, int numPaletteColors
+) {
+    WINDOW* window = context->window;
+
+    // Calculate the width of each color segment
+    float segmentWidth = float(width) / float(numPaletteColors);
+    int colorIndex;
+
+    wmove(window, y, x);
+    auto threshold = static_cast<int>(value);
+    for (int i = 0; i < width; i++) {
+        // Determine which color pair to use based on the current position
+        colorIndex = clamp(std::floor(float(i) / segmentWidth), 0, numPaletteColors - 1);
+
+        if (i <= threshold) {
+            wattron(window, COLOR_PAIR(cmapPaletteOffset + colorIndex));
+            waddch(window, '#');
+            wattroff(window, COLOR_PAIR(cmapPaletteOffset + colorIndex));
+        } else {
+            wattron(window, COLOR_PAIR(32));
+            waddch(window, '-');
+            wattroff(window, COLOR_PAIR(31));
+        }
+    }
+
     wrefresh(window);
 }

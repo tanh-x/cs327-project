@@ -28,7 +28,7 @@
 #define PURPLE_BOULDER_PROBABILITY 0.0159f
 
 #define DISTORTION_EXP_PROBABILITY 0.7563f
-#define DISTORTION_ITERATIONS_BASELINE 80    // More iterations = more overgrown terrain
+#define DISTORTION_ITERATIONS_BASELINE 100
 #define DISTORTION_PADDING 2
 #define DISTORTION_KERNEL_RADIUS_SQ 4.85f
 #define DISTORTION_ENERGY 3.1416f
@@ -49,12 +49,18 @@
 
 #define EDGE_STUB_PADDING_X 13
 #define EDGE_STUB_PADDING_Y 6
-#define EDGE_WEST_BITMASK 1
-#define EDGE_EAST_BITMASK 2
-#define EDGE_SOUTH_BITMASK 4
-#define EDGE_NORTH_BITMASK 8
+#define EDGE_WEST_BITMASK 1u
+#define EDGE_EAST_BITMASK 2u
+#define EDGE_SOUTH_BITMASK 4u
+#define EDGE_NORTH_BITMASK 8u
 
 #define VORONOI_POINTS_BASE_SEED 21679733
+
+#define WILDERNESS_LEVEL_LOWER_BOUND 0.0425f
+#define WILDERNESS_LEVEL_UPPER_BOUND 0.1625f
+
+#define MENACE_INITIAL_PERTURBATION_SCALAR_FACTOR 0.1375f
+#define MENACE_SALIENT_MAP_BONUS 38.71f
 
 std::string locationNamePrefixes[] = LOCATION_NAME_PREFIXES;
 std::string locationNameSuffixes[] = LOCATION_NAME_SUFFIXES;
@@ -65,11 +71,19 @@ int suffixesSize = sizeof(locationNameSuffixes) / sizeof(locationNameSuffixes[0]
 // generateTerrain(int worldSeed) is invoked. It also does not initialize an entity manager, which
 // is deferred until setupGameOnMapLoad is called for the first time on this map.
 Map::Map(int globalX, int globalY, int initialSeed) {
+    auto dist = float(abs(globalX) + abs(globalY));
+    float eccentricity = GAME.world->eccentricity[globalY + WORLD_Y_SPAN][globalX + WORLD_X_SPAN];
+
     this->globalX = globalX;
     this->globalY = globalY;
     this->isSpawnMap = globalX == 0 && globalY == 0;
     this->mapSeed = globalHashFunction(globalX, globalY, initialSeed);
-    this->overgrowth = OVERGROWTH_FACTOR * sqrt(abs(globalX) + abs(globalY));
+    this->overgrowth = OVERGROWTH_FACTOR * sqrtf(dist) * randomFloat(0.55f, 3.25f);
+    this->menaceLevel = getMenaceLevel(globalX, globalY, eccentricity, GAME.world->worldSeed);
+this->wildernessLevel = randomFloat(WILDERNESS_LEVEL_LOWER_BOUND, WILDERNESS_LEVEL_UPPER_BOUND)
+                            + overgrowth / 2100.0f;
+
+    this->numOpponents = 0;
     this->entityManager = nullptr;
 
     srand(mapSeed);
@@ -79,7 +93,6 @@ Map::Map(int globalX, int globalY, int initialSeed) {
 
     // Concatenate the random name
     this->name = locationNamePrefixes[prefixIndex] + " " + locationNameSuffixes[suffixIndex];
-
 }
 
 Map::~Map() {
@@ -99,7 +112,7 @@ float generateStochasticWalk(float scale, float drift, float remaining) {
 }
 
 // @formatter:off
-bool Map::placeRoad(int x, int y, int edgeBitmask) {
+bool Map::placeRoad(int x, int y, uint8_t edgeBitmask) {
     bool isNorthEdge = edgeBitmask & EDGE_NORTH_BITMASK;
     bool isSouthEdge = edgeBitmask & EDGE_SOUTH_BITMASK;
     bool isEastEdge = edgeBitmask & EDGE_EAST_BITMASK;
@@ -120,10 +133,10 @@ bool Map::placeRoad(int x, int y, int edgeBitmask) {
     if (tileset[y][x].type == BOULDER || tileset[y][x].type == BOULDER_ROAD) {
         tileset[y][x].type = BOULDER_ROAD;
         return true;
-    } else {
-        tileset[y][x].type = ROAD;
-        return false;
     }
+
+    tileset[y][x].type = ROAD;
+    return false;
 }
 // @formatter:on
 
@@ -150,7 +163,7 @@ MapEntryProps Map::generateTerrain(int worldSeed) {
     MapEntryProps entryProps;
     bool useBadApple = OPTIONS.doBadApple;
 
-    int edgeBitmask = 0;
+    uint8_t edgeBitmask = 0;
     if (globalY == -WORLD_Y_SPAN) edgeBitmask |= EDGE_NORTH_BITMASK;
     if (globalY == +WORLD_Y_SPAN) edgeBitmask |= EDGE_SOUTH_BITMASK;
     if (globalX == +WORLD_X_SPAN) edgeBitmask |= EDGE_EAST_BITMASK;
@@ -492,3 +505,11 @@ bool isInsideMapBounds(int x, int y) {
 bool isInsideMapBorders(int x, int y) {
     return x > 0 && y > 0 && x < MAP_WIDTH - 1 && y < MAP_HEIGHT - 1;
 }
+
+float getMenaceLevel(int globalX, int globalY, float eccentricity, int worldSeed) {
+    float perturbation = eccentricity + float(globalHashFunction(globalX, globalY, worldSeed) % 36);
+    perturbation *= MENACE_INITIAL_PERTURBATION_SCALAR_FACTOR;
+    if (eccentricity > SALIENCY_THRESHOLD) perturbation += MENACE_SALIENT_MAP_BONUS;
+    return float(abs(globalX) + abs(globalY)) + perturbation;
+}
+

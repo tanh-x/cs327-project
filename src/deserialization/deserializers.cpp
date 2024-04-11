@@ -20,7 +20,7 @@ path findCsvFile(const std::string &filename) {
     printf("Searching in %s\n", path1.c_str());
     if (exists(path1)) return path1;
 
-    path path2 = path(std::getenv("HOME")) / subpath / filename;
+    path path2 = path(std::getenv("HOME")) / ".poke327/" / subpath / filename;
     printf("Searching in %s\n", path2.c_str());
     if (exists(path2)) return path2;
 

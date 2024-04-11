@@ -23,10 +23,10 @@ FLAGS:
 --nocolor
     Disables tile coloring.
 
+OLD FLAGS:
 --numtrainers
     The number of trainers to generate per map. Defaults to 15.
 
-OLD FLAGS:
 --frametime
     The time (in microseconds) to wait between drawing each frame.
     Defaults to 200ms.

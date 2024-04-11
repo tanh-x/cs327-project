@@ -1,13 +1,17 @@
 #include <cstdlib>
+#include <cmath>
 #include "context/ctx_world_map.hpp"
 #include "context/components/animations.hpp"
 #include "context/components/elements.hpp"
 #include "utils/string_helpers.hpp"
+#include "graphics/ncurses_artist.hpp"
 
-#define FOOTER_OFFSET (WINDOW_HEIGHT - 8)
-#define SALIENCY_THRESHOLD 244
+#define FOOTER_SIZE 6
+#define FOOTER_OFFSET (WINDOW_HEIGHT - FOOTER_SIZE - 1)
 #define PIVOT_SPEED (1 * zoom)
 #define SIXTY_FOUR_SPACES "                                                                "
+#define MAP_INFO_WIDTH 26
+#define SEQUENTIAL_BAR_SEGMENTS 20
 
 WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : AbstractContext(
     ContextType::WORLD_MAP_CONTEXT,
@@ -25,12 +29,13 @@ WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : Abstra
 
     // Add extra stuff
     windowTitle(this, "World Map", 2);
-    horizontalSeparator(this, FOOTER_OFFSET);
+    horizontalSeparator(this, 0, FOOTER_OFFSET, dimensions.width);
+    horizontalSeparator(this, 0, WINDOW_HEIGHT - 2, dimensions.width);
 
     // Write the footer navigation guide
     mvwaddstr(
-        window, dimensions.height - 1, 2,
-        "[  wasd/arrow: Move | z/x: Zoom | enter/t: Fly | c: Focus | esc/f/m: Exit  ]"
+        window, dimensions.height - 1, 1,
+        "  wasd/arrow: Move    z/x: Zoom    enter/t: Fly    c: Focus    esc/f/m: Exit  "
     );
 
     // We're done with initialization
@@ -99,7 +104,7 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
             char tileChar = ' ';
             if (isCurrent) tileChar = '@';
             else if (mapX == 0 && mapY == 0) tileChar = 'O';
-            else if (isSalient) tileChar = '?';
+            else if (isSalient) tileChar = '!';
 
             // Format the 3-character string representing the map at this position
             char mapTileString[4];
@@ -159,9 +164,12 @@ void WorldMapContext::worldMapEntry() {
         // Draw the world map
         drawWorldMap(pivotX, pivotY, zoom);
 
+        // Get the centered map
         Map* pivotedMap = world->maps[pivotY + WORLD_Y_SPAN][pivotX + WORLD_X_SPAN];
+
         // Clear the line
         mvwaddstr(window, FOOTER_OFFSET + 1, 2, SIXTY_FOUR_SPACES);
+
         // Write down the name of the map
         if (pivotedMap != nullptr) {
             mvwaddstr(window, FOOTER_OFFSET + 1, 2, pivotedMap->name.c_str());
@@ -169,8 +177,62 @@ void WorldMapContext::worldMapEntry() {
             mvwaddstr(window, FOOTER_OFFSET + 1, 2, "UNEXPLORED AREA");
         }
 
+        // Draw the map information
+        int mapInfoOffset = dimensions.width - MAP_INFO_WIDTH + 1;
+        verticalSeparator(this, mapInfoOffset - 1, FOOTER_OFFSET, FOOTER_SIZE);
 
+
+        float menace;
+        if (pivotedMap != nullptr) {
+            // Get calculated menace level
+            menace = pivotedMap->menaceLevel;
+
+            // Add the wilderness level display
+            float wildernessStepLevel = maxf(0.0f, pivotedMap->wildernessLevel * 92.5f - 3.45f);
+            float wildernessTwoSigfig = roundf(pivotedMap->wildernessLevel * 10000) / 100;
+            mvwaddstr(window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: ");
+            mvwaddstr(window, FOOTER_OFFSET + 3, mapInfoOffset + 13,
+                      std::to_string(wildernessTwoSigfig).substr(0, 4).c_str());
+            waddch(window, '%');
+            sequentialColoredBar(
+                this, mapInfoOffset + 1, FOOTER_OFFSET + 4,
+                SEQUENTIAL_BAR_SEGMENTS, wildernessStepLevel,
+                PRGN10_PALETTE_OFFSET, PRGN10_PALETTE_COUNT
+            );
+        } else {
+            // Get computed menace level for non-generated map
+            menace = getMenaceLevel(
+                pivotX, pivotY,
+                world->eccentricity[pivotY + WORLD_Y_SPAN][pivotX + WORLD_X_SPAN],
+                world->worldSeed
+            );
+
+            // Clear the wilderness section
+            spaces(this, mapInfoOffset, FOOTER_OFFSET + 3, MAP_INFO_WIDTH - 2);
+            spaces(this, mapInfoOffset, FOOTER_OFFSET + 4, MAP_INFO_WIDTH - 2);
+        }
+
+        // Draw the menace level display
+        spaces(this, mapInfoOffset, FOOTER_OFFSET + 1, MAP_INFO_WIDTH - 2);
+        spaces(this, mapInfoOffset, FOOTER_OFFSET + 2, MAP_INFO_WIDTH - 2);
+
+        float menaceStepLevel = sqrtf(1.7f * menace) - 3;
+        mvwaddstr(window, FOOTER_OFFSET + 1, mapInfoOffset + 1, "MENACE: ");
+        mvwaddstr(window, FOOTER_OFFSET + 1, mapInfoOffset + 9,
+                  std::to_string(static_cast<int>(menaceStepLevel) + 1).c_str());
+//                    std::to_string(menaceStepLevel).c_str());
+
+        // Draw the colored bar for menace level
+        sequentialColoredBar(
+            this, mapInfoOffset + 1, FOOTER_OFFSET + 2,
+            SEQUENTIAL_BAR_SEGMENTS, menaceStepLevel,
+            RDYLGN10_PALETTE_OFFSET, RDYLGN10_PALETTE_COUNT
+        );
+
+        // We're done with the footer, so render it
         refreshContext();
+
+        // Wait for user input
         int ch = getch();
         switch (ch) {
             case ESCAPE_KEY:

@@ -75,11 +75,11 @@ int main(int argc, char* argv[]) {
     // spawnMap will allow for special case world generation
     map->isSpawnMap = true;
 
-    // Override seed for the center map
+    // Overrides for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
-
-    // Override the name for the center map
     map->name = "PALLET TOWN";
+    map->wildernessLevel = 0.0725;
+    map->menaceLevel = 10;
 
     // Generate the first map outside the game loop, prevents it from regenerating in the game loop.
     MapEntryProps entryProps = map->generateTerrain(world.worldSeed);
