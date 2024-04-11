@@ -7,6 +7,7 @@
 #include "utils/mathematics.hpp"
 #include "utils/voronoi_noise.hpp"
 #include "world/mapbuilder.hpp"
+#include "core/constants/text.hpp"
 
 #define MAX_FRAME_COUNT 6572
 #define MAX_ITER_MULTIPLIER 8

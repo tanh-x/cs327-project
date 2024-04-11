@@ -7,8 +7,8 @@ title = """
    ╚═╝      ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═════╝ ╚══════╝   ╚═╝  
 """
 
-foreground = "\033[38;5;227m"
-background = "\033[38;5;26m"
+foreground = "\033[38;5;221m"
+background = "\033[38;5;25m"
 reset = "\033[0m"
 
 def colorize_ascii(ascii_art):
@@ -23,4 +23,5 @@ def colorize_ascii(ascii_art):
     return colored_art
 
 colored_title = colorize_ascii(title)
+# print(colored_title)
 print(repr(colored_title))
