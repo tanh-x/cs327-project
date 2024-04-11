@@ -15,4 +15,6 @@ std::string truncateToEllipses(const std::string &input, size_t n);
 
 std::vector<std::string> splitString(const std::string &s, char delimiter);
 
+std::string unkebabString(const std::string &kebab);
+
 #endif

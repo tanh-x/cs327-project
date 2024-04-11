@@ -23,14 +23,17 @@ PokemonDatabase::PokemonDatabase() {
     // Load some parsed vectors into hashmaps/tables as lookup indices
     for (const auto &stats: parsedStats) statsTable[stats->id] = stats;
     for (const auto &move: parsedMoves) movesTable[move->id] = move;
-    for (const auto &species: parsedSpecies) {
-        speciesTable[species->id] = species;
-    }
+    for (const auto &species: parsedSpecies) speciesTable[species->id] = species;
+    for (const auto &type: parsedTypeRelation) typeRelationTable[type->pokemonId] = type;
+    for (const auto &typeName: parsedTypes) typeNameTable[typeName->id] = typeName;
 
     // "Left join" the species table onto the Pokemon table
     for (const std::shared_ptr<PokemonData> &pokemon: parsedPokemon) {
         // Put the pokemon into the table
         pokemonTable[pokemon->id] = pokemon;
+
+        // ...and the vector
+        pokemonIds.push_back(pokemon->id);
 
         // Look up and get the species data from the index
         pokemon->speciesData = speciesTable.at(pokemon->speciesId);
@@ -54,13 +57,15 @@ PokemonDatabase::PokemonDatabase() {
             for (const std::shared_ptr<PokemonData> &pokemon: species->associatedPokemon) {
                 pokemon->movesTable[moveRelation->moveId] = moveRelation;
             }
-        } catch (const std::out_of_range& unused) {
+        } catch (const std::out_of_range &unused) {
             // Fallback if unable to match with species table
             std::shared_ptr<PokemonData> pokemon = pokemonTable.at(moveRelation->pokemonId);
             pokemon->movesTable[moveRelation->moveId] = moveRelation;
         }
 
     }
+
+    numPokemon = static_cast<int>(pokemonIds.size());
 
     // We're probably done here
 }

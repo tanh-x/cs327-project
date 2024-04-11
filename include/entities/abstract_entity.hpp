@@ -33,7 +33,7 @@ public:
     // A vector of pokemon that this entity has. Every NPC and the player must have
     // some Pokemon. Wild Pokemon are temporarily given a proxy entity for the purpose
     // of the battle.
-    std::vector<Pokemon> pokemonInventory {};
+    std::vector<std::shared_ptr<Pokemon>> pokemonInventory {};
 };
 
 

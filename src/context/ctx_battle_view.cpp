@@ -4,6 +4,13 @@
 #include "core/game_manager.hpp"
 #include "graphics/artist.hpp"
 #include "context/components/animations.hpp"
+#include "context/components/elements.hpp"
+#include "utils/string_helpers.hpp"
+
+#define FOOTER_SIZE 5
+#define FOOTER_OFFSET (WINDOW_HEIGHT - FOOTER_SIZE - 1)
+#define PROMPT_ACTIONS 4
+#define PROMPT_ACTION_WIDTH 30
 
 BattleViewContext::BattleViewContext(
     AbstractContext* parent,
@@ -50,31 +57,108 @@ BattleViewContext::BattleViewContext(
     box(dialogWindow, 0, 0);
 
     // Print out text to the dialog window
-    mvwprintw(
-        dialogWindow, 1, 1, "%s wants to fight!",
-        opponent->name
-    );
-    mvwprintw(
-        dialogWindow, DIALOG_WINDOW_HEIGHT - 2, 1, "<Opponent: \"%s\" [@ %p]>",
-        opponent->name, &opponent
-    );
+    mvwprintw(dialogWindow, 1, 1, "%s wants to fight!", opponent->name);
+
+    // Print the pokemon list
+    std::string pokemonList;
+    for (auto &pokemon: opponent->pokemonInventory) {
+        pokemonList += pokemon->name() + " ";
+    }
+    mvwprintw(dialogWindow, 2, 1, "Pokemon list: %s", pokemonList.c_str());
+
+    mvwaddstr(dialogWindow, DIALOG_WINDOW_HEIGHT - 2, WINDOW_WIDTH - 12, "ENTER ");
+    wattron(dialogWindow, A_BLINK);
+    waddstr(dialogWindow, ">>");
+    wattroff(dialogWindow, A_BLINK);
 
     // We're done with building the window
     wrefresh(dialogWindow);
+
+    // Only accepts ESC/ENTER/SPACE to close the dialog
+    while (true) {
+        int ch = getch();
+        if (ch == ESCAPE_KEY || ch == '\n' || ch == ' ') break;
+    }
+
+    delwin(dialogWindow);
+    touchwin(window);
+    refreshContext();
+
 }
 
 void BattleViewContext::start() {
     AbstractContext::start();
 
-    // Only accepts ESC to exit, no other keys are handled.
-    while (true) {
-        int ch = getch();
-        if (ch == ESCAPE_KEY || ch == '`' || ch == '~') break;
-    }
+    battleContextLoop();
 
     // If we got here, ESC has been pressed
     opponent->activeBattle = false;
     returnToParentContext();
+}
+
+void BattleViewContext::battleContextLoop() {
+    int sectionOffset = dimensions.width - PROMPT_ACTION_WIDTH + 1;
+
+    // Fix the separator
+    horizontalSeparator(this, 0, FOOTER_OFFSET, WINDOW_WIDTH);
+    verticalSeparator(this, sectionOffset - 1, FOOTER_OFFSET, FOOTER_SIZE + 1);
+
+    int prompt = 0;
+    std::string mainActions[] = {"FIGHT", "BAG", "POKEMON", "RUN (butchers the NPC)"};
+    std::string* currentPromptList = mainActions;
+
+    // Only accepts ESC to exit, no other keys are handled.
+    while (true) {
+
+        for (int line = 0; line < PROMPT_ACTIONS; line++) {
+            std::string lineStr =
+                (prompt == line ? "> " : "  ")
+                + (std::string) currentPromptList[line]
+                + (prompt == line ? " <" : " ");
+
+            mvwaddstr(
+                window, FOOTER_OFFSET + 1 + line, sectionOffset + 1,
+                rightPad(lineStr, PROMPT_ACTION_WIDTH - 3).c_str()
+            );
+        }
+
+        refreshContext();
+
+        // Wait for user input
+        int ch = getch();
+        switch (ch) {
+            case ESCAPE_KEY:
+            case '`':  // Near-esc alias
+            case '~':  // Near-esc alias
+                return;  // Exit the loop
+
+            case KEY_UP:
+            case 'w': prompt = clamp(prompt - 1, 0, PROMPT_ACTIONS - 1);
+                continue;
+
+            case KEY_DOWN:
+            case 's': prompt = clamp(prompt + 1, 0, PROMPT_ACTIONS - 1);
+                continue;
+
+            case '\n':
+            case ' ': {
+                // Prompt action triggered
+                if (prompt == 0) {
+                    // FIGHT
+
+                } else if (prompt == 1) {
+                    // BAG
+
+                } else if (prompt == 2) {
+                    // POKEMON
+
+                } else if (prompt == 3) {
+                    // RUN
+                    return;
+                } else continue;
+            }
+        }
+    }
 }
 
 

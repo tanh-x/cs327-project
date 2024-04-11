@@ -1,10 +1,10 @@
 #include <ncurses.h>
 #include "context/ctx_trainer_list.hpp"
+#include "context/components/animations.hpp"
+#include "context/components/elements.hpp"
 #include "graphics/artist.hpp"
 #include "utils/string_helpers.hpp"
 #include "core/input.hpp"
-#include "context/components/elements.hpp"
-#include "context/components/animations.hpp"
 
 #define WINDOW_LEFT_PADDING 2
 

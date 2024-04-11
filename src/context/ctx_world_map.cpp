@@ -138,6 +138,10 @@ void WorldMapContext::start() {
 }
 
 void WorldMapContext::worldMapEntry() {
+    int mapInfoOffset = dimensions.width - MAP_INFO_WIDTH + 1;
+
+    verticalSeparator(this, mapInfoOffset - 1, FOOTER_OFFSET, FOOTER_SIZE);
+
     int pivotX = world->current->globalX;
     int pivotY = world->current->globalY;
     int zoom = 1;
@@ -178,8 +182,6 @@ void WorldMapContext::worldMapEntry() {
         }
 
         // Draw the map information
-        int mapInfoOffset = dimensions.width - MAP_INFO_WIDTH + 1;
-        verticalSeparator(this, mapInfoOffset - 1, FOOTER_OFFSET, FOOTER_SIZE);
 
 
         float menace;
@@ -190,15 +192,13 @@ void WorldMapContext::worldMapEntry() {
             // Add the wilderness level display
             float wildernessStepLevel = maxf(0.0f, pivotedMap->wildernessLevel * 92.5f - 3.45f);
             float wildernessTwoSigfig = roundf(pivotedMap->wildernessLevel * 10000) / 100;
-            mvwaddstr(
-                window, FOOTER_OFFSET + 3, mapInfoOffset + 1,
-                "WILDERNESS: "
-            );
-            mvwaddstr(
-                window, FOOTER_OFFSET + 3, mapInfoOffset + 13,
+            mvwprintw(
+                window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: %s%",
                 std::to_string(wildernessTwoSigfig).substr(0, 4).c_str()
+
             );
-            waddch(window, '%');
+
+            // Add the colored bar
             sequentialColoredBar(
                 this, mapInfoOffset + 1, FOOTER_OFFSET + 4,
                 SEQUENTIAL_BAR_SEGMENTS, wildernessStepLevel,
@@ -218,13 +218,9 @@ void WorldMapContext::worldMapEntry() {
         spaces(this, mapInfoOffset, FOOTER_OFFSET + 2, MAP_INFO_WIDTH - 2);
 
         float menaceStepLevel = sqrtf(1.7f * menace) - 3;
-        mvwaddstr(
-            window, FOOTER_OFFSET + 1, mapInfoOffset + 1,
-            "MENACE: "
-        );
-        mvwaddstr(
-            window, FOOTER_OFFSET + 1, mapInfoOffset + 9,
-            std::to_string(static_cast<int>(menaceStepLevel) + 1).c_str()
+        mvwprintw(
+            window, FOOTER_OFFSET + 1, mapInfoOffset + 1, "MENACE: %d",
+            static_cast<int>(menaceStepLevel) + 1
         );
 
         // Draw the colored bar for menace level

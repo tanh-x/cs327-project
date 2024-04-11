@@ -7,10 +7,15 @@
 #include "core/input.hpp"
 #include "entities/pathfinding.hpp"
 #include "context/ctx_battle_view.hpp"
+#include "context/components/animations.hpp"
+#include "utils/string_helpers.hpp"
 
+#define INITIAL_LAUNCH_WINDOW_HEIGHT 12
+#define INITIAL_LAUNCH_WINDOW_WIDTH 32
+#define NUM_POKEMON_SELECTION 5
 
 #define BATTLE_INITIATION_COOLDOWN 24
-#define NPC_BATTLE_INITIATION_PROBABILITY 0.33f
+#define NPC_BATTLE_INITIATION_PROBABILITY 0.5f
 
 // The main game loop
 void gameLoop() {
@@ -21,6 +26,9 @@ void gameLoop() {
 
     // Draw once
     renderGameUpdate();
+
+    initialLaunchWindow();
+
     Event* event;
     while (!GAME.quit_game) {
         Map* map = world->current;
@@ -43,7 +51,7 @@ void gameLoop() {
             if (actor->activeBattle
                 && max(abs(actor->mapX - player->mapX), abs(actor->mapY - player->mapY)) <= 1
                 && entManager->eventTime >= entManager->nextBattleInitiationTime
-                // Only enter the battle_opponent with 33% probability
+                // Only enter the battle_opponent with 50% probability
                 && proba() < NPC_BATTLE_INITIATION_PROBABILITY) {
                 // Render the game before entering battle_opponent
                 renderGameUpdate();
@@ -195,4 +203,100 @@ Map* moveToMap(int globalX, int globalY, MapEntryProps* entryProps) {
     }
 
     return newMap;
+}
+
+void initialLaunchWindow() {
+    Rect2D rect = {
+        (WINDOW_WIDTH - INITIAL_LAUNCH_WINDOW_WIDTH) / 2,
+        (WINDOW_HEIGHT - INITIAL_LAUNCH_WINDOW_HEIGHT) / 2,
+        INITIAL_LAUNCH_WINDOW_WIDTH,
+        INITIAL_LAUNCH_WINDOW_HEIGHT
+    };
+
+    // Start with an animation
+    verticalExpandAnimation(rect, INTERVAL_30FPS_MICROS);
+
+    WINDOW* newWindow = newwin(rect.height, rect.width, rect.y, rect.x);
+    keypad(newWindow, true);
+    box(newWindow, 0, 0);
+
+    wrefresh(newWindow);
+
+    // Set up Pokemon selection
+    PokemonDatabase* database = GAME.database;
+    std::shared_ptr<PokemonData> pokemonSelections[NUM_POKEMON_SELECTION] = {
+        database->pokemonTable.at(1),  // Bulbasaur
+        database->pokemonTable.at(4),  // Charamander
+        database->pokemonTable.at(7)   // Squirtle
+    };
+
+    // Generate some random Pokemon
+    for (int i = 3; i < NUM_POKEMON_SELECTION; i++) {
+        // First 200 Pokemon are probably more well-known, I dunno
+        int idx = database->pokemonIds[randomInt(0, 200)];
+        pokemonSelections[i] = database->pokemonTable.at(idx);
+    }
+
+    int selection = -1;
+
+    mvwaddstr(newWindow, 0, 4, "[ Choose your Pokemon ]");
+
+    while (true) {
+        // Print out the pokemon and their name
+        for (int line = 0; line < NUM_POKEMON_SELECTION; line++) {
+            auto pokemonData = pokemonSelections[line];
+
+            // Get the type name
+            std::string typeName = database->typeNameTable.at(
+                database->typeRelationTable.at(
+                    pokemonData->id
+                )->typeId
+            )->name;
+
+            // Form the string
+            std::string lineStr =
+                (selection == line ? "> " : "  ")
+                + unkebabString(pokemonData->identifier)
+                + " (" + typeName + ") "
+                + (selection == line ? " <" : " ");
+
+
+            mvwaddstr(
+                newWindow, line + 1, 1,
+                rightPad(lineStr, INITIAL_LAUNCH_WINDOW_WIDTH - 3).c_str()
+            );
+        }
+
+        wrefresh(newWindow);
+
+        int ch = getch();
+        switch (ch) {
+            case '\n':
+            case ' ': {
+                if (selection < 0 || selection >= NUM_POKEMON_SELECTION) continue;
+                // Add the Pokemon to the player's Pokemon inventory
+                auto newPokemon = std::make_shared<Pokemon>(database, pokemonSelections[selection], 1);
+                GAME.player->currentEntity->pokemonInventory.push_back(newPokemon);
+                delwin(newWindow);
+                renderGameUpdate();
+                return;
+            }
+
+            case KEY_UP:
+            case KEY_LEFT:
+            case 'w':
+            case 'a': {
+                selection = clamp(selection - 1, 0, NUM_POKEMON_SELECTION - 1);
+                continue;
+            }
+            case KEY_DOWN:
+            case KEY_RIGHT:
+            case 's':
+            case 'd': {
+                selection = clamp(selection + 1, 0, NUM_POKEMON_SELECTION - 1);
+                continue;
+            }
+            default: {}
+        }
+    }
 }

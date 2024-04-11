@@ -17,6 +17,8 @@ private:
 
     // Pointer to the dialog window that will be created in the constructor
     WINDOW* dialogWindow;
+
+    void battleContextLoop();
 };
 
 #endif

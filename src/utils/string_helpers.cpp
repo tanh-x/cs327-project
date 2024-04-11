@@ -45,3 +45,28 @@ std::vector<std::string> splitString(const std::string &s, char delimiter) {
 
     return result;
 }
+
+
+std::string unkebabString(const std::string &kebab) {
+    if (kebab.empty()) return "";
+
+    std::string result;
+    bool capitalizeNext = true;
+    for (char ch: kebab) {
+        if (ch == '-') {
+            result += ' ';
+            capitalizeNext = true;
+            continue;
+        }
+
+        if (!capitalizeNext) {
+            result += ch;
+            continue;
+        }
+
+        result += std::toupper(ch);
+        capitalizeNext = false;
+    }
+
+    return result;
+}

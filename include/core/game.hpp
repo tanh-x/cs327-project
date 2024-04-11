@@ -7,6 +7,8 @@
 // The main game loop.
 void gameLoop();
 
+void initialLaunchWindow();
+
 // Set up the current map (as determined by player global position) for gameplay.
 // Must be called whenever the map changes
 void setupGameOnMapLoad(MapEntryProps entryProps);

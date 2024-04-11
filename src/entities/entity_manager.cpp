@@ -3,6 +3,9 @@
 #include "entities/entity_types/player_vessel.hpp"
 #include "entities/pathfinding.hpp"
 
+#define NEXT_POKEMON_EXP_PROBABILITY 0.6f
+#define TRAINER_MAX_POKEMON 6
+
 // Initializes a new EntityManager and assign it to the game->currentEntManager pointer, and also returns it.
 // Should be called when loading a new map.
 EntityManager::EntityManager() {
@@ -125,9 +128,26 @@ void EntityManager::spawnTrainers(Map* map, int numTrainers) {
 
             // If all previous checks were successful, then try spawning a new NPC
             entity = CorporealEntity::spawnNpc(entType, x, y);
-            if (entity != nullptr) addEntity(entity);
-            // spawnEntity might return NULL, indicating an unsuccessful placement
-            // if so then entity = nullptr and we try again
+
+            // spawnEntity might return nullptr, indicating an unsuccessful placement
+            // if so then entity = nullptr, so we try again
+            if (entity == nullptr) continue;
+
+            // Otherwise we can safely add this entity onto the world
+            addEntity(entity);
+
+            // Now, we need to give them Pokemon
+            do {
+                entity->pokemonInventory.push_back(Pokemon::generateWildPokemon(
+                    GAME.database,
+                    manhattanDist(map->globalX, map->globalY, 0, 0),
+                    map->menaceLevel
+                ));
+            } while (
+                // With 60% exponential probability
+                proba() < NEXT_POKEMON_EXP_PROBABILITY
+                // And only if they have less than 6 pokemon
+                && entity->pokemonInventory.size() < TRAINER_MAX_POKEMON);
         }
 
         // If we already went through MAX_ITERATIONS and entity is still NULL, give up
