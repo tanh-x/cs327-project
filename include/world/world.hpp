@@ -3,7 +3,7 @@
 
 #include "mapbuilder.hpp"
 #include "utils/mathematics.hpp"
-#include "core/constants.hpp"
+#include "core/constants/primary.hpp"
 
 typedef struct {
     Map* maps[WORLD_HEIGHT][WORLD_WIDTH];
@@ -24,6 +24,8 @@ int globalHashFunction(int x, int y, int worldSeed);
 
 // Wrapper around the hash function for more convenient usage
 int hashWithMapCardinalDir(int mapX, int mapY, CardinalDir dir, int worldSeed);
+
+int getEccentricity(int globalX, int globalY);
 
 void disposeWorld(World* world);
 

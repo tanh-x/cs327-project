@@ -6,7 +6,7 @@
 #include "graphics/artist.hpp"
 #include "context/ctx_main.hpp"
 #include "deserialization/deserializers.hpp"
-
+#include "core/constants/text.hpp"
 
 GameManager GAME;
 GameOptions OPTIONS;
@@ -17,6 +17,9 @@ int main(int argc, char* argv[]) {
     bool doBadApple = false;
     int numTrainers = 8;
     int frameTimeMicros = 1000000 / 60;
+
+    printf(TITLE_POKE327_COLORED_GENERATED);
+    printf("Loading game...\n\n");
 
     // Parse arguments
     for (int i = 1; i < argc; i++) {
@@ -52,6 +55,9 @@ int main(int argc, char* argv[]) {
     GAME.quit_game = false;
     GAME.context = new MainContext();
 
+    // Initialize the database
+    GAME.database = new PokemonDatabase();
+
     // Create a player
     Player player;
     player.globalX = 0;
@@ -78,7 +84,7 @@ int main(int argc, char* argv[]) {
     // Overrides for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
     map->name = "PALLET TOWN";
-map->wildernessLevel = 0.1025;
+    map->wildernessLevel = 0.1025;
     map->menaceLevel = 10;
 
     // Generate the first map outside the game loop, prevents it from regenerating in the game loop.
@@ -101,6 +107,8 @@ map->wildernessLevel = 0.1025;
 
     // Enter game loop
     gameLoop();
+
+    printf("Shutting down game...");
 
     // Clean up
     GAME.currentEntManager = nullptr;

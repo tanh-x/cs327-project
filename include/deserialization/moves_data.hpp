@@ -5,7 +5,7 @@
 #include <utility>
 #include "abstract_deserializable.hpp"
 
-#define MOVE_DATA_CSV_NAME "movesTable.csv"
+#define MOVE_DATA_CSV_NAME "moves.csv"
 
 class MovesData : public AbstractDeserializable {
 public:

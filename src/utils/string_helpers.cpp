@@ -40,5 +40,8 @@ std::vector<std::string> splitString(const std::string &s, char delimiter) {
 
     while (std::getline(stream, item, delimiter)) result.push_back(item);
 
+    // Check if the last character of the input string is the delimiter
+    if (!s.empty() && s.back() == delimiter) result.push_back("");
+
     return result;
 }

@@ -21,24 +21,46 @@ PokemonDatabase::PokemonDatabase() {
 
 
     // Load some parsed vectors into hashmaps/tables as lookup indices
-    for (const auto &species: parsedSpecies) speciesTable[species->id] = species;
     for (const auto &stats: parsedStats) statsTable[stats->id] = stats;
     for (const auto &move: parsedMoves) movesTable[move->id] = move;
+    for (const auto &species: parsedSpecies) {
+        speciesTable[species->id] = species;
+    }
 
-//    std::unordered_map<int, std::shared_ptr<PokemonMovesRelation>> movesRelationTable;
-//    std::unordered_map<int, std::shared_ptr<PokemonStatsRelation>> statsRelationTable;
-
-    // "Left join" the species table with the Pokemon table
+    // "Left join" the species table onto the Pokemon table
     for (const std::shared_ptr<PokemonData> &pokemon: parsedPokemon) {
         // Put the pokemon into the table
         pokemonTable[pokemon->id] = pokemon;
 
         // Look up and get the species data from the index
-        pokemon->speciesData = speciesTable[pokemon->speciesId];
+        pokemon->speciesData = speciesTable.at(pokemon->speciesId);
+
+        // Also handle the transpose association
+        pokemon->speciesData->associatedPokemon.push_back(pokemon);
     }
 
+    // "Left join" the stats table onto the Pokemon table
     for (const std::shared_ptr<PokemonStatsRelation> &statsRelation: parsedStatsRelation) {
+        std::shared_ptr<PokemonData> pokemon = pokemonTable.at(statsRelation->pokemonId);
+        pokemon->statsTable[statsRelation->statId] = statsRelation;
+    }
+
+    // "Left join" the moves table onto the Pokemon table, matching on pokemon.species_id
+    for (const std::shared_ptr<PokemonMovesRelation> &moveRelation: parsedMovesRelation) {
+        // Get all associated Pokemon from the transpose association map
+        try {
+            std::shared_ptr<PokemonSpeciesData> species = speciesTable.at(moveRelation->pokemonId);
+            // Add this move to all of those Pokemon's move table
+            for (const std::shared_ptr<PokemonData> &pokemon: species->associatedPokemon) {
+                pokemon->movesTable[moveRelation->moveId] = moveRelation;
+            }
+        } catch (const std::out_of_range& unused) {
+            // Fallback if unable to match with species table
+            std::shared_ptr<PokemonData> pokemon = pokemonTable.at(moveRelation->pokemonId);
+            pokemon->movesTable[moveRelation->moveId] = moveRelation;
+        }
 
     }
 
+    // We're probably done here
 }

@@ -1,5 +1,4 @@
 .idea/
-*.py
 cmake-build-debug/
 .clang-tidy
 **.o

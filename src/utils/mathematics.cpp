@@ -80,5 +80,5 @@ int manhattanDist(int x1, int y1, int x2, int y2) {
 }
 
 float getBaseNumTrainers(float wilderness) {
-    return (-8.86f * wilderness + 5.125f) / (4.93f * wilderness - 0.05f);
+    return minf(16.0f, (-8.86f * wilderness + 5.125f) / (4.93f * wilderness - 0.05f));
 }

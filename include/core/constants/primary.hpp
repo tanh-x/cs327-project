@@ -35,38 +35,6 @@
 // Miscellaneous constants
 #define ESCAPE_KEY 27
 
-#define TRAINER_NAMES { \
-    "Misty", \
-    "Brock", \
-    "Lance", \
-    "Blue", \
-    "Cynthia", \
-    "Steven", \
-    "Giovanni", \
-    "Sabrina", \
-    "Erika", \
-    "Koga", \
-    "Lt. Surge", \
-    "Jessie", \
-    "James", \
-    "May", \
-    "Dawn", \
-    "Serena", \
-    "Lillie", \
-    "Gladion", \
-    "Hilda", \
-    "Hilbert", \
-    "Bianca", \
-    "Cheren", \
-    "Iris", \
-    "Calem", \
-    "Lysandre", \
-    "Leon", \
-    "Raihan" \
-}
-
-#define NUM_TRAINER_NAMES 27
-
 #define STD_SLOW_FRAME_DELAY 200
 #define INTERVAL_60FPS_MICROS 16667
 #define INTERVAL_30FPS_MICROS 33333

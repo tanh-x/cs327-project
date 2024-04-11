@@ -9,6 +9,7 @@
 #include "entities/entity_types/wanderer.hpp"
 #include "entities/entity_types/sentry.hpp"
 #include "entities/entity_types/explorer.hpp"
+#include "core/constants/text.hpp"
 
 #define DEFAULT_IDLE_COST 8
 

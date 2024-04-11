@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include "world/world.hpp"
+#include "core/game.hpp"
 
 #define b 0xDEFCBA9
 #define p1 963676709
@@ -75,4 +76,8 @@ void disposeWorld(World* world) {
             map = nullptr;
         }
     }
+}
+
+int getEccentricity(int globalX, int globalY) {
+    return GAME.world->eccentricity[globalY + WORLD_Y_SPAN][globalX + WORLD_X_SPAN];
 }

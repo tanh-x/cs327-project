@@ -9,6 +9,7 @@
 #include "entities/entity_manager.hpp"
 
 #define BATTLE_INITIATION_COOLDOWN 24
+#define NPC_BATTLE_INITIATION_PROBABILITY 0.33f
 
 // The main game loop
 void gameLoop() {
@@ -40,8 +41,9 @@ void gameLoop() {
             // If the entity is near the player, and they haven't been defeated, and there isn't an active cooldown
             if (actor->activeBattle
                 && max(abs(actor->mapX - player->mapX), abs(actor->mapY - player->mapY)) <= 1
-                && entManager->eventTime >= entManager->nextBattleInitiationTime) {
-
+                && entManager->eventTime >= entManager->nextBattleInitiationTime
+                // Only enter the battle with 33% probability
+                && proba() < NPC_BATTLE_INITIATION_PROBABILITY) {
                 // Render the game before entering battle
                 renderGameUpdate();
                 usleep(STD_SLOW_FRAME_DELAY);
@@ -102,8 +104,10 @@ void setupGameOnMapLoad(MapEntryProps entryProps) {
     if (map->entityManager == nullptr) {
         map->entityManager = new EntityManager();
         int numTrainers = static_cast<int>(
-            getBaseNumTrainers(map->wildernessLevel) + randomFloat(-1.5f, 0.825f)
+            getBaseNumTrainers(map->wildernessLevel)
+            + randomFloat(-1.5f, 0.825f)
         );
+        if (getEccentricity(map->globalX, map->globalY) > SALIENCY_THRESHOLD) numTrainers += SALIENT_MAP_TRAINER_BONUS;
         map->entityManager->spawnTrainers(map, numTrainers);
     }
 

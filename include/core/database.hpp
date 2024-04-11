@@ -7,6 +7,7 @@
 #include "deserialization/pokemon_data.hpp"
 
 class PokemonDatabase {
+public:
     // The main pokemon table
     std::unordered_map<int, std::shared_ptr<PokemonData>> pokemonTable;
 

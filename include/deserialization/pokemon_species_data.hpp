@@ -7,6 +7,8 @@
 
 #define POKEMON_SPECIES_DATA_CSV_NAME "pokemon_species.csv"
 
+class PokemonData;
+
 class PokemonSpeciesData : public AbstractDeserializable {
 public:
     int id;
@@ -29,6 +31,9 @@ public:
     bool isMythical;
     int order;
     int conquestOrder;
+
+    // It's helpful to maintain a list of Pokemon associated with this species
+    std::vector<std::shared_ptr<PokemonData>> associatedPokemon {};
 
     PokemonSpeciesData(
         int id,

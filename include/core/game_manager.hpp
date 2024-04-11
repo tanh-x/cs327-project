@@ -8,6 +8,7 @@
 #include "context/abstract_context.hpp"
 #include "entities/entity_manager.hpp"
 #include "deserialization/pokemon_data.hpp"
+#include "database.hpp"
 
 // Stores the game options, specified via arguments passed by the user.
 typedef struct {
@@ -28,6 +29,7 @@ typedef struct GameManager {
     Player* player;
     EntityManager* currentEntManager;
     AbstractContext* context;
+    PokemonDatabase* database;
     bool quit_game;
 } GameManager;
 

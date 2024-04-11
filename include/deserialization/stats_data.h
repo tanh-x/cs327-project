@@ -4,7 +4,7 @@
 #include <string>
 #include "abstract_deserializable.hpp"
 
-#define STATS_DATA_CSV_NAME "statsTable.csv"
+#define STATS_DATA_CSV_NAME "stats.csv"
 
 class StatsData : public AbstractDeserializable {
 public:

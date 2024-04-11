@@ -81,7 +81,7 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
                 for (int zy = mapY; zy < min(mapY + zoom, WORLD_Y_SPAN + 1); zy++) {
                     // Get the map at this position
                     map = world->maps[zy + WORLD_Y_SPAN][zx + WORLD_X_SPAN];
-                    mapEccentricity = world->eccentricity[zy + WORLD_Y_SPAN][zx + WORLD_X_SPAN];
+                    mapEccentricity = getEccentricity(zx, zy);
 
                     // Compute a bunch of bools to figure out what colorId and character to use
                     isExplored |= map != nullptr;
@@ -190,9 +190,14 @@ void WorldMapContext::worldMapEntry() {
             // Add the wilderness level display
             float wildernessStepLevel = maxf(0.0f, pivotedMap->wildernessLevel * 92.5f - 3.45f);
             float wildernessTwoSigfig = roundf(pivotedMap->wildernessLevel * 10000) / 100;
-            mvwaddstr(window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: ");
-            mvwaddstr(window, FOOTER_OFFSET + 3, mapInfoOffset + 13,
-                      std::to_string(wildernessTwoSigfig).substr(0, 4).c_str());
+            mvwaddstr(
+                window, FOOTER_OFFSET + 3, mapInfoOffset + 1,
+                "WILDERNESS: "
+            );
+            mvwaddstr(
+                window, FOOTER_OFFSET + 3, mapInfoOffset + 13,
+                std::to_string(wildernessTwoSigfig).substr(0, 4).c_str()
+            );
             waddch(window, '%');
             sequentialColoredBar(
                 this, mapInfoOffset + 1, FOOTER_OFFSET + 4,
@@ -201,11 +206,7 @@ void WorldMapContext::worldMapEntry() {
             );
         } else {
             // Get computed menace level for non-generated map
-            menace = getMenaceLevel(
-                pivotX, pivotY,
-                world->eccentricity[pivotY + WORLD_Y_SPAN][pivotX + WORLD_X_SPAN],
-                world->worldSeed
-            );
+            menace = getMenaceLevel(pivotX, pivotY, float(getEccentricity(pivotX, pivotY)), world->worldSeed);
 
             // Clear the wilderness section
             spaces(this, mapInfoOffset, FOOTER_OFFSET + 3, MAP_INFO_WIDTH - 2);
@@ -217,10 +218,14 @@ void WorldMapContext::worldMapEntry() {
         spaces(this, mapInfoOffset, FOOTER_OFFSET + 2, MAP_INFO_WIDTH - 2);
 
         float menaceStepLevel = sqrtf(1.7f * menace) - 3;
-        mvwaddstr(window, FOOTER_OFFSET + 1, mapInfoOffset + 1, "MENACE: ");
-        mvwaddstr(window, FOOTER_OFFSET + 1, mapInfoOffset + 9,
-                  std::to_string(static_cast<int>(menaceStepLevel) + 1).c_str());
-//                    std::to_string(menaceStepLevel).c_str());
+        mvwaddstr(
+            window, FOOTER_OFFSET + 1, mapInfoOffset + 1,
+            "MENACE: "
+        );
+        mvwaddstr(
+            window, FOOTER_OFFSET + 1, mapInfoOffset + 9,
+            std::to_string(static_cast<int>(menaceStepLevel) + 1).c_str()
+        );
 
         // Draw the colored bar for menace level
         sequentialColoredBar(

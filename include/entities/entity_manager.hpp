@@ -3,7 +3,7 @@
 
 #include <array>
 #include "vector"
-#include "core/constants.hpp"
+#include "core/constants/primary.hpp"
 #include "abstract_entity.hpp"
 #include "utils/heap.h"
 #include "entities/entity_types/player_vessel.hpp"
