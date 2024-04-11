@@ -30,6 +30,7 @@ typedef struct GameManager {
     EntityManager* currentEntManager;
     AbstractContext* context;
     PokemonDatabase* database;
+    std::vector<std::shared_ptr<Pokemon>> pokemonInventory;
     bool quit_game;
 } GameManager;
 

@@ -9,6 +9,7 @@
 #include "context/ctx_battle_view.hpp"
 #include "context/components/animations.hpp"
 #include "utils/string_helpers.hpp"
+#include "entities/entity_types/pokemon_vessel.hpp"
 
 #define INITIAL_LAUNCH_WINDOW_HEIGHT 12
 #define INITIAL_LAUNCH_WINDOW_WIDTH 32
@@ -85,6 +86,31 @@ void gameLoop() {
 
         // Keep calling handlePlayerInput until it returns true
         while (!handlePlayerInput());
+
+        // TODO: bad
+        if (map->tileset[player->mapY][player->mapX].type == TileType::TALL_GRASS
+            && proba() < map->wildernessLevel) {
+            // Start wild pokemon battle
+
+            PokemonVessel* pokemon = new PokemonVessel(Pokemon::generateWildPokemon(
+                GAME.database,
+                manhattanDist(map->globalX, map->globalY, 0, 0),
+                map->menaceLevel
+            ));
+
+            // Render the game before entering battle_opponent
+            renderGameUpdate();
+            usleep(STD_SLOW_FRAME_DELAY);
+
+            // Then enter the battle_opponent
+            auto* battleCtx = new BattleViewContext(GAME.context, pokemon);
+            battleCtx->start();
+            // Blocking call until the battle_opponent is finished
+
+            // Do another render when we're done
+            clear();
+            renderGameUpdate();
+        }
 
         // Render the game after handling the player event
         renderGameUpdate();
@@ -276,7 +302,7 @@ void initialLaunchWindow() {
                 if (selection < 0 || selection >= NUM_POKEMON_SELECTION) continue;
                 // Add the Pokemon to the player's Pokemon inventory
                 auto newPokemon = std::make_shared<Pokemon>(database, pokemonSelections[selection], 1);
-                GAME.player->currentEntity->pokemonInventory.push_back(newPokemon);
+                GAME.pokemonInventory.push_back(newPokemon);
                 delwin(newWindow);
                 renderGameUpdate();
                 return;

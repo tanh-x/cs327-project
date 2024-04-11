@@ -137,3 +137,10 @@
     Afternoon:
     - Added more attributes to each map for spawn
     - World map displays more information
+    Evening:
+    - Generated Pokemon
+    - Improved generation based on map properties
+    - Fully completed "backend" of pokemon
+    - Made GUI for player selection
+    - Made placeholder GUI for pokemon list
+

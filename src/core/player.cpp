@@ -16,7 +16,6 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
     // Normal movement is already handled within attemptMove()
     if (scenario == EncounterScenario::STANDARD) return;
 
-
     // Check if the player can go to an adjacent map
     if (scenario == EncounterScenario::BORDER_APPROACH) {
         Map* map = GAME.world->current;

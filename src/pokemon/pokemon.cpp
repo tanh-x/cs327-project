@@ -53,6 +53,7 @@ Pokemon::Pokemon(PokemonDatabase* database, const std::shared_ptr<PokemonData> &
     // Otherwise, shuffle and take the first two
     std::shuffle(filteredMoves.begin(), filteredMoves.end(), std::default_random_engine(time(nullptr)));
 
+    // Then add it to the moveset
     for (int i = 0; i < MAX_MOVES; i++) {
         int moveId = filteredMoves[i].second->moveId;
         moveSet.push_back(database->movesTable.at(moveId));
@@ -67,7 +68,7 @@ int Pokemon::leveledStat(int base, int level) {
     return (base * 2 * level / 100) + 5;
 }
 
-std::string Pokemon::name() {
+std::string Pokemon::name() const {
     return unkebabString(data->identifier);
 }
 
@@ -85,6 +86,31 @@ std::shared_ptr<Pokemon> Pokemon::generateWildPokemon(
     int minLevel = clamp((localManhattanDist - 200) / 2, 1, MAX_POKEMON_LEVEL);
     int level = randomInt(minLevel, maxLevel);
     level += static_cast<int>(localMenaceLevel * randomFloat(0.3f, 2.65f));
+    level = clamp(level, minLevel, maxLevel);
 
     return std::make_shared<Pokemon>(database, data, level);
+}
+
+std::string Pokemon::toString() const {
+    std::ostringstream oss;
+    oss << name() << " "
+        << "Lv. " << level << " "
+        << "HP: " << leveledHp(baseMaxHp, level) << ", "
+        << "ATK: " << leveledStat(baseAttack, level) << ", "
+        << "DEF: " << leveledStat(baseDefense, level) << ", "
+        << "SATK: " << leveledStat(baseSpecialAttack, level) << ", "
+        << "SDEF: " << leveledStat(baseSpecialDefense, level) << ", "
+        << "SPD: " << leveledStat(baseSpeed, level) << "\n"
+        << "│ Moves: ";
+
+    for (const auto &move: moveSet) {
+        if (move) oss << unkebabString(move->identifier) << ", ";
+    }
+
+    // Remove the trailing comma
+    std::string result = oss.str();
+    if (!moveSet.empty())
+        result = result.substr(0, result.size() - 2);
+
+    return result;
 }

@@ -19,6 +19,7 @@ private:
     WINDOW* dialogWindow;
 
     void battleContextLoop();
+    void redrawWindow();
 };
 
 #endif

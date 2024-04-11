@@ -11,7 +11,8 @@ enum class EntityEnum {
     PACER,
     WANDERER,
     SENTRY,
-    EXPLORER
+    EXPLORER,
+    POKEMON_VESSEL
 };
 
 #endif

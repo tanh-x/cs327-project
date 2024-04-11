@@ -10,7 +10,7 @@ class Pokemon {
 public:
     std::shared_ptr<PokemonData> data;
     std::vector<std::shared_ptr<MovesData>> moveSet;
-    std::string name();
+    std::string name() const;
 
     int level;
     bool isShiny;
@@ -37,6 +37,8 @@ public:
         int localManhattanDist,
         float localMenaceLevel
     );
+
+    std::string toString() const;
 };
 
 #endif

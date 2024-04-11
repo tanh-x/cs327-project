@@ -1,7 +1,6 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│ Parses CSV files into structs with commands given in the specifications.     │
-│ The code for parsing each file is in [include|src]/deserialization.          │
+│ Generates Pokemon and displays their information in placeholder battles.     │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 

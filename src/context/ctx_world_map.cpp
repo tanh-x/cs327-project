@@ -193,7 +193,7 @@ void WorldMapContext::worldMapEntry() {
             float wildernessStepLevel = maxf(0.0f, pivotedMap->wildernessLevel * 92.5f - 3.45f);
             float wildernessTwoSigfig = roundf(pivotedMap->wildernessLevel * 10000) / 100;
             mvwprintw(
-                window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: %s%",
+                window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: %s%%",
                 std::to_string(wildernessTwoSigfig).substr(0, 4).c_str()
 
             );

@@ -9,6 +9,7 @@ enum class ContextType : uint8_t {
     BUILDING_CONTEXT,
     TRAINER_LIST_CONTEXT,
     WORLD_MAP_CONTEXT,
+    POKEMON_INSPECT_CONTEXT
 };
 
 #endif

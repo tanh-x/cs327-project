@@ -6,6 +6,7 @@
 #include "context/components/animations.hpp"
 #include "context/components/elements.hpp"
 #include "utils/string_helpers.hpp"
+#include "context/ctx_pokemon_inspect.hpp"
 
 #define FOOTER_SIZE 5
 #define FOOTER_OFFSET (WINDOW_HEIGHT - FOOTER_SIZE - 1)
@@ -57,7 +58,11 @@ BattleViewContext::BattleViewContext(
     box(dialogWindow, 0, 0);
 
     // Print out text to the dialog window
-    mvwprintw(dialogWindow, 1, 1, "%s wants to fight!", opponent->name);
+    if (opponent->type == EntityEnum::POKEMON_VESSEL) {
+        mvwprintw(dialogWindow, 1, 1, "A wild %s appears!", opponent->pokemonInventory[0]->name().c_str());
+    } else {
+        mvwprintw(dialogWindow, 1, 1, "%s wants to fight!", opponent->name);
+    }
 
     // Print the pokemon list
     std::string pokemonList;
@@ -99,9 +104,7 @@ void BattleViewContext::start() {
 void BattleViewContext::battleContextLoop() {
     int sectionOffset = dimensions.width - PROMPT_ACTION_WIDTH + 1;
 
-    // Fix the separator
-    horizontalSeparator(this, 0, FOOTER_OFFSET, WINDOW_WIDTH);
-    verticalSeparator(this, sectionOffset - 1, FOOTER_OFFSET, FOOTER_SIZE + 1);
+    redrawWindow();
 
     int prompt = 0;
     std::string mainActions[] = {"FIGHT", "BAG", "POKEMON", "RUN (butchers the NPC)"};
@@ -109,7 +112,6 @@ void BattleViewContext::battleContextLoop() {
 
     // Only accepts ESC to exit, no other keys are handled.
     while (true) {
-
         for (int line = 0; line < PROMPT_ACTIONS; line++) {
             std::string lineStr =
                 (prompt == line ? "> " : "  ")
@@ -150,8 +152,25 @@ void BattleViewContext::battleContextLoop() {
                     // BAG
 
                 } else if (prompt == 2) {
-                    // POKEMON
-
+                    auto playerPokemon = GAME.pokemonInventory;
+                    auto opponentPokemon = opponent->pokemonInventory;
+                    int i;
+                    for (i = 0; i < playerPokemon.size(); i++) {
+                        auto pokemon = playerPokemon[i];
+                        mvwaddstr(window, i * 2 + 1, 1, pokemon->toString().c_str());
+                    }
+                    for (int k = 0; k < opponentPokemon.size(); k++) {
+                        auto pokemon = opponentPokemon[k];
+                        mvwaddstr(window, (i + k) * 2 + 1, 1, pokemon->toString().c_str());
+                    }
+//                    // POKEMON
+//                    auto* inspectContext = new PokemonInspectContext(
+//                        this,
+//                        opponent->pokemonInventory
+//                    );
+//                    inspectContext->start();
+//                    redrawWindow();
+//                    continue;
                 } else if (prompt == 3) {
                     // RUN
                     return;
@@ -159,6 +178,12 @@ void BattleViewContext::battleContextLoop() {
             }
         }
     }
+}
+
+void BattleViewContext::redrawWindow() {
+    box(window, 0, 0);
+    horizontalSeparator(this, 0, FOOTER_OFFSET, WINDOW_WIDTH);
+    verticalSeparator(this, WINDOW_WIDTH - PROMPT_ACTION_WIDTH + 1, FOOTER_OFFSET, FOOTER_SIZE + 1);
 }
 
 
