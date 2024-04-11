@@ -75,7 +75,10 @@ float signumf(float x) {
     return 0.0f;
 }
 
-
 int manhattanDist(int x1, int y1, int x2, int y2) {
     return abs(x2 - x1) + abs(y2 - y1);
+}
+
+float getBaseNumTrainers(float wilderness) {
+    return (-8.86f * wilderness + 5.125f) / (4.93f * wilderness - 0.05f);
 }

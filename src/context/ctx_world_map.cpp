@@ -226,7 +226,7 @@ void WorldMapContext::worldMapEntry() {
         sequentialColoredBar(
             this, mapInfoOffset + 1, FOOTER_OFFSET + 2,
             SEQUENTIAL_BAR_SEGMENTS, menaceStepLevel,
-            RDYLGN10_PALETTE_OFFSET, RDYLGN10_PALETTE_COUNT
+            GISTNCAR_PALETTE_OFFSET, GISTNCAR_PALETTE_COUNT
         );
 
         // We're done with the footer, so render it

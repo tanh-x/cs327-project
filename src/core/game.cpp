@@ -101,7 +101,10 @@ void setupGameOnMapLoad(MapEntryProps entryProps) {
     // Generate a new entity manager if needed
     if (map->entityManager == nullptr) {
         map->entityManager = new EntityManager();
-        map->entityManager->spawnTrainers(map, OPTIONS.numTrainers);
+        int numTrainers = static_cast<int>(
+            getBaseNumTrainers(map->wildernessLevel) + randomFloat(-1.5f, 0.825f)
+        );
+        map->entityManager->spawnTrainers(map, numTrainers);
     }
 
     // Load in the new map's entity manager

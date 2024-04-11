@@ -5,8 +5,8 @@
 #include <memory>
 #include <fstream>
 #include "deserializers.hpp"
+#include "utils/files.hpp"
 
-#define VERBOSE_CSV_PARSING true
 #define COLUMN_SEPARATOR "\t| "
 #define MAX_STRING_COLUMN_WIDTH 20
 
@@ -23,7 +23,7 @@ protected:
 
 
 template<typename T>
-std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName) {
+std::vector<std::shared_ptr<T>> loadFromCsv(const std::string &csvFileName, bool verbose) {
     // Assert the covariance property
     static_assert(
         std::is_base_of_v<AbstractDeserializable, T>,
@@ -32,12 +32,12 @@ std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName) {
 
     // Find the corresponding .csv file
     auto file = std::ifstream(findCsvFile(csvFileName));
-    std::vector<std::unique_ptr<T>> result;
+    std::vector<std::shared_ptr<T>> result;
 
     // Get the first line of the CSV, which is the header line
     std::string line;
     getline(file, line);
-    if (VERBOSE_CSV_PARSING) printf("\n\n");  // NOLINT
+    if (verbose) printf("\n\n");  // NOLINT
 
     // Read through every line in the .csv
     while (getline(file, line)) {
@@ -48,10 +48,10 @@ std::vector<std::unique_ptr<T>> loadFromCsv(const std::string &csvFileName) {
         if (entry == nullptr) continue;
 
         // Add the object to the result vector
-        result.push_back(std::unique_ptr<T>(entry));
+        result.push_back(std::shared_ptr<T>(entry));
 
         // Also print it out if specified
-        if (VERBOSE_CSV_PARSING) entry->printSelf();  // NOLINT
+        if (verbose) entry->printSelf();  // NOLINT
     }
 
     return result;

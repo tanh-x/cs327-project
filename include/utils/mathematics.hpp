@@ -59,4 +59,6 @@ typedef struct {
     int height;
 } Rect2D;
 
+float getBaseNumTrainers(float wilderness);
+
 #endif

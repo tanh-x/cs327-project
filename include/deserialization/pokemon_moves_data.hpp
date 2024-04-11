@@ -3,10 +3,11 @@
 
 #include <string>
 #include "abstract_deserializable.hpp"
+#include "moves_data.hpp"
 
 #define POKEMON_MOVES_DATA_CSV_NAME "pokemon_moves.csv"
 
-class PokemonMovesData : public AbstractDeserializable {
+class PokemonMovesRelation : public AbstractDeserializable {
 public:
     int pokemonId;
     int versionGroupId;
@@ -15,7 +16,11 @@ public:
     int level;
     int order;
 
-    PokemonMovesData(
+    // An entry from pokemon_moves.csv is a relation entity between a Pokemon and a move.
+    // Hence, we store the pointer to the move that this relation is referring to.
+    std::shared_ptr<MovesData> moveEntry = nullptr;
+
+    PokemonMovesRelation(
         int pokemonId,
         int versionGroupId,
         int moveId,
@@ -32,7 +37,7 @@ public:
 
     void printSelf() const override;
 
-    [[maybe_unused]] static PokemonMovesData* deserialize(const std::string &line);
+    [[maybe_unused]] static PokemonMovesRelation* deserialize(const std::string &line);
 };
 
 

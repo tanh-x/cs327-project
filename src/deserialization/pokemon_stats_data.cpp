@@ -3,7 +3,7 @@
 #include "utils/string_helpers.hpp"
 #include "deserialization/deserializers.hpp"
 
-void PokemonStatsData::printSelf() const {
+void PokemonStatsRelation::printSelf() const {
     std::cout
         << toStringOrDefault(pokemonId) << COLUMN_SEPARATOR
         << toStringOrDefault(statId) << COLUMN_SEPARATOR
@@ -12,7 +12,7 @@ void PokemonStatsData::printSelf() const {
         << std::endl;
 }
 
-[[maybe_unused]] PokemonStatsData* PokemonStatsData::deserialize(const std::string &line) {
+[[maybe_unused]] PokemonStatsRelation* PokemonStatsRelation::deserialize(const std::string &line) {
     std::vector<std::string> tokens = splitString(line, ',');
 
     if (tokens.size() != 4) return nullptr;
@@ -22,5 +22,5 @@ void PokemonStatsData::printSelf() const {
     int baseStat = toIntOrDefault(tokens[2]);
     int effort = toIntOrDefault(tokens[3]);
 
-    return new PokemonStatsData(pokemonId, statId, baseStat, effort);
+    return new PokemonStatsRelation(pokemonId, statId, baseStat, effort);
 }

@@ -2,7 +2,7 @@
 #include "deserialization/pokemon_moves_data.hpp"
 #include "utils/string_helpers.hpp"
 
-void PokemonMovesData::printSelf() const {
+void PokemonMovesRelation::printSelf() const {
     // @formatter:off
     std::cout
         << toStringOrDefault(pokemonId)             << COLUMN_SEPARATOR
@@ -15,7 +15,7 @@ void PokemonMovesData::printSelf() const {
     // @formatter:on
 }
 
-[[maybe_unused]] PokemonMovesData* PokemonMovesData::deserialize(const std::string &line) {
+[[maybe_unused]] PokemonMovesRelation* PokemonMovesRelation::deserialize(const std::string &line) {
     std::vector<std::string> tokens = splitString(line, ',');
 
     if (tokens.size() != 6) return nullptr;
@@ -29,5 +29,5 @@ void PokemonMovesData::printSelf() const {
     int order                   = toIntOrDefault(tokens[5]);
     // @formatter:on
 
-    return new PokemonMovesData(pokemonId, versionGroupId, moveId, pokemonMoveMethodId, level, order);
+    return new PokemonMovesRelation(pokemonId, versionGroupId, moveId, pokemonMoveMethodId, level, order);
 }

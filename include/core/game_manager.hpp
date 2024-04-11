@@ -1,11 +1,13 @@
 #ifndef GAME_MANAGER_H
 #define GAME_MANAGER_H
 
+#include <unordered_map>
 #include "world/world.hpp"
 #include "player.hpp"
 #include "game.hpp"
 #include "context/abstract_context.hpp"
 #include "entities/entity_manager.hpp"
+#include "deserialization/pokemon_data.hpp"
 
 // Stores the game options, specified via arguments passed by the user.
 typedef struct {
