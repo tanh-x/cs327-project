@@ -4,7 +4,7 @@
 #include "entities/pathfinding.hpp"
 #include "entities/entity_types//wanderer.hpp"
 
-Wanderer::Wanderer(int x, int y) : AbstractEntity(EntityEnum::WANDERER, x, y) {
+Wanderer::Wanderer(int x, int y) : CorporealEntity(EntityEnum::WANDERER, x, y) {
     this->birthplace = GAME.world->current->tileset[y][x].type;
     this->walk.x = randomInt(-1, 1);
     this->walk.y = randomInt(-1, 1);

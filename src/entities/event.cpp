@@ -11,7 +11,7 @@ int eventComparator(const void* event, const void* other) {
 // Resolves the event by carrying out the specified action.
 // Called on the event when it is polled from the event queue.
 void resolveEvent(Event* event) {
-    AbstractEntity* entity = event->actor;
+    CorporealEntity* entity = event->actor;
     switch (event->type) {
         case MOVEMENT: entity->moveBy(event->dx, event->dy);
             break;
@@ -26,7 +26,7 @@ void disposeEvent(void* event) {
 }
 
 // Instantiates an IDLE event.
-Event* constructIdleEvent(AbstractEntity* entity, int cost) {
+Event* constructIdleEvent(CorporealEntity* entity, int cost) {
     auto* event = static_cast<Event*>(malloc(sizeof(Event)));
     event->type = IDLE;
     event->dx = 0;

@@ -6,7 +6,7 @@
 #include "utils/mathematics.hpp"
 
 // Contexts are different stages of the game. The functionality of the game is different depending on whether
-// we're in normal gameplay, a battle, or navigating a menu. Contexts are invoked by a constructor call, which
+// we're in normal gameplay, a battle_opponent, or navigating a menu. Contexts are invoked by a constructor call, which
 // initializes the context. The caller MUST then invoke Context::start() to begin operation of the context window.
 // Not calling Context::start() *may* result in undefined behaviour, as there can potentially be side effects that
 // have already been made during the constructor call.

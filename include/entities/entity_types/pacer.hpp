@@ -2,10 +2,10 @@
 #define PACER_H
 
 #include "utils/mathematics.hpp"
-
+#include "entities/corporeal_entity.hpp"
 
 // Pacers walk in one direction, then turn the opposite way if they hit an uncrossable tile
-class Pacer : public AbstractEntity {
+class Pacer : public CorporealEntity {
 public:
     Pacer(int x, int y);
 

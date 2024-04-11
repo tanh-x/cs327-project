@@ -21,23 +21,23 @@ public:
 
     // Frees all dynamically allocated memory associated with the EntityManager, which includes:
     // * The eventQueue heap
-    // * The 2D AbstractEntity array
+    // * The 2D CorporealEntity array
     ~EntityManager();
 
     int eventTime;
 
-    // Used to prevent NPCs from spamming too many battle initiations with the player
+    // Used to prevent NPCs from spamming too many battle_opponent initiations with the player
     int nextBattleInitiationTime;
 
     // List of entities
-    std::vector<AbstractEntity*> entities;
+    std::vector<CorporealEntity*> entities;
 
     // Pointer to the unique player vessel entity in the entity manager
     PlayerVessel* vesselEntity;
 
-    // A 2D array of nullable AbstractEntity pointers, which allows the game to know whether there's an entity at a specific
+    // A 2D array of nullable CorporealEntity pointers, which allows the game to know whether there's an entity at a specific
     // position on the map. The 2D array has the same capacity as the map.
-    std::array<std::array<AbstractEntity*, MAP_WIDTH>, MAP_HEIGHT> entMap {};
+    std::array<std::array<CorporealEntity*, MAP_WIDTH>, MAP_HEIGHT> entMap {};
 
     // A heap that contains queued Event objects, sorted by the time at which they will be resolved.
     heap_t* eventQueue;
@@ -46,7 +46,7 @@ public:
 
     void fillFirstTurns();
 
-    void addEntity(AbstractEntity* entity);
+    void addEntity(CorporealEntity* entity);
 
     void spawnTrainers(Map* map, int numTrainers);
 

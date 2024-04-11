@@ -11,7 +11,7 @@ EntityManager::EntityManager() {
 
     // Initialize the entity map
     for (auto &row: this->entMap) {
-        for (AbstractEntity*&ent: row) {
+        for (CorporealEntity*&ent: row) {
             ent = nullptr;
         }
     }
@@ -37,12 +37,6 @@ EntityManager::EntityManager() {
 // * The eventQueue heap
 // * The 2D AbstractEntity array
 EntityManager::~EntityManager() {
-    // Free every entity in the entity manager
-//    for (int i = 0; i < currentEntManager->entities->size; i++) {
-//        auto* ent = static_cast<AbstractEntity*>(currentEntManager->entities->array[i]);
-//        free(ent);
-//    }
-
     // Free the entity array list
     entities.clear();
 
@@ -83,7 +77,7 @@ void EntityManager::fillFirstTurns() {
 }
 
 
-void EntityManager::addEntity(AbstractEntity* entity) {
+void EntityManager::addEntity(CorporealEntity* entity) {
     int x = entity->mapX;
     int y = entity->mapY;
 
@@ -112,7 +106,7 @@ void EntityManager::spawnTrainers(Map* map, int numTrainers) {
     // Start placing numTrainers NPCs, or until we stop prematurely if it got too crowded
     for (int i = 0; i < numTrainers; i++) {
         EntityEnum entType;
-        AbstractEntity* entity = nullptr;
+        CorporealEntity* entity = nullptr;
 
         // Keep retrying to place the trainer until we land on a valid spot
         for (int _ = 0; _ < MAX_ITERATIONS && entity == nullptr; _++) {
@@ -130,7 +124,7 @@ void EntityManager::spawnTrainers(Map* map, int numTrainers) {
             if (getTerrainCost(map->tileset[y][x].type, entType) == UNCROSSABLE) continue;
 
             // If all previous checks were successful, then try spawning a new NPC
-            entity = AbstractEntity::spawnNpc(entType, x, y);
+            entity = CorporealEntity::spawnNpc(entType, x, y);
             if (entity != nullptr) addEntity(entity);
             // spawnEntity might return NULL, indicating an unsuccessful placement
             // if so then entity = nullptr and we try again

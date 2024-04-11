@@ -1,8 +1,10 @@
 #ifndef EXPLORER_H
 #define EXPLORER_H
 
+#include "entities/corporeal_entity.hpp"
+
 // Explorers walk in one direction, and turns in a random direction if they can't walk forward.
-class Explorer : public AbstractEntity {
+class Explorer : public CorporealEntity {
 public:
     Explorer(int x, int y);
 

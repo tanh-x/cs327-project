@@ -1,10 +1,9 @@
 #ifndef RIVAL_H
 #define RIVAL_H
 
+#include "entities/corporeal_entity.hpp"
 
-#include "entities/abstract_entity.hpp"
-
-class Rival : public AbstractEntity {
+class Rival : public CorporealEntity {
 public:
     Rival(int x, int y);
 

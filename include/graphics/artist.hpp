@@ -11,7 +11,7 @@ void prettyPrint(const char* str, bool isMapColored);
 
 void worldToString(char* str);
 
-char entityToChar(AbstractEntity* entity);
+char entityToChar(CorporealEntity* entity);
 
 char tileToChar(Tile* tile);
 

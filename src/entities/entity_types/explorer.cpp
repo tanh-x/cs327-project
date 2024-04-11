@@ -5,7 +5,7 @@
 #include "entities/entity_types/explorer.hpp"
 
 
-Explorer::Explorer(int x, int y) : AbstractEntity(EntityEnum::EXPLORER, x, y) {
+Explorer::Explorer(int x, int y) : CorporealEntity(EntityEnum::EXPLORER, x, y) {
     this->walk.x = randomInt(-1, 1);
     this->walk.y = randomInt(-1, 1);
     if (this->walk.x == 0 && this->walk.y == 0) this->walk.x = 1;

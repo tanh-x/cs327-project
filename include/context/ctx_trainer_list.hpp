@@ -10,12 +10,12 @@
 
 class TrainerListContext : public AbstractContext {
 public:
-    TrainerListContext(MainContext* parent, std::vector<AbstractEntity*>* entityList);
+    TrainerListContext(MainContext* parent, std::vector<CorporealEntity*>* entityList);
 
     void start() override;
 
 private:
-    std::vector<AbstractEntity*>* entityList;
+    std::vector<CorporealEntity*>* entityList;
 
     void trainerListEntry();
 };

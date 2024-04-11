@@ -1,10 +1,9 @@
 #ifndef HIKER_H
 #define HIKER_H
 
+#include "entities/corporeal_entity.hpp"
 
-#include "entities/abstract_entity.hpp"
-
-class Hiker : public AbstractEntity {
+class Hiker : public CorporealEntity {
 public:
     Hiker(int x, int y);
 

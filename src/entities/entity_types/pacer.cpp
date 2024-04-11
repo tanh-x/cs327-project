@@ -1,9 +1,9 @@
-#include "entities/abstract_entity.hpp"
-#include "entities/entity_types//pacer.hpp"
+
 #include "core/game.hpp"
+#include "entities/entity_types/pacer.hpp"
 #include "entities/pathfinding.hpp"
 
-Pacer::Pacer(int x, int y) : AbstractEntity(EntityEnum::PACER, x, y) {
+Pacer::Pacer(int x, int y) : CorporealEntity(EntityEnum::PACER, x, y) {
     this->walk.x = randomInt(-1, 1);
     this->walk.y = randomInt(-1, 1);
     if (this->walk.x == 0 && this->walk.y == 0) this->walk.x = 1;

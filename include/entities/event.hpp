@@ -3,9 +3,8 @@
 // Events indicate entity actions on the map, such as movement
 
 #include <malloc.h>
-#include "abstract_entity.hpp"
 
-class AbstractEntity;
+class CorporealEntity;
 
 typedef enum __attribute__ ((__packed__)) {
     // IDLE events are placeholders, or waiting turns.
@@ -23,7 +22,7 @@ public:
     EventType type;
 
     // The entity carrying out this event.
-    AbstractEntity* actor;
+    CorporealEntity* actor;
 
     // The coordinates relative to the actor entity at which the event will happen on.
     // For MOVEMENT, this is simply where the entity will move to.
@@ -50,7 +49,7 @@ void resolveEvent(Event* event);
 void disposeEvent(void* event);
 
 // Instantiates an IDLE event.
-Event* constructIdleEvent(AbstractEntity* entity, int cost);
+Event* constructIdleEvent(CorporealEntity* entity, int cost);
 
 // Instantiates a PLAYER_INPUT_BLOCKING event
 void enqueueInputBlockingEvent(int delay);

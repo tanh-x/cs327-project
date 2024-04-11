@@ -55,8 +55,8 @@ BattleViewContext::BattleViewContext(
         opponent->name
     );
     mvwprintw(
-        dialogWindow, DIALOG_WINDOW_HEIGHT - 2, 1, "<Opponent: \"%s\" (type %c) [@ %p]>",
-        opponent->name, entityToChar(opponent), &opponent
+        dialogWindow, DIALOG_WINDOW_HEIGHT - 2, 1, "<Opponent: \"%s\" [@ %p]>",
+        opponent->name, &opponent
     );
 
     // We're done with building the window

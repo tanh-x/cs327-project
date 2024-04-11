@@ -1,12 +1,13 @@
 // This file has components that drive the game, or otherwise is a very centerpiece part of the project
 #include <unistd.h>
+
 #include "core/game.hpp"
-#include "graphics/artist.hpp"
-#include "entities/pathfinding.hpp"
 #include "graphics/renderer.hpp"
+#include "entities/event.hpp"
 #include "core/input.hpp"
+#include "entities/pathfinding.hpp"
 #include "context/ctx_battle_view.hpp"
-#include "entities/entity_manager.hpp"
+
 
 #define BATTLE_INITIATION_COOLDOWN 24
 #define NPC_BATTLE_INITIATION_PROBABILITY 0.33f
@@ -30,7 +31,7 @@ void gameLoop() {
             // Time travelling is strictly prohibited
             entManager->eventTime = max(entManager->eventTime, event->resolveTime);
 
-            AbstractEntity* actor = event->actor;
+            CorporealEntity* actor = event->actor;
 
             // If it's a player event, break the event loop.
             if (actor->type == EntityEnum::PLAYER && event->type == PLAYER_INPUT_BLOCKING) break;
@@ -42,16 +43,16 @@ void gameLoop() {
             if (actor->activeBattle
                 && max(abs(actor->mapX - player->mapX), abs(actor->mapY - player->mapY)) <= 1
                 && entManager->eventTime >= entManager->nextBattleInitiationTime
-                // Only enter the battle with 33% probability
+                // Only enter the battle_opponent with 33% probability
                 && proba() < NPC_BATTLE_INITIATION_PROBABILITY) {
-                // Render the game before entering battle
+                // Render the game before entering battle_opponent
                 renderGameUpdate();
                 usleep(STD_SLOW_FRAME_DELAY);
 
-                // Then enter the battle
+                // Then enter the battle_opponent
                 auto* battleCtx = new BattleViewContext(GAME.context, actor);
                 battleCtx->start();
-                // Blocking call until the battle is finished
+                // Blocking call until the battle_opponent is finished
 
                 // Do another render when we're done
                 clear();

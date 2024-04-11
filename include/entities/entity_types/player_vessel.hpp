@@ -1,10 +1,9 @@
 #ifndef PLAYER_VESSEL_H
 #define PLAYER_VESSEL_H
 
+#include "entities/corporeal_entity.hpp"
 
-#include "entities/abstract_entity.hpp"
-
-class PlayerVessel : public AbstractEntity {
+class PlayerVessel : public CorporealEntity {
 public:
     PlayerVessel(int x, int y);
 

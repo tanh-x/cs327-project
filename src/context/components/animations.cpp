@@ -45,10 +45,10 @@ void horizontalExpandAnimation(Rect2D dimensions, int intervalMicros) {
     }
 }
 
-// Keyframes for the battle transition, which are sequential (x, y) positions of blacked out chunks
+// Keyframes for the battle_opponent transition, which are sequential (x, y) positions of blacked out chunks
 int battleTransitionKeyframes[NUM_BATTLE_TRANSITION_KEYFRAMES] = BATTLE_TRANSITION_KEYFRAMES;
 
-// A spiral animation that plays when a battle is initiated. Should be played before drawing the
+// A spiral animation that plays when a battle_opponent is initiated. Should be played before drawing the
 // main window. The function returns once the animation is complete
 void battleTransitionAnimation(int intervalMicros) {
     for (int i = 0; i < NUM_BATTLE_TRANSITION_KEYFRAMES; i += 2) {

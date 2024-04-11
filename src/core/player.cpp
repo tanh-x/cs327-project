@@ -1,11 +1,10 @@
 // This file holds functionalities related to the player
 
+#include "core/player.hpp"
 #include "core/game.hpp"
-#include "entities/entity_manager.hpp"
+#include "entities/event.hpp"
 #include "context/ctx_battle_view.hpp"
 #include "entities/pathfinding.hpp"
-#include "core/player.hpp"
-
 
 void dispatchPlayerEncounter(EncounterScenario scenario) {
     // This shouldn't happen, as the call location is inside an if-statement guarding against this.
@@ -48,15 +47,15 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
     // If we hit uncrossable terrain, just do nothing and wait.
     if (scenario == EncounterScenario::UNCROSSABLE_TERRAIN) return;
 
-    // If we get an entity encounter, try start a battle
+    // If we get an entity encounter, try start a battle_opponent
     if (scenario == EncounterScenario::ENTITY_ENCOUNTER) {
-        AbstractEntity* opponent = entManager->entMap[player->mapY][player->mapX];
+        CorporealEntity* opponent = entManager->entMap[player->mapY][player->mapX];
 
         // Check if the opponent can be fought
         if (opponent != nullptr && opponent->activeBattle) {
             auto* battleCtx = new BattleViewContext(GAME.context, opponent);
             battleCtx->start();
-            // Blocking call until the battle is finished
+            // Blocking call until the battle_opponent is finished
         }
 
         player->mapX = player->currentEntity->mapX;
@@ -67,7 +66,7 @@ void dispatchPlayerEncounter(EncounterScenario scenario) {
 // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE
 // or out of bounds.
 EncounterScenario Player::attemptMove(int dx, int dy) {
-    AbstractEntity* playerEnt = this->currentEntity;
+    PlayerVessel* playerEnt = this->currentEntity;
     int newX = this->mapX + dx;
     int newY = this->mapY + dy;
 
@@ -91,7 +90,7 @@ EncounterScenario Player::attemptMove(int dx, int dy) {
 
     // If the return was false, it means we have encountered another entity at this location.
     // Set the player to be at this location, but not the player entity.
-    // We will rectify this difference once the battle is complete
+    // We will rectify this difference once the battle_opponent is complete
     this->mapX = newX;
     this->mapY = newY;
     return EncounterScenario::ENTITY_ENCOUNTER;

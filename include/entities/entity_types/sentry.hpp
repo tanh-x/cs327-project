@@ -1,10 +1,9 @@
 #ifndef SENTRY_HPP
 #define SENTRY_HPP
 
+#include "entities/corporeal_entity.hpp"
 
-#include "entities/abstract_entity.hpp"
-
-class Sentry : public AbstractEntity {
+class Sentry : public CorporealEntity {
 public:
     Sentry(int x, int y);
 

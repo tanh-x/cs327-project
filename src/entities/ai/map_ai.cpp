@@ -11,7 +11,7 @@
 // Then, find a direction that minimizes the distance to the source (the player), essentially making the entity follows
 // the shortest accessible path to the player one on every turn.
 // This algorithm is used by hikers and rivals.
-bool gradientDescentAI(Event* event, AbstractEntity* entity) {
+bool gradientDescentAI(Event* event, CorporealEntity* entity) {
     Map* map = GAME.world->current;
     Player* player = GAME.player;
 

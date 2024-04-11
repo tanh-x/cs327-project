@@ -24,9 +24,9 @@ public:
     int mapX;
     int mapY;
 
-    AbstractEntity* currentEntity;
+    PlayerVessel* currentEntity = nullptr;
 
-    Player() : globalX(0), globalY(0), mapX(0), mapY(0), currentEntity(nullptr) {}
+    Player() : globalX(0), globalY(0), mapX(0), mapY(0) {}
 
     // Tries to move the player along the specified direction, which might fail if the tile is UNCROSSABLE
     // or out of bounds.

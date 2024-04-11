@@ -1,6 +1,6 @@
 #include "entities/entity_types/sentry.hpp"
 
-Sentry::Sentry(int x, int y) : AbstractEntity(EntityEnum::SENTRY, x, y) {}
+Sentry::Sentry(int x, int y) : CorporealEntity(EntityEnum::SENTRY, x, y) {}
 
 bool Sentry::moveAI(Event* event) {
     event->type = IDLE;

@@ -3,7 +3,7 @@
 
 #define NUM_BATTLE_TRANSITION_KEYFRAMES 120
 
-// Keyframes for the battle transition, which are sequential (x, y) positions of blacked out chunks
+// Keyframes for the battle_opponent transition, which are sequential (x, y) positions of blacked out chunks
 #define BATTLE_TRANSITION_KEYFRAMES  {  \
     0,0,    \
     0,8,    \

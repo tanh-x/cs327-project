@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <cstring>
 #include <ctime>
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"

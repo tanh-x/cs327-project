@@ -6,7 +6,7 @@
 #include "world/mapbuilder.hpp"
 #include "core/player.hpp"
 
-bool gradientDescentAI(Event* event, AbstractEntity* entity);
+bool gradientDescentAI(Event* event, CorporealEntity* entity);
 
 // Creates a new event according to the entity's AI
 //Event* constructEventOnTurn(AbstractEntity* entity);

@@ -10,7 +10,7 @@
 
 TrainerListContext::TrainerListContext(
     MainContext* parent,
-    std::vector<AbstractEntity*>* entityList
+    std::vector<CorporealEntity*>* entityList
 ) : AbstractContext(
     ContextType::TRAINER_LIST_CONTEXT,
     parent,
@@ -54,7 +54,7 @@ void TrainerListContext::trainerListEntry() {
     while (true) {
         // List entities
         for (int i = 1; i < min(numEntities, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
-            AbstractEntity* ent = entityList->at(i + scroll);
+            CorporealEntity* ent = entityList->at(i + scroll);
 
             // Initialize variables for string formatting
             char entityString[TRAINER_LIST_WINDOW_WIDTH - 1];
