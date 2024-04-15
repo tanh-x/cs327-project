@@ -5,11 +5,19 @@
 #include "utils/mathematics.hpp"
 #include "core/constants/primary.hpp"
 
+#define OVERGROWTH_FACTOR 23.99263f
+#define WILDERNESS_LEVEL_LOWER_BOUND 0.0175f
+#define WILDERNESS_LEVEL_UPPER_BOUND 0.0645f
+#define OVERGROWTH_WILDERNESS_MULTIPLIER 2360.0f
+
 typedef struct {
     Map* maps[WORLD_HEIGHT][WORLD_WIDTH];
 
     // Mystery number
     uint8_t eccentricity[WORLD_HEIGHT][WORLD_WIDTH];
+    float overgrowthLevel[WORLD_HEIGHT][WORLD_WIDTH];
+    float menaceLevel[WORLD_HEIGHT][WORLD_WIDTH];
+    float wildernessLevel[WORLD_HEIGHT][WORLD_WIDTH];
 
     Map* current;
     int worldSeed;

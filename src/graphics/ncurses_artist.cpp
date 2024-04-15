@@ -6,18 +6,33 @@
 void initializeExtendedColors() {
     start_color();
 
-    init_pair(1, 154, 0); // lime
-    init_pair(2, 245, 0); // light gray
-    init_pair(3, 248, 0); // dark gray
-    init_pair(4, 172, 0); // brown
-    init_pair(5, 208, 0); // light gray
-    init_pair(6, 76, 0);  // deep green
-    init_pair(7, 25, 0);  // sky blue
-    init_pair(8, 28, 0);  // dark green
-    init_pair(9, 165, 0); // purple
-    init_pair(10, 196, 0); // full red
-    init_pair(11, 216, 0); // light pink
-    init_pair(12, 16, 196); // black, deep red bg
+    // Original dark themed color scheme
+//    init_pair(1, 154, 0); // lime
+//    init_pair(2, 245, 0); // light gray
+//    init_pair(3, 248, 0); // dark gray
+//    init_pair(4, 172, 0); // brown
+//    init_pair(5, 208, 0); // light gray
+//    init_pair(6, 76, 0);  // deep green
+//    init_pair(7, 25, 0);  // sky blue
+//    init_pair(8, 28, 0);  // dark green
+//    init_pair(9, 165, 0); // purple
+//    init_pair(10, 196, 0); // full red
+//    init_pair(11, 216, 0); // light pink
+//    init_pair(12, 16, 196); // black, deep red bg
+
+    // Inverted color scheme
+    init_pair(1, 0, 112); // lime
+    init_pair(2, 0, 245); // light gray
+    init_pair(3, 0, 248); // dark gray
+    init_pair(4, 0, 172); // brown
+    init_pair(5, 0, 208); // light gray
+    init_pair(6, 0, 70);  // deep green
+    init_pair(7, 0, 25);  // sky blue
+    init_pair(8, 0, 28);  // dark green
+    init_pair(9, 0, 165); // purple
+    init_pair(10, 0, 196); // full red
+    init_pair(11, 0, 216); // light pink
+    init_pair(12, 196, 16); // black, deep red bg
 
     init_pair(21, 221, COLOR_BLACK);  // light yellow
     init_pair(22, 45, COLOR_BLACK);  // light blue

@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cmath>
 #include "world/world.hpp"
 #include "core/game.hpp"
 
@@ -8,11 +9,26 @@
 #define p3 709348097
 #define p4 485820427
 
+//#define OVERGROWTH_FACTOR 12.6277f
+
 void initializeWorld(World* world, int worldSeed) {
+    srand(worldSeed);
     for (int y = 0; y < WORLD_HEIGHT; y++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             world->maps[y][x] = nullptr;
-            world->eccentricity[y][x] = static_cast<uint8_t>(rand());
+
+            auto eccentricity = static_cast<uint8_t>(rand());
+            auto dist = float(abs(x - WORLD_X_SPAN) + abs(y - WORLD_Y_SPAN));
+
+            float overgrowth = OVERGROWTH_FACTOR * sqrtf(dist) * randomFloat(0.25f, 1.75f);
+            float menace = getMenaceLevel(x - WORLD_X_SPAN, y - WORLD_Y_SPAN, eccentricity, worldSeed);
+            float wilderness = randomFloat(WILDERNESS_LEVEL_LOWER_BOUND, WILDERNESS_LEVEL_UPPER_BOUND)
+                               + overgrowth / OVERGROWTH_WILDERNESS_MULTIPLIER;
+
+            world->eccentricity[y][x] = eccentricity;
+            world->overgrowthLevel[y][x] = overgrowth;
+            world->menaceLevel[y][x] = menace;
+            world->wildernessLevel[y][x] = wilderness;
         }
     }
     world->worldSeed = worldSeed;

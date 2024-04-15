@@ -88,11 +88,12 @@ void gameLoop() {
         while (!handlePlayerInput());
 
         // TODO: bad
-        if (map->tileset[player->mapY][player->mapX].type == TileType::TALL_GRASS
+        if (event->cost > 0
+            && map->tileset[player->mapY][player->mapX].type == TileType::TALL_GRASS
             && proba() < map->wildernessLevel) {
             // Start wild pokemon battle
 
-            PokemonVessel* pokemon = new PokemonVessel(Pokemon::generateWildPokemon(
+            auto* pokemon = new PokemonVessel(Pokemon::generateWildPokemon(
                 GAME.database,
                 manhattanDist(map->globalX, map->globalY, 0, 0),
                 map->menaceLevel
@@ -240,7 +241,7 @@ void initialLaunchWindow() {
     };
 
     // Start with an animation
-    verticalExpandAnimation(rect, INTERVAL_30FPS_MICROS);
+    verticalExpandAnimation(rect, INTERVAL_60FPS_MICROS);
 
     WINDOW* newWindow = newwin(rect.height, rect.width, rect.y, rect.x);
     keypad(newWindow, true);

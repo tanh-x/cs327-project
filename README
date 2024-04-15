@@ -2,6 +2,8 @@
 │                                                                              │
 │ Generates Pokemon and displays their information in placeholder battles.     │
 │                                                                              │
+│ The game display size has been increased by a factor of 1.5x to 120x36       │
+│                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 NOTES:

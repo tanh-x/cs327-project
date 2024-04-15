@@ -11,7 +11,6 @@
 
 #define MAX_FRAME_COUNT 6572
 #define MAX_ITER_MULTIPLIER 8
-#define OVERGROWTH_FACTOR 12.6277f
 #define FIRST_PASS_NUM_TYPES 4
 #define BUILDING_FALLOFF_FACTOR 63.85f
 #define BUILDING_FALLOFF_INTERCEPT 70.85f
@@ -47,8 +46,7 @@
 #define EDGE_SOUTH_BITMASK 4u
 #define EDGE_NORTH_BITMASK 8u
 #define VORONOI_POINTS_BASE_SEED 21679733
-#define WILDERNESS_LEVEL_LOWER_BOUND 0.0425f
-#define WILDERNESS_LEVEL_UPPER_BOUND 0.1625f
+
 #define MENACE_INITIAL_PERTURBATION_SCALAR_FACTOR 0.1375f
 #define MENACE_SALIENT_MAP_BONUS 38.71f
 
@@ -61,19 +59,15 @@ int suffixesSize = sizeof(locationNameSuffixes) / sizeof(locationNameSuffixes[0]
 // generateTerrain(int worldSeed) is invoked. It also does not initialize an entity manager, which
 // is deferred until setupGameOnMapLoad is called for the first time on this map.
 Map::Map(int globalX, int globalY, int initialSeed) {
-    auto dist = float(abs(globalX) + abs(globalY));
-    float eccentricity = GAME.world->eccentricity[globalY + WORLD_Y_SPAN][globalX + WORLD_X_SPAN];
-
     this->globalX = globalX;
     this->globalY = globalY;
     this->isSpawnMap = globalX == 0 && globalY == 0;
     this->mapSeed = globalHashFunction(globalX, globalY, initialSeed);
-    this->overgrowth = OVERGROWTH_FACTOR * sqrtf(dist) * randomFloat(0.55f, 3.25f);
-    this->menaceLevel = getMenaceLevel(globalX, globalY, eccentricity, GAME.world->worldSeed);
-    this->wildernessLevel = randomFloat(WILDERNESS_LEVEL_LOWER_BOUND, WILDERNESS_LEVEL_UPPER_BOUND)
-                            + overgrowth / 2100.0f;
 
-    this->numOpponents = 0;
+    this->overgrowth = GAME.world->overgrowthLevel[globalY + WORLD_Y_SPAN][globalX + WORLD_X_SPAN];
+    this->menaceLevel = GAME.world->menaceLevel[globalY + WORLD_Y_SPAN][globalX + WORLD_X_SPAN];
+    this->wildernessLevel = GAME.world->wildernessLevel[globalY + WORLD_Y_SPAN][globalX + WORLD_X_SPAN];
+
     this->entityManager = nullptr;
 
     srand(mapSeed);

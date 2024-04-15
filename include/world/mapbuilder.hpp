@@ -70,8 +70,6 @@ public:
     // Every time the player defeats or captures a Pokemon, this chance decays slightly.
     float wildernessLevel;
 
-    int numOpponents;
-
     // A randomly generated name
     std::string name;
 

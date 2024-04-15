@@ -13,6 +13,9 @@
 #define MAP_INFO_WIDTH 26
 #define SEQUENTIAL_BAR_SEGMENTS 20
 
+#define UNK_WILDERNESS_MEDIUM_THRESHOLD 0.875f
+#define UNK_WILDERNESS_HIGH_THRESHOLD 0.17f
+
 WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : AbstractContext(
     ContextType::WORLD_MAP_CONTEXT,
     parent,
@@ -48,7 +51,7 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
     int spanY = FOOTER_OFFSET;
     int scaleFactor = 3;
 
-    for (int dx = 0; dx < spanX; dx += scaleFactor) {
+    for (int dx = 0; dx < spanX - 1; dx += scaleFactor) {
         for (int dy = 1; dy < spanY; dy++) {
             // Calculate the global coordinate to draw here
             int mapX = pivotX + (dx - spanX / 2) / scaleFactor * zoom + 1;
@@ -115,8 +118,8 @@ void WorldMapContext::drawWorldMap(int pivotX, int pivotY, int zoom) {
             wattron(window, pair);
             mvwaddstr(
                 window,
-                windowCenterY + dy - spanY / 2,
-                windowCenterX + dx - spanX / 2,
+                dy,
+                dx + 1,
                 mapTileString
             );
             wattroff(window, pair);
@@ -183,19 +186,32 @@ void WorldMapContext::worldMapEntry() {
 
         // Draw the map information
 
+        // Clear the 4 lines on the info section
+        for (int i = 1; i <= 4; i++) spaces(this, mapInfoOffset, FOOTER_OFFSET + i, MAP_INFO_WIDTH - 2);
 
-        float menace;
-        if (pivotedMap != nullptr) {
-            // Get calculated menace level
-            menace = pivotedMap->menaceLevel;
 
-            // Add the wilderness level display
-            float wildernessStepLevel = maxf(0.0f, pivotedMap->wildernessLevel * 92.5f - 3.45f);
-            float wildernessTwoSigfig = roundf(pivotedMap->wildernessLevel * 10000) / 100;
+        // Draw the wilderness section
+        if (pivotedMap == nullptr) {
+            float expectedOvergrowth = manhattanDist(pivotX, pivotY, 0, 0) * OVERGROWTH_FACTOR;
+            float expectedBase = (WILDERNESS_LEVEL_UPPER_BOUND + WILDERNESS_LEVEL_LOWER_BOUND) / 2.0f;
+            float wilderness = expectedOvergrowth / OVERGROWTH_WILDERNESS_MULTIPLIER + expectedBase;
+
+            mvwprintw(
+                window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: %s?",
+                (wilderness < UNK_WILDERNESS_MEDIUM_THRESHOLD
+                 ? "LOW"
+                 : (wilderness < UNK_WILDERNESS_HIGH_THRESHOLD
+                    ? "MEDIUM"
+                    : "HIGH"
+                 ))
+            );
+        } else {
+            float wilderness = world->wildernessLevel[pivotY + WORLD_Y_SPAN][pivotX + WORLD_X_SPAN];
+            float wildernessTwoSigfig = roundf(wilderness * 10000) / 100;
+            float wildernessStepLevel = maxf(0.0f, wilderness * 111.5f - 2.45f);
             mvwprintw(
                 window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: %s%%",
                 std::to_string(wildernessTwoSigfig).substr(0, 4).c_str()
-
             );
 
             // Add the colored bar
@@ -204,23 +220,16 @@ void WorldMapContext::worldMapEntry() {
                 SEQUENTIAL_BAR_SEGMENTS, wildernessStepLevel,
                 PRGN10_PALETTE_OFFSET, PRGN10_PALETTE_COUNT
             );
-        } else {
-            // Get computed menace level for non-generated map
-            menace = getMenaceLevel(pivotX, pivotY, float(getEccentricity(pivotX, pivotY)), world->worldSeed);
-
-            // Clear the wilderness section
-            spaces(this, mapInfoOffset, FOOTER_OFFSET + 3, MAP_INFO_WIDTH - 2);
-            spaces(this, mapInfoOffset, FOOTER_OFFSET + 4, MAP_INFO_WIDTH - 2);
         }
 
-        // Draw the menace level display
-        spaces(this, mapInfoOffset, FOOTER_OFFSET + 1, MAP_INFO_WIDTH - 2);
-        spaces(this, mapInfoOffset, FOOTER_OFFSET + 2, MAP_INFO_WIDTH - 2);
+        // Get calculated menace level
+        float menace = world->menaceLevel[pivotY + WORLD_Y_SPAN][pivotX + WORLD_X_SPAN];
 
-        float menaceStepLevel = sqrtf(1.7f * menace) - 3;
+        // Draw the menace level display
+        int menaceStepLevel = clamp(static_cast<int>(sqrtf(1.7f * menace)) - 3, 0, 24);
         mvwprintw(
             window, FOOTER_OFFSET + 1, mapInfoOffset + 1, "MENACE: %d",
-            static_cast<int>(menaceStepLevel) + 1
+            menaceStepLevel + 1
         );
 
         // Draw the colored bar for menace level
