@@ -278,11 +278,14 @@ void initialLaunchWindow(const char* prompt) {
             auto pokemonData = pokemonSelections[line];
 
             // Get the type name
-            std::string typeName = database->typeNameTable.at(
-                database->typeRelationTable.at(
-                    pokemonData->id
-                )->typeId
-            )->name;
+            std::ostringstream oss;
+            oss << "";
+            for (const auto &typeRelation: pokemonData->typesTable) {
+                std::shared_ptr<TypeNameData> typeName = database->typeNameTable.at(typeRelation.second->typeId);
+                oss << unkebabString(typeName->name) << "/";
+            }
+            std::string typeName = oss.str();
+            typeName = typeName.substr(0, typeName.size() - 1);
 
             // Form the string
             std::string lineStr;

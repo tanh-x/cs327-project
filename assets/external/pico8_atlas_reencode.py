@@ -1,5 +1,4 @@
 from PIL import Image
-import numpy as np
 
 pico8_to_ansi = {
     0x000000: 0 << 4, # 0
@@ -21,30 +20,6 @@ pico8_to_ansi = {
     # Special case
     0x3EB2F8: 255
 }
-
-
-def hex_to_rgb(hex_color):
-    return tuple(int(hex_color[i : i + 2], 16) for i in (1, 3, 5))
-
-
-def color_dist(rgb1, rgb2):
-    return np.sqrt(sum((c1 - c2) ** 2 for c1, c2 in zip(rgb1, rgb2)))
-
-
-def find_nearest_ansi(hex_color, ansi_colors):
-    min_distance = float("inf")
-    closest_code = None
-    input_rgb = hex_to_rgb(hex_color)
-
-    for index, ansi_hex in enumerate(ansi_colors):
-        ansi_rgb = hex_to_rgb(ansi_hex)
-        distance = color_dist(input_rgb, ansi_rgb)
-        if distance < min_distance:
-            min_distance = distance
-            closest_code = index
-
-    return closest_code
-
 
 def to_greysacle_img(ansi_array):
     height = len(ansi_array)
@@ -78,7 +53,6 @@ def image_to_ansi(image_path, color_map):
         ansi_codes.append(row)
     
     return ansi_codes
-
 
 result = to_greysacle_img(image_to_ansi("input.png", pico8_to_ansi))
 result.save("output.png")

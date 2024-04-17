@@ -66,7 +66,7 @@ void initializeExtendedColors() {
     };
 
     for (int i = 0; i < GISTNCAR_PALETTE_COUNT; i++) {
-        init_extended_pair(GISTNCAR_PALETTE_OFFSET + i, gistNcarColors[i], COLOR_BLACK);
+        init_pair(GISTNCAR_PALETTE_OFFSET + i, gistNcarColors[i], COLOR_BLACK);
     }
 
     // Derived from the "PRGn_10" color scheme
@@ -84,7 +84,24 @@ void initializeExtendedColors() {
     };
 
     for (int i = 0; i < PRGN10_PALETTE_COUNT; i++) {
-        init_extended_pair(PRGN10_PALETTE_OFFSET + i, prGn10Colors[i], COLOR_BLACK);
+        init_pair(PRGN10_PALETTE_OFFSET + i, prGn10Colors[i], COLOR_BLACK);
+    }
+
+    // Derived from the "RdYlGn_11" color scheme
+    // From colorbrewer, licensed under CC0 (public domain); distributed by ColorSchemes.jl
+    // The original palette is
+    // #a50026, #d73027, #f46d43, #fdae61, #fee08b
+    // #d9ef8b, #a6d96a, #66bd63, #1a9850, #006837
+    // It can also be found at
+    // https://docs.juliaplots.org/latest/generated/colorschemes#colorbrewer
+    const short rdYlGn10Colors[] = {
+        196, 160, 202, 203, 215,
+        221, 222, 229, 192, 192,
+        149, 76, 76, 40, 40
+    };
+
+    for (int i = 0; i < RDYLGN10_PALETTE_COUNT; i++) {
+        init_pair(RDYLGN10_PALETTE_OFFSET + i, rdYlGn10Colors[i], COLOR_BLACK);
     }
 }
 

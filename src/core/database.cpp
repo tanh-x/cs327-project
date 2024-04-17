@@ -16,7 +16,7 @@ PokemonDatabase::PokemonDatabase() {
     auto parsedExperience    = loadFromCsv<ExperienceData>(EXPERIENCE_DATA_CSV_NAME, false);
     auto parsedTypes         = loadFromCsv<TypeNameData>(TYPE_NAME_DATA_CSV_NAME, false);
     auto parsedStats         = loadFromCsv<StatsData>(STATS_DATA_CSV_NAME, false);
-    auto parsedTypeRelation  = loadFromCsv<PokemonTypeData>(POKEMON_TYPE_DATA_CSV_NAME, false);
+    auto parsedTypeRelation  = loadFromCsv<PokemonTypeRelation>(POKEMON_TYPE_DATA_CSV_NAME, false);
     // @formatter:on
 
 
@@ -48,6 +48,12 @@ PokemonDatabase::PokemonDatabase() {
         pokemon->statsTable[statsRelation->statId] = statsRelation;
     }
 
+    // "Left join" the types table onto the Pokemon table
+    for (const std::shared_ptr<PokemonTypeRelation> &typeRelation: parsedTypeRelation) {
+        std::shared_ptr<PokemonData> pokemon = pokemonTable.at(typeRelation->pokemonId);
+        pokemon->typesTable[typeRelation->typeId] = typeRelation;
+    }
+
     // "Left join" the moves table onto the Pokemon table, matching on pokemon.species_id
     for (const std::shared_ptr<PokemonMovesRelation> &moveRelation: parsedMovesRelation) {
         // Get all associated Pokemon from the transpose association map
@@ -62,7 +68,6 @@ PokemonDatabase::PokemonDatabase() {
             std::shared_ptr<PokemonData> pokemon = pokemonTable.at(moveRelation->pokemonId);
             pokemon->movesTable[moveRelation->moveId] = moveRelation;
         }
-
     }
 
     numPokemon = static_cast<int>(pokemonIds.size());

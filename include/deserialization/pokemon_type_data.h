@@ -6,13 +6,13 @@
 
 #define POKEMON_TYPE_DATA_CSV_NAME "pokemon_types.csv"
 
-class PokemonTypeData : public AbstractDeserializable {
+class PokemonTypeRelation : public AbstractDeserializable {
 public:
     int pokemonId;
     int typeId;
     int slot;
 
-    PokemonTypeData(
+    PokemonTypeRelation(
         int pokemonId,
         int typeId,
         int slot
@@ -23,7 +23,7 @@ public:
 
     void printSelf() const override;
 
-    [[maybe_unused]] static auto deserialize(const std::string &line) -> PokemonTypeData*;
+    [[maybe_unused]] static auto deserialize(const std::string &line) -> PokemonTypeRelation*;
 };
 
 #endif

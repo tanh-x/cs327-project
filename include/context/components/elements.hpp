@@ -14,7 +14,10 @@ void spaces(AbstractContext* context, int x, int y, int width);
 void sequentialColoredBar(
     AbstractContext* context, int x, int y,
     int width, float value,
-    int cmapPaletteOffset, int numPaletteColors
+    int cmapPaletteOffset, int numPaletteColors,
+    bool homogeneous = false,
+    chtype filled = '#',
+    chtype empty = '-'
 );
 
 void drawBox(

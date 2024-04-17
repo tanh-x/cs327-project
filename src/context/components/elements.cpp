@@ -70,7 +70,9 @@ void spaces(AbstractContext* context, int x, int y, int width) {
 void sequentialColoredBar(
     AbstractContext* context, int x, int y,
     int width, float value,
-    int cmapPaletteOffset, int numPaletteColors
+    int cmapPaletteOffset, int numPaletteColors,
+    bool homogeneous,
+    chtype filled, chtype empty
 ) {
     WINDOW* window = context->window;
 
@@ -80,17 +82,19 @@ void sequentialColoredBar(
 
     wmove(window, y, x);
     auto threshold = static_cast<int>(value);
+    int lastIdx = clamp(std::floor(float(threshold) / segmentWidth), 0, numPaletteColors - 1);
     for (int i = 0; i < width; i++) {
         // Determine which color pair to use based on the current position
         colorIndex = clamp(std::floor(float(i) / segmentWidth), 0, numPaletteColors - 1);
 
         if (i <= threshold) {
-            wattron(window, COLOR_PAIR(cmapPaletteOffset + colorIndex));
-            waddch(window, '#');
-            wattroff(window, COLOR_PAIR(cmapPaletteOffset + colorIndex));
+            int idx = (homogeneous ? lastIdx : colorIndex) + cmapPaletteOffset;
+            wattron(window, COLOR_PAIR(idx));
+            waddch(window, filled);
+            wattroff(window, COLOR_PAIR(idx));
         } else {
             wattron(window, COLOR_PAIR(32));
-            waddch(window, '-');
+            waddch(window, empty);
             wattroff(window, COLOR_PAIR(31));
         }
     }

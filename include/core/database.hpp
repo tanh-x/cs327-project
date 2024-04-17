@@ -19,7 +19,7 @@ public:
 
     // Non-relation entity tables
     std::unordered_map<int, std::shared_ptr<PokemonSpeciesData>> speciesTable;
-    std::unordered_map<int, std::shared_ptr<PokemonTypeData>> typeRelationTable;
+    std::unordered_map<int, std::shared_ptr<PokemonTypeRelation>> typeRelationTable;
     std::unordered_map<int, std::shared_ptr<TypeNameData>> typeNameTable;
     std::unordered_map<int, std::shared_ptr<MovesData>> movesTable;
     std::unordered_map<int, std::shared_ptr<StatsData>> statsTable;

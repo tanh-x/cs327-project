@@ -8,6 +8,7 @@
 #include "pokemon_moves_data.hpp"
 #include "pokemon_stats_data.hpp"
 #include "pokemon_species_data.hpp"
+#include "pokemon_type_data.h"
 
 #define POKEMON_DATA_CSV_NAME "pokemon.csv"
 
@@ -29,6 +30,9 @@ public:
 
     // Relation entity between the N:N relationship from Pokemon to Stats
     std::unordered_map<int, std::shared_ptr<PokemonStatsRelation>> statsTable {};
+
+    // Relation entity between the N:N relationship from Pokemon to Type names
+    std::unordered_map<int, std::shared_ptr<PokemonTypeRelation>> typesTable {};
 
     // N:1 relationship
     std::shared_ptr<PokemonSpeciesData> speciesData = nullptr;

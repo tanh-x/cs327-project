@@ -2,16 +2,19 @@
 #define POKEMON_H
 
 #include <utility>
+#include <unordered_set>
 
 #include "deserialization/pokemon_data.hpp"
 #include "core/database.hpp"
+
+#define MAX_POKEMON_LEVEL 100
 
 class Pokemon {
 public:
     std::shared_ptr<PokemonData> data;
     std::vector<std::shared_ptr<MovesData>> moveSet;
 
-    [[nodiscard]] std::string name() const;
+    std::string name;
 
     int level;
     bool isShiny;
@@ -25,13 +28,23 @@ public:
     int baseSpecialDefense;
     int baseSpeed;
 
+    // Leveled stats
+    int maxHp;
+    int attack;
+    int defense;
+int specialAttack;
+    int specialDefense;
+    int speed;
+
+    // Current HP of the Pokemon
+    int health;
+
+    // Set of type name pointers
+    std::unordered_set<std::shared_ptr<TypeNameData>> types {};
+
+
     Pokemon(PokemonDatabase* database, const std::shared_ptr<PokemonData> &pokemonData, int level);
 
-    // Calculates the max HP of the Pokemon at a given level
-    static int leveledHp(int base, int level);
-
-    // Calculates the stats of the Pokemon at a given level
-    static int leveledStat(int base, int level);
 
     static std::shared_ptr<Pokemon> generateWildPokemon(
         PokemonDatabase* database,
@@ -42,6 +55,18 @@ public:
     [[nodiscard]] std::string statsString() const;
 
     [[nodiscard]] std::string movesString() const;
+
+    [[nodiscard]] std::string typesString() const;
+
+private:
+    // Set the newLevel and the computed stat values for the pokemon
+    void setPokemonLevel(int newLevel);
+
+    // Calculates the max HP of the Pokemon at a given level
+    static int leveledHp(int base, int level);
+
+    // Calculates the stats of the Pokemon at a given level
+    static int leveledStat(int base, int level);
 };
 
 #endif

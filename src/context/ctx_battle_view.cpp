@@ -55,7 +55,7 @@ BattleViewContext::BattleViewContext(
 
     // Print out text to the dialog window
     if (opponent->type == EntityEnum::POKEMON_VESSEL) {
-        mvwprintw(dialogWindow, 1, 1, "A wild %s appears!", opponent->pokemonInventory[0]->name().c_str());
+        mvwprintw(dialogWindow, 1, 1, "A wild %s appears!", opponent->pokemonInventory[0]->name.c_str());
     } else {
         mvwprintw(dialogWindow, 1, 1, "%s wants to fight!", opponent->name);
     }
@@ -63,7 +63,7 @@ BattleViewContext::BattleViewContext(
     // Print the pokemon list
     std::string pokemonList;
     for (auto &pokemon: opponent->pokemonInventory) {
-        pokemonList += pokemon->name() + " ";
+        pokemonList += pokemon->name + " ";
     }
     mvwprintw(dialogWindow, 2, 1, "Pokemon list: %s", pokemonList.c_str());
 
@@ -149,7 +149,11 @@ void BattleViewContext::battleContextLoop() {
 
                 } else if (prompt == 2) {
                     // POKEMON
-                    auto* inspectContext = new PokemonInspectContext(this, GAME.pokemonInventory);
+                    auto* inspectContext = new PokemonInspectContext(
+                        this,
+                        GAME.pokemonInventory,
+                        opponent->pokemonInventory
+                    );
                     inspectContext->start();
                     refresh();
                     continue;

@@ -21,11 +21,16 @@ public:
     void start() override;
 
 private:
-    std::vector<std::shared_ptr<Pokemon>> pokemonList;
+    std::vector<std::shared_ptr<Pokemon>> pokemonList {nullptr};
     std::vector<std::shared_ptr<Pokemon>> opponentPokemon;
     int numEntries;
 
+    bool hasSecondaryList = false;
+    bool secondaryList = false;
+
     void pokemonListEntry();
+
+    void redrawWindow();
 };
 
 

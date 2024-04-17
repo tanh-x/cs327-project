@@ -3,9 +3,10 @@
 #include "utils/mathematics.hpp"
 #include "pokemon/pokemon.hpp"
 #include "utils/string_helpers.hpp"
+#include "core/game.hpp"
 
 #define MAX_POKEMON_LEVEL 100
-#define SHINY_POKEMON_PROBABILITY 0.21f
+#define SHINY_POKEMON_PROBABILITY 0.275f
 #define GENERATE_IV() randomInt(0, 15)
 #define STRUGGLE_MOVE_IDX 165
 #define MAX_MOVES 2
@@ -21,10 +22,21 @@ Pokemon::Pokemon(PokemonDatabase* database, const std::shared_ptr<PokemonData> &
     this->baseSpecialDefense = data->statsTable.at(SPECIAL_DEF_STAT_IDX)->baseStat + GENERATE_IV();
     this->baseSpeed = data->statsTable.at(SPEED_STAT_IDX)->baseStat + GENERATE_IV();
 
+    // Set the level and the stats for this level
+    setPokemonLevel(level);
+    this->health = maxHp;
+
+    // Get the list of types of this pokemon
+    for (const auto &typeRelation: pokemonData->typesTable) {
+        this->types.insert(database->typeNameTable.at(typeRelation.second->typeId));
+    }
+
     // Calculate the rest of the attributes of the Pokemon
-    this->level = level;
     this->gender = randomInt(0, 1) == 0;
     this->isShiny = proba() < SHINY_POKEMON_PROBABILITY;
+
+    // Compute the name of this pokemon
+    this->name = (isShiny ? "Shiny " : "") + unkebabString(data->identifier);
 
     // Filter only moves available to our pokemon
     std::vector<std::pair<int, std::shared_ptr<PokemonMovesRelation>>> filteredMoves;
@@ -68,10 +80,6 @@ int Pokemon::leveledStat(int base, int level) {
     return (base * 2 * level / 100) + 5;
 }
 
-std::string Pokemon::name() const {
-    return unkebabString(data->identifier);
-}
-
 std::shared_ptr<Pokemon> Pokemon::generateWildPokemon(
     PokemonDatabase* database,
     int localManhattanDist,
@@ -93,11 +101,11 @@ std::shared_ptr<Pokemon> Pokemon::generateWildPokemon(
 
 std::string Pokemon::statsString() const {
     std::ostringstream oss;
-    oss << "ATK: " << leveledStat(baseAttack, level) << ", "
-        << "DEF: " << leveledStat(baseDefense, level) << ", "
-        << "SATK: " << leveledStat(baseSpecialAttack, level) << ", "
-        << "SDEF: " << leveledStat(baseSpecialDefense, level) << ", "
-        << "SPD: " << leveledStat(baseSpeed, level);
+    oss << "ATK: " << attack << ", "
+        << "DEF: " << defense << ", "
+        << "SATK: " << specialAttack << ", "
+        << "SDEF: " << specialDefense << ", "
+        << "SPD: " << speed;
 
     return oss.str();
 }
@@ -110,10 +118,35 @@ std::string Pokemon::movesString() const {
         if (move) oss << unkebabString(move->identifier) << " | ";
     }
 
-    // Remove the trailing comma
+    // Remove the trailing delimiter
     std::string result = oss.str();
-    if (!moveSet.empty())
-        result = result.substr(0, result.size() - 2);
+    if (!moveSet.empty()) result = result.substr(0, result.size() - 3);
 
     return result;
+}
+
+std::string Pokemon::typesString() const {
+    std::ostringstream oss;
+    oss << "";
+
+    for (const auto &typeNameData: types) {
+        oss << unkebabString(typeNameData->name) << "/";
+    }
+
+    std::string result = oss.str();
+    if (!types.empty()) result = result.substr(0, result.size() - 1);
+
+    return result;
+}
+
+void Pokemon::setPokemonLevel(int newLevel) {
+    this->level = clamp(newLevel, 0, MAX_POKEMON_LEVEL);
+
+    // Compute the leveled up stats
+    this->maxHp = leveledHp(baseMaxHp, level);
+    this->attack = leveledStat(baseAttack, level);
+    this->defense = leveledStat(baseDefense, level);
+    this->specialAttack = leveledStat(baseSpecialAttack, level);
+    this->specialDefense = leveledStat(baseSpecialDefense, level);
+    this->speed = leveledStat(baseSpeed, level);
 }

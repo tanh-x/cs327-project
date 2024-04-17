@@ -4,12 +4,15 @@
 #include "core/constants/primary.hpp"
 #include "context/components/animations.hpp"
 #include "context/ctx_battle_view.hpp"
+#include "graphics/ncurses_artist.hpp"
 
 #define WINDOW_LEFT_PADDING 2
 #define ENTRY_LIST_INITIAL_OFFSET 1
 #define ENTRY_HEIGHT 4
 #define ENTRY_HORIZONTAL_PADDING 3
 #define MARGINS 1
+#define LEFT_SIDE_WIDTH 50
+#define RIGHT_SIDE_LEFT_OFFSET (LEFT_SIDE_WIDTH + 2)
 
 PokemonInspectContext::PokemonInspectContext(
     AbstractContext* parent,
@@ -30,8 +33,8 @@ PokemonInspectContext::PokemonInspectContext(
     // Construct and switch to it
     constructWindow(false);
 
-    // Add extra stuff
-    windowTitle(this, "Press ESC/~ to return to battle", 2);
+    // Draw window skeleton
+    redrawWindow();
 }
 
 
@@ -41,8 +44,7 @@ PokemonInspectContext::PokemonInspectContext(
     const std::vector<std::shared_ptr<Pokemon>> &opponentPokemon
 ) : PokemonInspectContext(parent, friendlyPokemon) {
     this->opponentPokemon = opponentPokemon;
-
-    mvwaddstr(window, dimensions.height - 1, 2, "[ TAB to switch between friendly and opponent Pokemon ]");
+    this->hasSecondaryList = true;
 }
 
 void PokemonInspectContext::start() {
@@ -57,43 +59,61 @@ void PokemonInspectContext::pokemonListEntry() {
     int scroll = 0;
 
     while (true) {
-        for (int i = 0; i < numEntries; i++) {
+        // Draw the Pokemon entries
+        for (int i = 0; i < static_cast<int>(secondaryList ? opponentPokemon.size() : pokemonList.size()); i++) {
             int lineOffset = i * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET;
 
-            std::shared_ptr<Pokemon> pokemon = pokemonList[i];
+            std::shared_ptr<Pokemon> pokemon = secondaryList ? opponentPokemon[i] : pokemonList[i];
 
-            spaces(this, 1, lineOffset, dimensions.width - 2);
-            spaces(this, 1, lineOffset + ENTRY_HEIGHT, dimensions.width - 2);
+            spaces(this, 1, lineOffset, LEFT_SIDE_WIDTH - 2);
+            spaces(this, 1, lineOffset + ENTRY_HEIGHT, LEFT_SIDE_WIDTH - 2);
             for (int k = 0; k <= ENTRY_HEIGHT; k++) {
                 mvwaddch(window, lineOffset + k, 1, ' ');
-                mvwaddch(window, lineOffset + k, dimensions.width - 2, ' ');
+                mvwaddch(window, lineOffset + k, LEFT_SIDE_WIDTH - 2, ' ');
             }
-
-            bool isSelected = scroll == i;
 
             // Pokemon name and level
             mvwprintw(
-                window, lineOffset + 1, ENTRY_HORIZONTAL_PADDING, "[Lv. %d] %s",
+                window, lineOffset + 1, ENTRY_HORIZONTAL_PADDING, "[Lv.%d | %c] %s (%s)",
                 pokemon->level,
-                ((isSelected ? "> " : "  ") + pokemon->name()).c_str()
+                pokemon->gender ? 'M' : 'F',
+                pokemon->name.c_str(),
+                pokemon->typesString().c_str()
             );
 
             // Pokemon stats
             mvwaddstr(window, lineOffset + 2, ENTRY_HORIZONTAL_PADDING, pokemon->statsString().c_str());
 
-            // Pokemon moves
-            mvwaddstr(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING, pokemon->movesString().c_str());
+            // Pokemon HP
+            mvwaddch(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING, '[');
+            mvwaddch(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING + 31, ']');
+            float healthBarSteps = static_cast<float>(30 * pokemon->health) / static_cast<float>(pokemon->maxHp);
+            sequentialColoredBar(
+                this, ENTRY_HORIZONTAL_PADDING + 1, lineOffset + 3,
+                30, healthBarSteps,
+                RDYLGN10_PALETTE_OFFSET, RDYLGN10_PALETTE_COUNT,
+                true, '=', ' '
+            );
+            mvwprintw(
+                window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING + 33,
+                "HP: %d / %d",
+                pokemon->health, pokemon->maxHp
+            );
 
         }
 
-        drawBox(
-            window,
-            1,
-            scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET,
-            dimensions.width - 2,
-            ENTRY_HEIGHT + 1
-        );
+        // Draw a box around the currently selected Pokemon
+        if (!secondaryList) {
+            drawBox(
+                window,
+                1,
+                scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET,
+                LEFT_SIDE_WIDTH - 2,
+                ENTRY_HEIGHT + 1
+            );
+        }
 
+        // We're done, so refresh
         refreshContext();
 
         // Listen for input
@@ -104,10 +124,29 @@ void PokemonInspectContext::pokemonListEntry() {
             case '~':  // Near-esc alias
                 return;  // Exit the loop
 
+            case '\t':
+                // Switch to the opponent pokemon list
+                if (hasSecondaryList) {
+                    secondaryList ^= true;  // Toggle it, if available
+
+                    // Clear the entire window
+                    wclear(window);
+
+                    // Then redraw it
+                    redrawWindow();
+                }
+
+            case '8':
+            case 'W':
+            case 'w':
             case KEY_UP: {
                 scroll = clamp(scroll - 1, 0, numEntries - 1);
                 continue;
             }
+
+            case '2':
+            case 'S':
+            case 's':
             case KEY_DOWN: {
                 scroll = clamp(scroll + 1, 0, numEntries - 1);
                 continue;
@@ -117,60 +156,14 @@ void PokemonInspectContext::pokemonListEntry() {
     }
 }
 
-//void TrainerListContext::trainerListEntry() {
-//    Player* player = GAME.player;
-//
-//    int numEntities = static_cast<int>(entityList->size());
-//    int scroll = 0;
-//    int maxScroll = max(numEntities - TRAINER_LIST_WINDOW_HEIGHT + 2, 0);
-//    while (true) {
-//        // List entities
-//        for (int i = 1; i < min(numEntities, TRAINER_LIST_WINDOW_HEIGHT - 2); i++) {
-//            CorporealEntity* ent = entityList->at(i + scroll);
-//
-//            // Initialize variables for string formatting
-//            char entityString[TRAINER_LIST_WINDOW_WIDTH - 1];
-//            char dxString[11];
-//            char indexString[13];
-//
-//            // Format the dx part
-//            sprintf(dxString, "dx=%d,", ent->mapX - player->mapX);
-//            rightPad(dxString, 7);
-//
-//            // Format the index part
-//            sprintf(indexString, "%d.", i + scroll);
-//            rightPad(indexString, 5);
-//
-//            // Concatenate everything together
-//            sprintf(
-//                entityString, "%s%c @ (%s dy=%d)",
-//                indexString,
-//                entityToChar(ent),
-//                dxString,
-//                ent->mapY - player->mapY
-//            );
-//            rightPad(entityString, TRAINER_LIST_WINDOW_WIDTH - WINDOW_LEFT_PADDING - 1);
-//
-//            // Print it out
-//            mvwprintw(window, i, WINDOW_LEFT_PADDING, "%s", entityString);
-//        }
-//
-//        // Add an indicator if scroll is available
-//        if (numEntities >= TRAINER_LIST_WINDOW_HEIGHT - 1) {
-//            if (scroll != maxScroll) {
-//                mvwprintw(
-//                    window, TRAINER_LIST_WINDOW_HEIGHT - 2, WINDOW_LEFT_PADDING,
-//                    "<%d MORE>  ", maxScroll - scroll
-//                );
-//            } else {
-//                mvwprintw(
-//                    window, TRAINER_LIST_WINDOW_HEIGHT - 2, WINDOW_LEFT_PADDING,
-//                    "<END>      "
-//                );
-//            }
-//
-//        }
+void PokemonInspectContext::redrawWindow() {
+    windowTitle(this, "Press ESC/~ to return to battle", 2);
 
-//    }
-//}
+    // Indicate which list is currently being displayed
+    mvwprintw(
+        window, dimensions.height - 1, 2, "[ Showing %s Pokemon. TAB to switch ]",
+        secondaryList ? "opponent's" : "your"
+    );
 
+    verticalSeparator(this, LEFT_SIDE_WIDTH, 0, dimensions.height);
+}
