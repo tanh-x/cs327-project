@@ -91,20 +91,23 @@ std::shared_ptr<Pokemon> Pokemon::generateWildPokemon(
     return std::make_shared<Pokemon>(database, data, level);
 }
 
-std::string Pokemon::toString() const {
+std::string Pokemon::statsString() const {
     std::ostringstream oss;
-    oss << name() << " "
-        << "Lv. " << level << " "
-        << "HP: " << leveledHp(baseMaxHp, level) << ", "
-        << "ATK: " << leveledStat(baseAttack, level) << ", "
+    oss << "ATK: " << leveledStat(baseAttack, level) << ", "
         << "DEF: " << leveledStat(baseDefense, level) << ", "
         << "SATK: " << leveledStat(baseSpecialAttack, level) << ", "
         << "SDEF: " << leveledStat(baseSpecialDefense, level) << ", "
-        << "SPD: " << leveledStat(baseSpeed, level) << "\n"
-        << "│ Moves: ";
+        << "SPD: " << leveledStat(baseSpeed, level);
+
+    return oss.str();
+}
+
+std::string Pokemon::movesString() const {
+    std::ostringstream oss;
+    oss << "Moves: ";
 
     for (const auto &move: moveSet) {
-        if (move) oss << unkebabString(move->identifier) << ", ";
+        if (move) oss << unkebabString(move->identifier) << " | ";
     }
 
     // Remove the trailing comma

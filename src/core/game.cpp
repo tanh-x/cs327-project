@@ -1,5 +1,6 @@
 // This file has components that drive the game, or otherwise is a very centerpiece part of the project
 #include <unistd.h>
+#include <unordered_set>
 
 #include "core/game.hpp"
 #include "graphics/renderer.hpp"
@@ -12,8 +13,9 @@
 #include "entities/entity_types/pokemon_vessel.hpp"
 
 #define INITIAL_LAUNCH_WINDOW_HEIGHT 12
-#define INITIAL_LAUNCH_WINDOW_WIDTH 32
-#define NUM_POKEMON_SELECTION 5
+#define INITIAL_LAUNCH_WINDOW_WIDTH 36
+#define NUM_POKEMON_SELECTION 7
+#define NUM_FIRST_POKEMON 3
 
 #define BATTLE_INITIATION_COOLDOWN 24
 #define NPC_BATTLE_INITIATION_PROBABILITY 0.5f
@@ -28,7 +30,7 @@ void gameLoop() {
     // Draw once
     renderGameUpdate();
 
-    initialLaunchWindow();
+    initialLaunchWindow("Choose your three Pokemon");
 
     Event* event;
     while (!GAME.quit_game) {
@@ -232,7 +234,7 @@ Map* moveToMap(int globalX, int globalY, MapEntryProps* entryProps) {
     return newMap;
 }
 
-void initialLaunchWindow() {
+void initialLaunchWindow(const char* prompt) {
     Rect2D rect = {
         (WINDOW_WIDTH - INITIAL_LAUNCH_WINDOW_WIDTH) / 2,
         (WINDOW_HEIGHT - INITIAL_LAUNCH_WINDOW_HEIGHT) / 2,
@@ -249,7 +251,7 @@ void initialLaunchWindow() {
 
     wrefresh(newWindow);
 
-    // Set up Pokemon selection
+    // Set up Pokemon highlightedIdx
     PokemonDatabase* database = GAME.database;
     std::shared_ptr<PokemonData> pokemonSelections[NUM_POKEMON_SELECTION] = {
         database->pokemonTable.at(1),  // Bulbasaur
@@ -260,13 +262,15 @@ void initialLaunchWindow() {
     // Generate some random Pokemon
     for (int i = 3; i < NUM_POKEMON_SELECTION; i++) {
         // First 200 Pokemon are probably more well-known, I dunno
-        int idx = database->pokemonIds[randomInt(0, 200)];
+        int idx = database->pokemonIds[randomInt(0, 150)];
         pokemonSelections[i] = database->pokemonTable.at(idx);
     }
 
-    int selection = -1;
+    std::unordered_set<int> selections;
 
-    mvwaddstr(newWindow, 0, 4, "[ Choose your Pokemon ]");
+    int highlightedIdx = -1;
+
+    mvwprintw(newWindow, 0, 3, "[ %s ]", prompt);
 
     while (true) {
         // Print out the pokemon and their name
@@ -281,11 +285,15 @@ void initialLaunchWindow() {
             )->name;
 
             // Form the string
-            std::string lineStr =
-                (selection == line ? "> " : "  ")
-                + unkebabString(pokemonData->identifier)
-                + " (" + typeName + ") "
-                + (selection == line ? " <" : " ");
+            std::string lineStr;
+            if (selections.empty() || selections.find(line) == selections.end()) {
+                lineStr = (highlightedIdx == line ? "  > " : "    ")
+                          + unkebabString(pokemonData->identifier)
+                          + " (" + typeName + ") "
+                          + (highlightedIdx == line ? "<" : "");
+            } else {
+                lineStr = "[+] " + unkebabString(pokemonData->identifier) + " (" + typeName + ") ";
+            }
 
 
             mvwaddstr(
@@ -300,10 +308,22 @@ void initialLaunchWindow() {
         switch (ch) {
             case '\n':
             case ' ': {
-                if (selection < 0 || selection >= NUM_POKEMON_SELECTION) continue;
-                // Add the Pokemon to the player's Pokemon inventory
-                auto newPokemon = std::make_shared<Pokemon>(database, pokemonSelections[selection], 1);
-                GAME.pokemonInventory.push_back(newPokemon);
+                // Check if the highlightedIdx index is valid
+                if (highlightedIdx < 0 || highlightedIdx >= NUM_POKEMON_SELECTION) continue;
+
+                // Add the selection
+                selections.insert(highlightedIdx);
+
+                // If we don't have 3 pokemon yet, let the player choose more
+                if (selections.size() < NUM_FIRST_POKEMON) continue;
+
+                // Otherwise, add the 3 pokemon to the player's inventory
+                for (int id: selections) {
+                    // Add the Pokemon to the player's Pokemon inventory
+                    auto newPokemon = std::make_shared<Pokemon>(database, pokemonSelections[id], 1);
+                    GAME.pokemonInventory.push_back(newPokemon);
+                }
+
                 delwin(newWindow);
                 renderGameUpdate();
                 return;
@@ -313,14 +333,14 @@ void initialLaunchWindow() {
             case KEY_LEFT:
             case 'w':
             case 'a': {
-                selection = clamp(selection - 1, 0, NUM_POKEMON_SELECTION - 1);
+                highlightedIdx = clamp(highlightedIdx - 1, 0, NUM_POKEMON_SELECTION - 1);
                 continue;
             }
             case KEY_DOWN:
             case KEY_RIGHT:
             case 's':
             case 'd': {
-                selection = clamp(selection + 1, 0, NUM_POKEMON_SELECTION - 1);
+                highlightedIdx = clamp(highlightedIdx + 1, 0, NUM_POKEMON_SELECTION - 1);
                 continue;
             }
             default: {}

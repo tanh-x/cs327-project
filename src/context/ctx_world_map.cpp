@@ -6,8 +6,8 @@
 #include "utils/string_helpers.hpp"
 #include "graphics/ncurses_artist.hpp"
 
-#define FOOTER_SIZE 6
-#define FOOTER_OFFSET (WINDOW_HEIGHT - FOOTER_SIZE - 1)
+#define BATTLE_CTX_FOOTER_SIZE 6
+#define FOOTER_OFFSET (WINDOW_HEIGHT - BATTLE_CTX_FOOTER_SIZE - 1)
 #define PIVOT_SPEED (1 * zoom)
 #define SIXTY_FOUR_SPACES "                                                                "
 #define MAP_INFO_WIDTH 26
@@ -28,7 +28,7 @@ WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : Abstra
     verticalExpandAnimation(dimensions, INTERVAL_60FPS_MICROS);
 
     // Construct the main window and switch to it
-    constructWindow();
+    constructWindow(true);
 
     // Add extra stuff
     windowTitle(this, "World Map", 2);
@@ -143,7 +143,7 @@ void WorldMapContext::start() {
 void WorldMapContext::worldMapEntry() {
     int mapInfoOffset = dimensions.width - MAP_INFO_WIDTH + 1;
 
-    verticalSeparator(this, mapInfoOffset - 1, FOOTER_OFFSET, FOOTER_SIZE);
+    verticalSeparator(this, mapInfoOffset - 1, FOOTER_OFFSET, BATTLE_CTX_FOOTER_SIZE);
 
     int pivotX = world->current->globalX;
     int pivotY = world->current->globalY;

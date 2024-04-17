@@ -38,14 +38,14 @@ void AbstractContext::returnToParentContext() {
 }
 
 // Constructs a basic popup window, and sets the current window to it
-WINDOW* AbstractContext::constructWindow() {
+WINDOW* AbstractContext::constructWindow(bool drawBorder) {
     WINDOW* newWindow = newwin(dimensions.height, dimensions.width, dimensions.y, dimensions.x);
 
     // Initialize window stuff
     keypad(newWindow, true);
 
     // Initialize styling
-    box(newWindow, 0, 0);
+    if (drawBorder) box(newWindow, 0, 0);
 
     // Set the context's pointer to it and return it as well
     this->window = newWindow;

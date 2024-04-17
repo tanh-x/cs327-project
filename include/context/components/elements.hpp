@@ -17,4 +17,14 @@ void sequentialColoredBar(
     int cmapPaletteOffset, int numPaletteColors
 );
 
+void drawBox(
+    WINDOW* window,
+    int x, int y, int width, int height,
+    chtype ls = ACS_VLINE, chtype rs = ACS_VLINE,
+    chtype ts = ACS_HLINE, chtype bs = ACS_HLINE,
+    chtype tl = ACS_ULCORNER, chtype tr = ACS_URCORNER,
+    chtype bl = ACS_LLCORNER, chtype br = ACS_LRCORNER
+);
+
+
 #endif

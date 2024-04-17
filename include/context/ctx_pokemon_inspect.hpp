@@ -9,18 +9,21 @@ class PokemonInspectContext : public AbstractContext {
 public:
     PokemonInspectContext(
         AbstractContext* parent,
-        std::vector<std::shared_ptr<Pokemon>> friendlyPokemon,
-        std::vector<std::shared_ptr<Pokemon>> opponentPokemon
+        const std::vector<std::shared_ptr<Pokemon>> &pokemonList
+    );
+
+    PokemonInspectContext(
+        AbstractContext* parent,
+        const std::vector<std::shared_ptr<Pokemon>> &friendlyPokemon,
+        const std::vector<std::shared_ptr<Pokemon>> &opponentPokemon
     );
 
     void start() override;
 
 private:
-    std::vector<std::shared_ptr<Pokemon>> friendlyPokemon;
+    std::vector<std::shared_ptr<Pokemon>> pokemonList;
     std::vector<std::shared_ptr<Pokemon>> opponentPokemon;
-    bool hasOpponent;
-    int maxScroll;
-    int opponentOffset;
+    int numEntries;
 
     void pokemonListEntry();
 };

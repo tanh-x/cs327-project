@@ -1,38 +1,48 @@
-
 #include "context/ctx_pokemon_inspect.hpp"
 #include "context/context_enum.hpp"
 #include "context/components/elements.hpp"
 #include "core/constants/primary.hpp"
 #include "context/components/animations.hpp"
+#include "context/ctx_battle_view.hpp"
 
 #define WINDOW_LEFT_PADDING 2
-#define LEFT_SIDEBAR_WIDTH 30
+#define ENTRY_LIST_INITIAL_OFFSET 1
+#define ENTRY_HEIGHT 4
+#define ENTRY_HORIZONTAL_PADDING 3
+#define MARGINS 1
 
 PokemonInspectContext::PokemonInspectContext(
     AbstractContext* parent,
-    std::vector<std::shared_ptr<Pokemon>> friendlyPokemon,
-    std::vector<std::shared_ptr<Pokemon>> opponentPokemon
+    const std::vector<std::shared_ptr<Pokemon>> &pokemonList
 ) : AbstractContext(
     ContextType::POKEMON_INSPECT_CONTEXT,
     parent,
-    {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT - 5}
+    {
+        MARGINS,
+        MARGINS,
+        parent->dimensions.width - 2 * MARGINS,
+        parent->dimensions.height - BATTLE_CTX_FOOTER_SIZE - 2 * MARGINS
+    }
 ) {
-    this->friendlyPokemon = friendlyPokemon;
-    this->opponentPokemon = opponentPokemon;
-    this->hasOpponent = !opponentPokemon.empty();
-    this->opponentOffset = friendlyPokemon.size();
-    this->maxScroll = opponentOffset + opponentPokemon.size();
-
-    // Do a funny animation
-    verticalExpandAnimation(dimensions, INTERVAL_60FPS_MICROS);
+    this->pokemonList = pokemonList;
+    this->numEntries = static_cast<int>(pokemonList.size());
 
     // Construct and switch to it
-    constructWindow();
+    constructWindow(false);
 
     // Add extra stuff
-    windowTitle(this, "Pokemon List", 2);
+    windowTitle(this, "Press ESC/~ to return to battle", 2);
+}
 
-    verticalSeparator(this, LEFT_SIDEBAR_WIDTH, 0, dimensions.height);
+
+PokemonInspectContext::PokemonInspectContext(
+    AbstractContext* parent,
+    const std::vector<std::shared_ptr<Pokemon>> &friendlyPokemon,
+    const std::vector<std::shared_ptr<Pokemon>> &opponentPokemon
+) : PokemonInspectContext(parent, friendlyPokemon) {
+    this->opponentPokemon = opponentPokemon;
+
+    mvwaddstr(window, dimensions.height - 1, 2, "[ TAB to switch between friendly and opponent Pokemon ]");
 }
 
 void PokemonInspectContext::start() {
@@ -47,6 +57,42 @@ void PokemonInspectContext::pokemonListEntry() {
     int scroll = 0;
 
     while (true) {
+        for (int i = 0; i < numEntries; i++) {
+            int lineOffset = i * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET;
+
+            std::shared_ptr<Pokemon> pokemon = pokemonList[i];
+
+            spaces(this, 1, lineOffset, dimensions.width - 2);
+            spaces(this, 1, lineOffset + ENTRY_HEIGHT, dimensions.width - 2);
+            for (int k = 0; k <= ENTRY_HEIGHT; k++) {
+                mvwaddch(window, lineOffset + k, 1, ' ');
+                mvwaddch(window, lineOffset + k, dimensions.width - 2, ' ');
+            }
+
+            bool isSelected = scroll == i;
+
+            // Pokemon name and level
+            mvwprintw(
+                window, lineOffset + 1, ENTRY_HORIZONTAL_PADDING, "[Lv. %d] %s",
+                pokemon->level,
+                ((isSelected ? "> " : "  ") + pokemon->name()).c_str()
+            );
+
+            // Pokemon stats
+            mvwaddstr(window, lineOffset + 2, ENTRY_HORIZONTAL_PADDING, pokemon->statsString().c_str());
+
+            // Pokemon moves
+            mvwaddstr(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING, pokemon->movesString().c_str());
+
+        }
+
+        drawBox(
+            window,
+            1,
+            scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET,
+            dimensions.width - 2,
+            ENTRY_HEIGHT + 1
+        );
 
         refreshContext();
 
@@ -59,17 +105,18 @@ void PokemonInspectContext::pokemonListEntry() {
                 return;  // Exit the loop
 
             case KEY_UP: {
-                scroll = clamp(scroll - 1, 0, maxScroll);
+                scroll = clamp(scroll - 1, 0, numEntries - 1);
                 continue;
             }
             case KEY_DOWN: {
-                scroll = clamp(scroll + 1, 0, maxScroll);
+                scroll = clamp(scroll + 1, 0, numEntries - 1);
                 continue;
             }
             default: {}
         }
     }
 }
+
 //void TrainerListContext::trainerListEntry() {
 //    Player* player = GAME.player;
 //

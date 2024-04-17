@@ -3,11 +3,11 @@
 
 #include "core/game_manager.hpp"
 
-#define DIALOG_WINDOW_HEIGHT 6
-#define FOOTER_SIZE 5
-#define FOOTER_OFFSET (WINDOW_HEIGHT - FOOTER_SIZE - 1)
+#define BATTLE_CTX_DIALOG_WINDOW_HEIGHT 6
+#define BATTLE_CTX_FOOTER_SIZE 5
+#define FOOTER_OFFSET (WINDOW_HEIGHT - BATTLE_CTX_FOOTER_SIZE - 1)
 #define PROMPT_ACTIONS 4
-#define PROMPT_ACTION_WIDTH 30
+#define PROMPT_ACTION_WIDTH 32
 
 class BattleViewContext : public AbstractContext {
 public:

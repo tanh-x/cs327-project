@@ -9,7 +9,6 @@
 #include "context/ctx_pokemon_inspect.hpp"
 
 
-
 BattleViewContext::BattleViewContext(
     AbstractContext* parent,
     AbstractEntity* opponent
@@ -25,7 +24,7 @@ BattleViewContext::BattleViewContext(
     battleTransitionAnimation(INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
-    constructWindow();
+    constructWindow(true);
 
     // Add a placeholder title
     mvwprintw(window, 1, 2, "PLACEHOLDER BATTLE INTERFACE");
@@ -42,9 +41,9 @@ BattleViewContext::BattleViewContext(
     // Define the dimensions of the dialog window
     Rect2D dialogRect;
     dialogRect.x = 1;
-    dialogRect.y = WINDOW_HEIGHT - DIALOG_WINDOW_HEIGHT;
+    dialogRect.y = WINDOW_HEIGHT - BATTLE_CTX_DIALOG_WINDOW_HEIGHT;
     dialogRect.width = WINDOW_WIDTH - 2;
-    dialogRect.height = DIALOG_WINDOW_HEIGHT;
+    dialogRect.height = BATTLE_CTX_DIALOG_WINDOW_HEIGHT;
 
     // Start with an animation
     verticalExpandAnimation(dialogRect, INTERVAL_60FPS_MICROS);
@@ -68,7 +67,7 @@ BattleViewContext::BattleViewContext(
     }
     mvwprintw(dialogWindow, 2, 1, "Pokemon list: %s", pokemonList.c_str());
 
-    mvwaddstr(dialogWindow, DIALOG_WINDOW_HEIGHT - 2, WINDOW_WIDTH - 12, "ENTER ");
+    mvwaddstr(dialogWindow, BATTLE_CTX_DIALOG_WINDOW_HEIGHT - 2, WINDOW_WIDTH - 12, "ENTER ");
     wattron(dialogWindow, A_BLINK);
     waddstr(dialogWindow, ">>");
     wattroff(dialogWindow, A_BLINK);
@@ -101,7 +100,6 @@ void BattleViewContext::start() {
 void BattleViewContext::battleContextLoop() {
     int sectionOffset = dimensions.width - PROMPT_ACTION_WIDTH + 1;
 
-    redrawWindow();
 
     int prompt = 0;
     std::string mainActions[] = {"FIGHT", "BAG", "POKEMON", "RUN (butchers the NPC)"};
@@ -109,9 +107,10 @@ void BattleViewContext::battleContextLoop() {
 
     // Only accepts ESC to exit, no other keys are handled.
     while (true) {
+        redrawWindow();
         for (int line = 0; line < PROMPT_ACTIONS; line++) {
             std::string lineStr =
-                (prompt == line ? "> " : "  ")
+                (prompt == line ? " > " : "   ")
                 + (std::string) currentPromptList[line]
                 + (prompt == line ? " <" : " ");
 
@@ -149,25 +148,10 @@ void BattleViewContext::battleContextLoop() {
                     // BAG
 
                 } else if (prompt == 2) {
-//                    auto playerPokemon = GAME.pokemonInventory;
-//                    auto opponentPokemon = opponent->pokemonInventory;
-//                    int i;
-//                    for (i = 0; i < playerPokemon.size(); i++) {
-//                        auto pokemon = playerPokemon[i];
-//                        mvwaddstr(window, i * 2 + 1, 1, pokemon->toString().c_str());
-//                    }
-//                    for (int k = 0; k < opponentPokemon.size(); k++) {
-//                        auto pokemon = opponentPokemon[k];
-//                        mvwaddstr(window, (i + k) * 2 + 1, 1, pokemon->toString().c_str());
-//                    }
                     // POKEMON
-                    auto* inspectContext = new PokemonInspectContext(
-                        this,
-                        GAME.pokemonInventory,
-                        opponent->pokemonInventory
-                    );
+                    auto* inspectContext = new PokemonInspectContext(this, GAME.pokemonInventory);
                     inspectContext->start();
-                    redrawWindow();
+                    refresh();
                     continue;
                 } else if (prompt == 3) {
                     // RUN
@@ -181,7 +165,8 @@ void BattleViewContext::battleContextLoop() {
 void BattleViewContext::redrawWindow() {
     box(window, 0, 0);
     horizontalSeparator(this, 0, FOOTER_OFFSET, WINDOW_WIDTH);
-    verticalSeparator(this, WINDOW_WIDTH - PROMPT_ACTION_WIDTH + 1, FOOTER_OFFSET, FOOTER_SIZE + 1);
+    verticalSeparator(this, WINDOW_WIDTH - PROMPT_ACTION_WIDTH + 1, FOOTER_OFFSET, BATTLE_CTX_FOOTER_SIZE + 1);
+    refreshContext();
 }
 
 

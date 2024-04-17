@@ -97,3 +97,27 @@ void sequentialColoredBar(
 
     wrefresh(window);
 }
+
+
+void drawBox(
+    WINDOW* window,
+    int x, int y, int width, int height,
+    chtype ls, chtype rs,
+    chtype ts, chtype bs,
+    chtype tl, chtype tr,
+    chtype bl, chtype br
+) {
+    // Draw top and bottom horizontal lines
+    mvwhline(window, y, x + 1, ts, width - 2);
+    mvwhline(window, y + height - 1, x + 1, bs, width - 2);
+
+    // Draw left and right vertical lines
+    mvwvline(window, y + 1, x, ls, height - 2);
+    mvwvline(window, y + 1, x + width - 1, rs, height - 2);
+
+    // Place corners
+    mvwaddch(window, y, x, tl);
+    mvwaddch(window, y, x + width - 1, tr);
+    mvwaddch(window, y + height - 1, x, bl);
+    mvwaddch(window, y + height - 1, x + width - 1, br);
+}

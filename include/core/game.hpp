@@ -7,7 +7,7 @@
 // The main game loop.
 void gameLoop();
 
-void initialLaunchWindow();
+void initialLaunchWindow(const char* prompt);
 
 // Set up the current map (as determined by player global position) for gameplay.
 // Must be called whenever the map changes

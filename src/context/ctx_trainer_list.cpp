@@ -28,7 +28,7 @@ TrainerListContext::TrainerListContext(
     verticalExpandAnimation(dimensions, INTERVAL_60FPS_MICROS);
 
     // Construct and switch to it
-    constructWindow();
+    constructWindow(true);
 
     // Add extra stuff
     windowTitle(this, "Trainer list", 2);

@@ -11,7 +11,7 @@ BuildingContext::BuildingContext(MainContext* parent, TileType type) : AbstractC
     verticalExpandAnimation(dimensions, INTERVAL_60FPS_MICROS);
 
     // Construct and switch to it
-    constructWindow();
+    constructWindow(true);
 
     // Write some text based on the type of building it was
     if (type == POKEMART) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMART INTERFACE");

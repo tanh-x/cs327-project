@@ -10,8 +10,6 @@
 
 #define DEFAULT_IDLE_COST 8
 
-
-
 CorporealEntity::CorporealEntity(EntityEnum type, int x, int y) : AbstractEntity(type) {
     this->mapX = x;
     this->mapY = y;

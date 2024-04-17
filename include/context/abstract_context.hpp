@@ -35,7 +35,7 @@ protected:
     AbstractContext* parent;
 
     // Constructs a basic popup window, and sets the current window to it
-    WINDOW* constructWindow();
+    WINDOW* constructWindow(bool drawBorder);
 };
 
 // TODO: old C code, refactor this into polymorphism
