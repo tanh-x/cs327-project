@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
     // Overrides for the center map
     map->mapSeed = timeSeedMilli; // NOLINT(*-narrowing-conversions)
     map->name = "PALLET TOWN";
-    map->wildernessLevel = 0.1025;
-    map->menaceLevel = 10;
+    world.wildernessLevel[WORLD_Y_SPAN][WORLD_X_SPAN] = 0.0425;
+    world.menaceLevel[WORLD_Y_SPAN][WORLD_X_SPAN] = 1;
 
     // Generate the first map outside the game loop, prevents it from regenerating in the game loop.
     MapEntryProps entryProps = map->generateTerrain(world.worldSeed);

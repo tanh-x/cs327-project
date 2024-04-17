@@ -13,8 +13,8 @@
 #define MAP_INFO_WIDTH 26
 #define SEQUENTIAL_BAR_SEGMENTS 20
 
-#define UNK_WILDERNESS_MEDIUM_THRESHOLD 0.875f
-#define UNK_WILDERNESS_HIGH_THRESHOLD 0.17f
+#define UNK_WILDERNESS_MEDIUM_THRESHOLD 0.0745f
+#define UNK_WILDERNESS_HIGH_THRESHOLD 0.14f
 
 WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : AbstractContext(
     ContextType::WORLD_MAP_CONTEXT,
@@ -38,7 +38,7 @@ WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : Abstra
     // Write the footer navigation guide
     mvwaddstr(
         window, dimensions.height - 1, 1,
-        "  wasd/arrow: Move    z/x: Zoom    enter/t: Fly    c: Focus    esc/f/m: Exit  "
+        "  wasd/arrow: Move   shift+Move: Faster move   z/x: Zoom    enter/t: Fly    c: Focus    esc/f/m: Exit  "
     );
 
     // We're done with initialization
@@ -192,12 +192,12 @@ void WorldMapContext::worldMapEntry() {
 
         // Draw the wilderness section
         if (pivotedMap == nullptr) {
-            float expectedOvergrowth = manhattanDist(pivotX, pivotY, 0, 0) * OVERGROWTH_FACTOR;
+            float expectedOvergrowth = sqrtf(manhattanDist(pivotX, pivotY, 0, 0)) * OVERGROWTH_FACTOR;
             float expectedBase = (WILDERNESS_LEVEL_UPPER_BOUND + WILDERNESS_LEVEL_LOWER_BOUND) / 2.0f;
             float wilderness = expectedOvergrowth / OVERGROWTH_WILDERNESS_MULTIPLIER + expectedBase;
 
             mvwprintw(
-                window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: %s?",
+                window, FOOTER_OFFSET + 3, mapInfoOffset + 1, "WILDERNESS: %s",
                 (wilderness < UNK_WILDERNESS_MEDIUM_THRESHOLD
                  ? "LOW"
                  : (wilderness < UNK_WILDERNESS_HIGH_THRESHOLD

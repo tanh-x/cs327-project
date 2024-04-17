@@ -1,0 +1,8 @@
+Original pixel art was using the PICO8 color scheme (https://lospec.com/palette-list/pico-8).
+This atlas encodes the corresponding color pair in the project via the brightness of the pixel
+Each RGB component is equal to one another, and has value (k * 16), where k is the encoded value.
+
+Original source:
+Author: Bala Vicknesh
+https://twitter.com/balavicknesh/status/961530774745788416/photo/1
+https://twitter.com/balavicknesh

@@ -8,10 +8,7 @@
 #include "utils/string_helpers.hpp"
 #include "context/ctx_pokemon_inspect.hpp"
 
-#define FOOTER_SIZE 5
-#define FOOTER_OFFSET (WINDOW_HEIGHT - FOOTER_SIZE - 1)
-#define PROMPT_ACTIONS 4
-#define PROMPT_ACTION_WIDTH 30
+
 
 BattleViewContext::BattleViewContext(
     AbstractContext* parent,
@@ -152,25 +149,26 @@ void BattleViewContext::battleContextLoop() {
                     // BAG
 
                 } else if (prompt == 2) {
-                    auto playerPokemon = GAME.pokemonInventory;
-                    auto opponentPokemon = opponent->pokemonInventory;
-                    int i;
-                    for (i = 0; i < playerPokemon.size(); i++) {
-                        auto pokemon = playerPokemon[i];
-                        mvwaddstr(window, i * 2 + 1, 1, pokemon->toString().c_str());
-                    }
-                    for (int k = 0; k < opponentPokemon.size(); k++) {
-                        auto pokemon = opponentPokemon[k];
-                        mvwaddstr(window, (i + k) * 2 + 1, 1, pokemon->toString().c_str());
-                    }
-//                    // POKEMON
-//                    auto* inspectContext = new PokemonInspectContext(
-//                        this,
-//                        opponent->pokemonInventory
-//                    );
-//                    inspectContext->start();
-//                    redrawWindow();
-//                    continue;
+//                    auto playerPokemon = GAME.pokemonInventory;
+//                    auto opponentPokemon = opponent->pokemonInventory;
+//                    int i;
+//                    for (i = 0; i < playerPokemon.size(); i++) {
+//                        auto pokemon = playerPokemon[i];
+//                        mvwaddstr(window, i * 2 + 1, 1, pokemon->toString().c_str());
+//                    }
+//                    for (int k = 0; k < opponentPokemon.size(); k++) {
+//                        auto pokemon = opponentPokemon[k];
+//                        mvwaddstr(window, (i + k) * 2 + 1, 1, pokemon->toString().c_str());
+//                    }
+                    // POKEMON
+                    auto* inspectContext = new PokemonInspectContext(
+                        this,
+                        GAME.pokemonInventory,
+                        opponent->pokemonInventory
+                    );
+                    inspectContext->start();
+                    redrawWindow();
+                    continue;
                 } else if (prompt == 3) {
                     // RUN
                     return;

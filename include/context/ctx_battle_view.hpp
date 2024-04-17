@@ -4,6 +4,10 @@
 #include "core/game_manager.hpp"
 
 #define DIALOG_WINDOW_HEIGHT 6
+#define FOOTER_SIZE 5
+#define FOOTER_OFFSET (WINDOW_HEIGHT - FOOTER_SIZE - 1)
+#define PROMPT_ACTIONS 4
+#define PROMPT_ACTION_WIDTH 30
 
 class BattleViewContext : public AbstractContext {
 public:

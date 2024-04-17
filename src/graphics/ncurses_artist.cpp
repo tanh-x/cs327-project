@@ -66,7 +66,7 @@ void initializeExtendedColors() {
     };
 
     for (int i = 0; i < GISTNCAR_PALETTE_COUNT; i++) {
-        init_pair(GISTNCAR_PALETTE_OFFSET + i, gistNcarColors[i], COLOR_BLACK);
+        init_extended_pair(GISTNCAR_PALETTE_OFFSET + i, gistNcarColors[i], COLOR_BLACK);
     }
 
     // Derived from the "PRGn_10" color scheme
@@ -84,7 +84,7 @@ void initializeExtendedColors() {
     };
 
     for (int i = 0; i < PRGN10_PALETTE_COUNT; i++) {
-        init_pair(PRGN10_PALETTE_OFFSET + i, prGn10Colors[i], COLOR_BLACK);
+        init_extended_pair(PRGN10_PALETTE_OFFSET + i, prGn10Colors[i], COLOR_BLACK);
     }
 }
 
