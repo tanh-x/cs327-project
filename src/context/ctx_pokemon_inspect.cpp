@@ -4,7 +4,6 @@
 #include "core/constants/primary.hpp"
 #include "context/components/animations.hpp"
 #include "context/ctx_battle_view.hpp"
-#include "graphics/ncurses_artist.hpp"
 
 #define WINDOW_LEFT_PADDING 2
 #define ENTRY_LIST_INITIAL_OFFSET 1
@@ -203,11 +202,13 @@ void PokemonInspectContext::renderWindowSkeleton() {
 
     // Indicate which list is currently being displayed
     mvwprintw(
-        window, dimensions.height - 1, 2, "[ Showing %s Pokemon. TAB to switch ]",
-        secondaryList ? "opponent's" : "your"
+        window, dimensions.height - 1, 2, "[ Showing %s Pokemon. TAB to see %s ]",
+        secondaryList ? "opponent's" : "your",
+        !secondaryList ? "opponent's" : "yours"
     );
 
     mvwvline(window, 0, LEFT_SIDE_WIDTH, ACS_VLINE, dimensions.height);
-    horizontalSeparator(this, LEFT_SIDE_WIDTH, 11, dimensions.width - LEFT_SIDE_WIDTH);
+    mvwhline(window, 11, LEFT_SIDE_WIDTH, ACS_HLINE, dimensions.width - LEFT_SIDE_WIDTH);
+    mvwaddch(window, 11, LEFT_SIDE_WIDTH, ACS_LTEE);
     mvwaddch(window, 12, dimensions.width - 1, ' ');
 }

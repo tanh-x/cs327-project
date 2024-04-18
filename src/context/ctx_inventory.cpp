@@ -116,7 +116,8 @@ void InventoryContext::inventoryEntry() {
                 std::shared_ptr<Pokemon> target = pokemonInventory[targetScroll - 1];
 
                 if (itemScroll == 0) { // Potion
-                    if (target->health == target->maxHp && GAME.player->numRevives <= 0) continue;
+                    if (GAME.player->numRevives <= 0) continue;
+                    if (target->health == target->maxHp || target->isDead()) continue;
                     target->heal(20);
                     GAME.player->numPotions--;
                     if (inBattle) {

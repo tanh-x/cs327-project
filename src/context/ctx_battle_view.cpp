@@ -344,7 +344,7 @@ void BattleViewContext::pokemonShakeAnimation(bool left) {
     int id = left ? friendlyActive->data->id : opponentActive->data->id;
 
     for (int i = 0; i < 8; i++) {
-        rasterizePokemonSprite(window, id, x + (i % 3 - 1) * 3, y, left);
+        rasterizePokemonSprite(window, id, x + (i % 3 - 1) * 3, y + (i == 7 ? 0 : 1), left);
         usleep(INTERVAL_30FPS_MICROS * 2);
         box(window, 0, 0);
         refreshContext();

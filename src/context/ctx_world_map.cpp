@@ -37,7 +37,7 @@ WorldMapContext::WorldMapContext(AbstractContext* parent, World* world) : Abstra
 
     // Write the footer navigation guide
     mvwaddstr(
-        window, dimensions.height - 1, 1,
+        window, dimensions.height - 1, 5,
         "  wasd/arrow: Move   shift+Move: Faster move   z/x: Zoom    enter/t: Fly    c: Focus    esc/f/m: Exit  "
     );
 

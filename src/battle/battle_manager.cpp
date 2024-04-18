@@ -237,10 +237,12 @@ int BattleManager::inflictDamage(
     overall = clamp(overall, MIN_DAMAGE, MAX_DAMAGE);
 
     // Then, pass the calculated damage to the target
+    int prevHealth = target->health;
     target->sustainDamage(overall);
+    int trueDamage = prevHealth - target->health;
 
     // Return the amount of damage that was dealt
-    return overall;
+    return trueDamage;
 }
 
 
