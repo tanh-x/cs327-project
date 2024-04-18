@@ -3,6 +3,9 @@
 
 #include "context/abstract_context.hpp"
 
+#define ASPECT 2
+#define SPRITE_HEIGHT 16
+
 void windowTitle(AbstractContext* context, const char* title, int x);
 
 void horizontalSeparator(AbstractContext* context, int x, int y, int width);
@@ -28,6 +31,8 @@ void drawBox(
     chtype tl = ACS_ULCORNER, chtype tr = ACS_URCORNER,
     chtype bl = ACS_LLCORNER, chtype br = ACS_LRCORNER
 );
+
+void rasterizePokemonSprite(WINDOW* window, int pokemonId, int x, int y, bool flip);
 
 
 #endif

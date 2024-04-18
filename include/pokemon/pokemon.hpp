@@ -6,6 +6,7 @@
 
 #include "deserialization/pokemon_data.hpp"
 #include "core/database.hpp"
+#include "utils/mathematics.hpp"
 
 #define MAX_POKEMON_LEVEL 100
 
@@ -32,31 +33,38 @@ public:
     int maxHp;
     int attack;
     int defense;
-int specialAttack;
+    int specialAttack;
     int specialDefense;
     int speed;
 
     // Current HP of the Pokemon
     int health;
+    bool isDead();
 
     // Set of type name pointers
     std::unordered_set<std::shared_ptr<TypeNameData>> types {};
 
-
     Pokemon(PokemonDatabase* database, const std::shared_ptr<PokemonData> &pokemonData, int level);
 
+    // Informational methods
+    [[nodiscard]] std::string statsString() const;
+
+    [[nodiscard]] std::string movesString() const;
+
+    [[nodiscard]] std::string typesString() const;
+
+    // Battle methods
+
+    // Sustains a damage value after the calculation is already mediated in BattleManager
+    void sustainDamage(int damage) {
+        health = clamp(health - damage, 0, maxHp);
+    }
 
     static std::shared_ptr<Pokemon> generateWildPokemon(
         PokemonDatabase* database,
         int localManhattanDist,
         float localMenaceLevel
     );
-
-    [[nodiscard]] std::string statsString() const;
-
-    [[nodiscard]] std::string movesString() const;
-
-    [[nodiscard]] std::string typesString() const;
 
 private:
     // Set the newLevel and the computed stat values for the pokemon

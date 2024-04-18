@@ -1,0 +1,4 @@
+#ifndef CTX_CONFIRMATION_BOX_HPP
+#define CTX_CONFIRMATION_BOX_HPP
+
+#endif

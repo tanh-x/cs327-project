@@ -32,7 +32,7 @@ void initializeExtendedColors() {
     init_pair(9, 0, 165); // purple
     init_pair(10, 0, 196); // full red
     init_pair(11, 0, 216); // light pink
-    init_pair(12, 196, 16); // black, deep red bg
+    init_pair(12, 255, 196); // white, deep red bg
 
     init_pair(21, 221, COLOR_BLACK);  // light yellow
     init_pair(22, 45, COLOR_BLACK);  // light blue
@@ -102,6 +102,18 @@ void initializeExtendedColors() {
 
     for (int i = 0; i < RDYLGN10_PALETTE_COUNT; i++) {
         init_pair(RDYLGN10_PALETTE_OFFSET + i, rdYlGn10Colors[i], COLOR_BLACK);
+    }
+
+    const short pico8Colors[] = {
+        0, 236, 89, 29,
+        131, 240, 251, 255,
+        197, 214, 11, 41,
+        39, 103, 211, 223,
+        255,
+    };
+
+    for (int i = 0; i < PICO8_PALETTE_COUNT; i++) {
+        init_pair(PICO8_PALETTE_OFFSET + i, pico8Colors[i], pico8Colors[i]);
     }
 }
 

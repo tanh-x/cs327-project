@@ -7,6 +7,7 @@
 #include "context/components/elements.hpp"
 #include "utils/string_helpers.hpp"
 #include "context/ctx_pokemon_inspect.hpp"
+#include "graphics/ncurses_artist.hpp"
 
 
 BattleViewContext::BattleViewContext(
@@ -20,33 +21,29 @@ BattleViewContext::BattleViewContext(
     // Store the pointer to the opponent first
     this->opponent = opponent;
 
+    leftPokemon = GAME.pokemonInventory.at(0);
+    rightPokemon = opponent->pokemonInventory.at(0);
+
     // Play a funny animation
     battleTransitionAnimation(INTERVAL_30FPS_MICROS);
 
     // Construct and switch to it
     constructWindow(true);
 
-    // Add a placeholder title
-    mvwprintw(window, 1, 2, "PLACEHOLDER BATTLE INTERFACE");
-    // We're done with initializing the main window
-
-    // Refresh the window once before adding the dialog window
-    refreshContext();
-
-    // Wait a little bit to create a delay before the dialog animation starts
-    usleep(STD_SLOW_FRAME_DELAY);
-
     // Time to build the dialog window
 
     // Define the dimensions of the dialog window
     Rect2D dialogRect;
     dialogRect.x = 1;
-    dialogRect.y = WINDOW_HEIGHT - BATTLE_CTX_DIALOG_WINDOW_HEIGHT;
+    dialogRect.y = WINDOW_HEIGHT - BATTLE_CTX_DIALOG_WINDOW_HEIGHT - 3;
     dialogRect.width = WINDOW_WIDTH - 2;
-    dialogRect.height = BATTLE_CTX_DIALOG_WINDOW_HEIGHT;
+    dialogRect.height = BATTLE_CTX_DIALOG_WINDOW_HEIGHT + 3;
+
+    // Play an animation of the pokemon entering
+    pokemonEntryAnimation();
 
     // Start with an animation
-    verticalExpandAnimation(dialogRect, INTERVAL_60FPS_MICROS);
+    verticalExpandAnimation(dialogRect, INTERVAL_30FPS_MICROS);
 
     // Then build the actual dialog window
     this->dialogWindow = newwin(dialogRect.height, dialogRect.width, dialogRect.y, dialogRect.x);
@@ -67,13 +64,14 @@ BattleViewContext::BattleViewContext(
     }
     mvwprintw(dialogWindow, 2, 1, "Pokemon list: %s", pokemonList.c_str());
 
-    mvwaddstr(dialogWindow, BATTLE_CTX_DIALOG_WINDOW_HEIGHT - 2, WINDOW_WIDTH - 12, "ENTER ");
+    mvwaddstr(dialogWindow, dialogRect.height - 3, WINDOW_WIDTH - 12, "ENTER ");
     wattron(dialogWindow, A_BLINK);
     waddstr(dialogWindow, ">>");
     wattroff(dialogWindow, A_BLINK);
 
     // We're done with building the window
     wrefresh(dialogWindow);
+    refreshContext();
 
     // Only accepts ESC/ENTER/SPACE to close the dialog
     while (true) {
@@ -100,14 +98,18 @@ void BattleViewContext::start() {
 void BattleViewContext::battleContextLoop() {
     int sectionOffset = dimensions.width - PROMPT_ACTION_WIDTH + 1;
 
-
     int prompt = 0;
     std::string mainActions[] = {"FIGHT", "BAG", "POKEMON", "RUN (butchers the NPC)"};
     std::string* currentPromptList = mainActions;
 
     // Only accepts ESC to exit, no other keys are handled.
     while (true) {
-        redrawWindow();
+        renderWindowSkeleton();
+        renderPokemon();
+
+        // Draw the Pokemon and their status bar
+
+        // Draw the action prompts on the lower right corner
         for (int line = 0; line < PROMPT_ACTIONS; line++) {
             std::string lineStr =
                 (prompt == line ? " > " : "   ")
@@ -149,6 +151,7 @@ void BattleViewContext::battleContextLoop() {
 
                 } else if (prompt == 2) {
                     // POKEMON
+
                     auto* inspectContext = new PokemonInspectContext(
                         this,
                         GAME.pokemonInventory,
@@ -166,11 +169,28 @@ void BattleViewContext::battleContextLoop() {
     }
 }
 
-void BattleViewContext::redrawWindow() {
+void BattleViewContext::renderWindowSkeleton() {
     box(window, 0, 0);
     horizontalSeparator(this, 0, FOOTER_OFFSET, WINDOW_WIDTH);
     verticalSeparator(this, WINDOW_WIDTH - PROMPT_ACTION_WIDTH + 1, FOOTER_OFFSET, BATTLE_CTX_FOOTER_SIZE + 1);
     refreshContext();
+}
+
+void BattleViewContext::renderPokemon() {
+    rasterizePokemonSprite(window, leftPokemon->data->id, POKEMON_LEFT_X, POKEMON_LEFT_Y, true);
+    rasterizePokemonSprite(window, rightPokemon->data->id, POKEMON_RIGHT_X, POKEMON_RIGHT_Y, false);
+}
+
+
+void BattleViewContext::pokemonEntryAnimation() {
+    for (int i = -36; i <= 0; i += 3) {
+        wclear(window);
+        rasterizePokemonSprite(window, leftPokemon->data->id, POKEMON_LEFT_X + i, POKEMON_LEFT_Y, true);
+        rasterizePokemonSprite(window, rightPokemon->data->id, POKEMON_RIGHT_X - i, POKEMON_RIGHT_Y, false);
+        usleep(INTERVAL_30FPS_MICROS);
+        box(window, 0, 0);
+        refreshContext();
+    }
 }
 
 

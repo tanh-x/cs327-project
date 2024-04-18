@@ -11,7 +11,7 @@
 #define ENTRY_HEIGHT 4
 #define ENTRY_HORIZONTAL_PADDING 3
 #define MARGINS 1
-#define LEFT_SIDE_WIDTH 50
+#define LEFT_SIDE_WIDTH 60
 #define RIGHT_SIDE_LEFT_OFFSET (LEFT_SIDE_WIDTH + 2)
 
 PokemonInspectContext::PokemonInspectContext(
@@ -34,7 +34,7 @@ PokemonInspectContext::PokemonInspectContext(
     constructWindow(false);
 
     // Draw window skeleton
-    redrawWindow();
+    renderWindowSkeleton();
 }
 
 
@@ -60,7 +60,7 @@ void PokemonInspectContext::pokemonListEntry() {
 
     while (true) {
         // Draw the Pokemon entries
-        for (int i = 0; i < static_cast<int>(secondaryList ? opponentPokemon.size() : pokemonList.size()); i++) {
+        for (int i = 0; i < numEntries; i++) {
             int lineOffset = i * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET;
 
             std::shared_ptr<Pokemon> pokemon = secondaryList ? opponentPokemon[i] : pokemonList[i];
@@ -84,7 +84,7 @@ void PokemonInspectContext::pokemonListEntry() {
             // Pokemon stats
             mvwaddstr(window, lineOffset + 2, ENTRY_HORIZONTAL_PADDING, pokemon->statsString().c_str());
 
-            // Pokemon HP
+            // Draw the HP bar
             mvwaddch(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING, '[');
             mvwaddch(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING + 31, ']');
             float healthBarSteps = static_cast<float>(30 * pokemon->health) / static_cast<float>(pokemon->maxHp);
@@ -94,6 +94,11 @@ void PokemonInspectContext::pokemonListEntry() {
                 RDYLGN10_PALETTE_OFFSET, RDYLGN10_PALETTE_COUNT,
                 true, '=', ' '
             );
+
+            // Indicate if the pokemon was knocked out
+            if (pokemon->isDead()) mvwaddstr(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING + 10, "KNOCKED OUT!");
+
+            // Print the health display
             mvwprintw(
                 window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING + 33,
                 "HP: %d / %d",
@@ -103,15 +108,17 @@ void PokemonInspectContext::pokemonListEntry() {
         }
 
         // Draw a box around the currently selected Pokemon
-        if (!secondaryList) {
-            drawBox(
-                window,
-                1,
-                scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET,
-                LEFT_SIDE_WIDTH - 2,
-                ENTRY_HEIGHT + 1
-            );
-        }
+        drawBox(
+            window,
+            1,
+            scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET,
+            LEFT_SIDE_WIDTH - 2,
+            ENTRY_HEIGHT + 1
+        );
+
+        std::shared_ptr<Pokemon> selectedPokemon = (secondaryList ? opponentPokemon[scroll] : pokemonList[scroll]);
+
+        rasterizePokemonSprite(window, selectedPokemon->data->id, LEFT_SIDE_WIDTH + 12, 13, true);
 
         // We're done, so refresh
         refreshContext();
@@ -128,12 +135,14 @@ void PokemonInspectContext::pokemonListEntry() {
                 // Switch to the opponent pokemon list
                 if (hasSecondaryList) {
                     secondaryList ^= true;  // Toggle it, if available
+                    numEntries = static_cast<int>(secondaryList ? opponentPokemon.size() : pokemonList.size());
 
                     // Clear the entire window
                     wclear(window);
 
                     // Then redraw it
-                    redrawWindow();
+                    scroll = 0;
+                    renderWindowSkeleton();
                 }
 
             case '8':
@@ -156,7 +165,7 @@ void PokemonInspectContext::pokemonListEntry() {
     }
 }
 
-void PokemonInspectContext::redrawWindow() {
+void PokemonInspectContext::renderWindowSkeleton() {
     windowTitle(this, "Press ESC/~ to return to battle", 2);
 
     // Indicate which list is currently being displayed
@@ -165,5 +174,7 @@ void PokemonInspectContext::redrawWindow() {
         secondaryList ? "opponent's" : "your"
     );
 
-    verticalSeparator(this, LEFT_SIDE_WIDTH, 0, dimensions.height);
+    mvwvline(window, 0, LEFT_SIDE_WIDTH, ACS_VLINE, dimensions.height);
+    horizontalSeparator(this, LEFT_SIDE_WIDTH, 12, dimensions.width - LEFT_SIDE_WIDTH);
+    mvwaddch(window, 12, dimensions.width - 1, ' ');
 }

@@ -30,7 +30,7 @@ private:
 
     void pokemonListEntry();
 
-    void redrawWindow();
+    void renderWindowSkeleton();
 };
 
 

@@ -5,11 +5,12 @@
 
 // Credit: https://stackoverflow.com/a/65590152/
 // Derived from answer by user Halt State, shared under CC BY-SA 4.0
-int** parse_frame(char* filename) {
+int** parseFrame(char* filename, int width, int height) {
     FILE* fp = fopen(filename, "rb");
     if (!fp) {
         perror("File opening failed");
-        return nullptr;
+        exit(1);
+//        return nullptr;
     }
 
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
@@ -18,13 +19,10 @@ int** parse_frame(char* filename) {
     png_init_io(png, fp);
     png_read_info(png, info);
 
-    int height = MAP_HEIGHT - 2;
-    int width = MAP_WIDTH - 2;
-
     if (
         static_cast<int>(png_get_image_width(png, info)) != width
         || static_cast<int>(png_get_image_height(png, info)) != height
-    ) {
+        ) {
         fprintf(stderr, "Image dimensions do not match expected capacity of %dx%d.\n", width, height);
         fclose(fp);
         png_destroy_read_struct(&png, &info, nullptr);
@@ -47,7 +45,7 @@ int** parse_frame(char* filename) {
         png_bytep row = row_pointers[y];
         for (int x = 0; x < width; x++) {
             png_bytep px = &(row[x * 3]);
-            image[y][x] = px[0] + px[1] + px[2] / 3;
+            image[y][x] = (px[0] + px[1] + px[2]) / 3;
         }
     }
 
@@ -55,4 +53,11 @@ int** parse_frame(char* filename) {
     png_destroy_read_struct(&png, &info, nullptr);
 
     return image;
+}
+
+Int2D getAtlasCoordinate(int pokemonId) {
+    return {
+        ((pokemonId - 1) % 14) * 20,
+        ((pokemonId - 1) / 14) * 20,
+    };
 }

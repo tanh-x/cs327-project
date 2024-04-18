@@ -38,12 +38,12 @@ post_build: $(TARGET)
 	@echo -e "  ┌───────────"
 	@echo -e "  │ Finished compile jobs, cleaning object files..."
 	@echo -e "  └──"
-#	@make clean_objects
-#	@echo -e "\n  ┌───────────"
-#	@echo -e "  │ Finished all Makefile rules. Binary should be \"$(TARGET)\""
-#	@echo -e "  │ "
-#	@echo -e "  │ PLEASE READ THE README FILE BEFORE PROCEEDING."
-#	@echo -e "  └──\n"
+	@make clean_objects
+	@echo -e "\n  ┌───────────"
+	@echo -e "  │ Finished all Makefile rules. Binary should be \"$(TARGET)\""
+	@echo -e "  │ "
+	@echo -e "  │ PLEASE READ THE README FILE BEFORE PROCEEDING."
+	@echo -e "  └──\n"
 
 clean_objects:
 	find $(SRC_DIR) -type f -name '*.o' -exec rm {} +

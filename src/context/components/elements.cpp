@@ -1,6 +1,9 @@
-#include <algorithm>
 #include <cmath>
 #include "context/components/elements.hpp"
+#include "graphics/parse_frame.hpp"
+#include "graphics/ncurses_artist.hpp"
+#include "world/world.hpp"
+#include "core/game.hpp"
 
 void windowTitle(AbstractContext* context, const char* title, int x) {
     WINDOW* window = context->window;
@@ -87,7 +90,7 @@ void sequentialColoredBar(
         // Determine which color pair to use based on the current position
         colorIndex = clamp(std::floor(float(i) / segmentWidth), 0, numPaletteColors - 1);
 
-        if (i <= threshold) {
+        if (i < threshold) {
             int idx = (homogeneous ? lastIdx : colorIndex) + cmapPaletteOffset;
             wattron(window, COLOR_PAIR(idx));
             waddch(window, filled);
@@ -124,4 +127,34 @@ void drawBox(
     mvwaddch(window, y, x + width - 1, tr);
     mvwaddch(window, y + height - 1, x, bl);
     mvwaddch(window, y + height - 1, x + width - 1, br);
+}
+
+
+void rasterizePokemonSprite(WINDOW* window, int pokemonId, int x, int y, bool flip) {
+    // If the Pokemon's id is more than 151, it is not a generation 1 pokemon, so we don't have a sprite
+    // for it. Hence, take pokemon % 151 with 83.3% chance and use one of the three secret sprites with
+    // 16.7% probability. This random is the same for every Pokemon of the same kind, and is determined
+    // by world seed.
+    if (pokemonId > 151) {
+        int test = globalHashFunction(pokemonId, pokemonId ^ 0x14f2, GAME.world->worldSeed);
+        pokemonId = (test % 6 == 0) ? ((pokemonId % 3) + 152) : ((pokemonId % 151) + 1);
+    }
+    Int2D atlasPosition = getAtlasCoordinate(pokemonId);
+
+    for (int rasterY = 0; rasterY < SPRITE_HEIGHT; rasterY++) {
+        for (int rasterX = 0; rasterX < SPRITE_HEIGHT; rasterX++) {
+            // Compute the pixel position on the atlas texture image
+            int atlasX = atlasPosition.x + (flip ? (SPRITE_HEIGHT - rasterX) : rasterX);
+            int atlasY = atlasPosition.y + rasterY;
+
+            // Get the pixel value at raster position
+            auto value = spriteAtlas[atlasY][atlasX];
+            int colorValue = PICO8_PALETTE_OFFSET + value / 16;
+
+            // Draw the pixel
+            wattron(window, COLOR_PAIR(colorValue));
+            mvwaddstr(window, rasterY + y, ASPECT * rasterX + x, "##");
+            wattroff(window, COLOR_PAIR(colorValue));
+        }
+    }
 }

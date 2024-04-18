@@ -212,7 +212,7 @@ MapEntryProps Map::generateTerrain(int worldSeed) {
     if (useBadApple) {
         char filename[42];
         sprintf(filename, "assets/sequence/badapple-%05d.png", positiveMod(frameIdx, MAX_FRAME_COUNT));
-        int** frame = parse_frame(filename);
+        int** frame = parseFrame(filename, MAP_WIDTH - 2, MAP_HEIGHT - 2);
         for (int y = 1; y < MAP_HEIGHT - 1; y++) {
             for (int x = 1; x < MAP_WIDTH - 1; x++) {
                 if (frame[y - 1][x - 1] > 128) tileset[y][x].type = BOULDER;

@@ -3,13 +3,12 @@
 #include "utils/mathematics.hpp"
 #include "pokemon/pokemon.hpp"
 #include "utils/string_helpers.hpp"
-#include "core/game.hpp"
 
 #define MAX_POKEMON_LEVEL 100
 #define SHINY_POKEMON_PROBABILITY 0.275f
 #define GENERATE_IV() randomInt(0, 15)
 #define STRUGGLE_MOVE_IDX 165
-#define MAX_MOVES 2
+#define MAX_MOVES 4
 
 Pokemon::Pokemon(PokemonDatabase* database, const std::shared_ptr<PokemonData> &pokemonData, int level) {
     this->data = pokemonData;
@@ -149,4 +148,8 @@ void Pokemon::setPokemonLevel(int newLevel) {
     this->specialAttack = leveledStat(baseSpecialAttack, level);
     this->specialDefense = leveledStat(baseSpecialDefense, level);
     this->speed = leveledStat(baseSpeed, level);
+}
+
+bool Pokemon::isDead() {
+    return health <= 0;
 }

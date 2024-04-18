@@ -1,14 +1,18 @@
 #include <cstdlib>
 #include <ctime>
+#include <csignal>
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"
 #include "context/ctx_main.hpp"
 #include "deserialization/deserializers.hpp"
 #include "core/constants/text.hpp"
+#include "graphics/parse_frame.hpp"
 
 GameManager GAME;
 GameOptions OPTIONS;
+
+int** spriteAtlas;
 
 int main(int argc, char* argv[]) {
     // Default game option arguments
@@ -104,7 +108,14 @@ int main(int argc, char* argv[]) {
     // Initialize ncurses
     initializeRenderer(OPTIONS.doColoring);
 
+    // Load the atlas
+    printf("Loading sprite atlas");
+    spriteAtlas = parseFrame((char*) ("assets/sprites/atlas.png"), SPRITE_ATLAS_WIDTH, SPRITE_ATLAS_HEIGHT);
+
     // Enter game loop
+    printf("Successful loaded everything! Starting game.");
+    usleep(200000);
+
     gameLoop();
 
     printf("Shutting down game...");

@@ -43,7 +43,9 @@ void renderGameUpdate() {
     std::vector<CorporealEntity*> entities = GAME.currentEntManager->entities;
     for (auto &entity: entities) {
         auto* ent = static_cast<CorporealEntity*>(entity);
+        if (ent->type == EntityEnum::PLAYER) attron(COLOR_PAIR(12));
         mvaddch(MAP_LINE_OFFSET + ent->mapY, ent->mapX, entityToChar(ent));
+        if (ent->type == EntityEnum::PLAYER) attroff(COLOR_PAIR(12));
     }
 
     // Last two lines
