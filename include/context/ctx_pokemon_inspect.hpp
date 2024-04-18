@@ -7,6 +7,8 @@
 
 class PokemonInspectContext : public AbstractContext {
 public:
+    void (*onSelect)(int) = nullptr;
+
     PokemonInspectContext(
         AbstractContext* parent,
         const std::vector<std::shared_ptr<Pokemon>> &pokemonList

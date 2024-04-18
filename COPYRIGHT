@@ -1,0 +1,31 @@
+Works used:
+
+---
+
+All 151 Gen 1 Pokemon 16x16 pixel art by Bala Vicknesh:
+https://twitter.com/balavicknesh/status/961530774745788416
+
+---
+
+"gist_ncar" color scheme from matplotlib, licensed under CC0 (public domain).
+The original palette can be found at:
+https://matplotlib.org/stable/users/explain/colors/colormaps.html#miscellaneous
+
+---
+
+"PRGn_10" color scheme from colorbrewer, licensed under CC0 (public domain)
+Distributed by ColorSchemes.jl at:
+https://docs.juliaplots.org/latest/generated/colorschemes#colorbrewer
+
+---
+
+"RdYlGn_11" color scheme from colorbrewer, licensed under CC0 (public domain)
+Distributed by ColorSchemes.jl at:
+https://docs.juliaplots.org/latest/generated/colorschemes#colorbrewer
+
+---
+
+Reading PNG files in C with libpng, by user Halt State, licensed under CC BY-SA 4.0
+https://stackoverflow.com/a/65590152/
+
+---

@@ -8,7 +8,7 @@
 #define SHINY_POKEMON_PROBABILITY 0.275f
 #define GENERATE_IV() randomInt(0, 15)
 #define STRUGGLE_MOVE_IDX 165
-#define MAX_MOVES 4
+#define MAX_MOVES 3
 
 Pokemon::Pokemon(PokemonDatabase* database, const std::shared_ptr<PokemonData> &pokemonData, int level) {
     this->data = pokemonData;

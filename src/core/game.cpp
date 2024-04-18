@@ -251,7 +251,7 @@ void initialLaunchWindow(const char* prompt) {
 
     wrefresh(newWindow);
 
-    // Set up Pokemon highlightedIdx
+    // Set up Pokemon selections
     PokemonDatabase* database = GAME.database;
     std::shared_ptr<PokemonData> pokemonSelections[NUM_POKEMON_SELECTION] = {
         database->pokemonTable.at(1),  // Bulbasaur
@@ -297,7 +297,6 @@ void initialLaunchWindow(const char* prompt) {
             } else {
                 lineStr = "[+] " + unkebabString(pokemonData->identifier) + " (" + typeName + ") ";
             }
-
 
             mvwaddstr(
                 newWindow, line + 1, 1,

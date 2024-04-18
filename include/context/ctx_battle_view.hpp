@@ -22,8 +22,8 @@ class BattleViewContext : public AbstractContext {
 public:
     BattleManager* manager;
 
-    std::shared_ptr<Pokemon> leftPokemon;
-    std::shared_ptr<Pokemon> rightPokemon;
+    std::shared_ptr<Pokemon> friendlyActive;
+    std::shared_ptr<Pokemon> opponentActive;
 
     // The opponent we're fighting against
     AbstractEntity* opponent;
@@ -44,6 +44,10 @@ private:
     void renderPokemon();
 
     void pokemonEntryAnimation();
+
+    void renderMoveList();
+
+    void onPokemonSelect()
 };
 
 #endif

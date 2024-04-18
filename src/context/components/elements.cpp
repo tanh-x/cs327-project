@@ -132,12 +132,12 @@ void drawBox(
 
 void rasterizePokemonSprite(WINDOW* window, int pokemonId, int x, int y, bool flip) {
     // If the Pokemon's id is more than 151, it is not a generation 1 pokemon, so we don't have a sprite
-    // for it. Hence, take pokemon % 151 with 83.3% chance and use one of the three secret sprites with
-    // 16.7% probability. This random is the same for every Pokemon of the same kind, and is determined
+    // for it. Hence, take pokemon % 151 with 90% chance and use one of the three secret sprites with
+    // 10% probability. This random is the same for every Pokemon of the same kind, and is determined
     // by world seed.
     if (pokemonId > 151) {
         int test = globalHashFunction(pokemonId, pokemonId ^ 0x14f2, GAME.world->worldSeed);
-        pokemonId = (test % 6 == 0) ? ((pokemonId % 3) + 152) : ((pokemonId % 151) + 1);
+        pokemonId = (test % 10 == 0) ? ((pokemonId % 3) + 152) : ((pokemonId % 151) + 1);
     }
     Int2D atlasPosition = getAtlasCoordinate(pokemonId);
 

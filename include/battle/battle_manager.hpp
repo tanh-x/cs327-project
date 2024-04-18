@@ -35,6 +35,9 @@ private:
     std::vector<std::shared_ptr<Pokemon>>* friendlyPokemon;
     std::vector<std::shared_ptr<Pokemon>>* opponentPokemon;
 
+    // AI state values
+    int pokemonChangeCooldown = 1;
+
     // Returns the damage amount that was actually inflicted
     static int inflictDamage(
         std::shared_ptr<Pokemon> attacker,
@@ -42,11 +45,20 @@ private:
         std::shared_ptr<MovesData> move
     );
 
-    // Submitted turn actions
+    // Submitted turn actions (NOT THE CURRENT STATE OF THE GAME)
+
     int activeFriendlyIdx = 0;
-    int activeOpponentIdx = 0;
     TurnMoveType playerNextMoveType = TurnMoveType::NONE;
     std::shared_ptr<MovesData> playerNextAttack = nullptr;
+
+    int activeOpponentIdx = 0;
+    TurnMoveType npcNextMoveType = TurnMoveType::NONE;
+    std::shared_ptr<MovesData> npcNextAttack = nullptr;
+
+    void executePlayerTurn();
+    void executeOpponentTurn();
+
+    void computeOpponentTurnAI();
 };
 
 

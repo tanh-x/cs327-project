@@ -21,8 +21,12 @@ BattleViewContext::BattleViewContext(
     // Store the pointer to the opponent first
     this->opponent = opponent;
 
-    leftPokemon = GAME.pokemonInventory.at(0);
-    rightPokemon = opponent->pokemonInventory.at(0);
+    friendlyActive = GAME.pokemonInventory.at(0);
+    opponentActive = opponent->pokemonInventory.at(0);
+
+    // Instantiate the manager
+    manager = new BattleManager(this);
+    // TODO: Memory?
 
     // Play a funny animation
     battleTransitionAnimation(INTERVAL_30FPS_MICROS);
@@ -100,7 +104,7 @@ void BattleViewContext::battleContextLoop() {
 
     int prompt = 0;
     std::string mainActions[] = {"FIGHT", "BAG", "POKEMON", "RUN (butchers the NPC)"};
-    std::string* currentPromptList = mainActions;
+    auto* currentPromptList = static_cast<std::string*>(mainActions);
 
     // Only accepts ESC to exit, no other keys are handled.
     while (true) {
@@ -109,8 +113,9 @@ void BattleViewContext::battleContextLoop() {
 
         // Draw the Pokemon and their status bar
 
-        // Draw the action prompts on the lower right corner
+        // Draw the action prompts in the lower right corner
         for (int line = 0; line < PROMPT_ACTIONS; line++) {
+            // Add > < if selected
             std::string lineStr =
                 (prompt == line ? " > " : "   ")
                 + (std::string) currentPromptList[line]
@@ -127,11 +132,6 @@ void BattleViewContext::battleContextLoop() {
         // Wait for user input
         int ch = getch();
         switch (ch) {
-            case ESCAPE_KEY:
-            case '`':  // Near-esc alias
-            case '~':  // Near-esc alias
-                return;  // Exit the loop
-
             case KEY_UP:
             case 'w': prompt = clamp(prompt - 1, 0, PROMPT_ACTIONS - 1);
                 continue;
@@ -145,6 +145,9 @@ void BattleViewContext::battleContextLoop() {
                 // Prompt action triggered
                 if (prompt == 0) {
                     // FIGHT
+                    renderMoveList();
+                    refreshContext();
+                    continue;
 
                 } else if (prompt == 1) {
                     // BAG
@@ -157,6 +160,7 @@ void BattleViewContext::battleContextLoop() {
                         GAME.pokemonInventory,
                         opponent->pokemonInventory
                     );
+                    inspectContext->onSelect =
                     inspectContext->start();
                     refresh();
                     continue;
@@ -177,19 +181,95 @@ void BattleViewContext::renderWindowSkeleton() {
 }
 
 void BattleViewContext::renderPokemon() {
-    rasterizePokemonSprite(window, leftPokemon->data->id, POKEMON_LEFT_X, POKEMON_LEFT_Y, true);
-    rasterizePokemonSprite(window, rightPokemon->data->id, POKEMON_RIGHT_X, POKEMON_RIGHT_Y, false);
+    rasterizePokemonSprite(window, friendlyActive->data->id, POKEMON_LEFT_X, POKEMON_LEFT_Y, true);
+    rasterizePokemonSprite(window, opponentActive->data->id, POKEMON_RIGHT_X, POKEMON_RIGHT_Y, false);
 }
 
 
 void BattleViewContext::pokemonEntryAnimation() {
     for (int i = -36; i <= 0; i += 3) {
         wclear(window);
-        rasterizePokemonSprite(window, leftPokemon->data->id, POKEMON_LEFT_X + i, POKEMON_LEFT_Y, true);
-        rasterizePokemonSprite(window, rightPokemon->data->id, POKEMON_RIGHT_X - i, POKEMON_RIGHT_Y, false);
+        rasterizePokemonSprite(window, friendlyActive->data->id, POKEMON_LEFT_X + i, POKEMON_LEFT_Y, true);
+        rasterizePokemonSprite(window, opponentActive->data->id, POKEMON_RIGHT_X - i, POKEMON_RIGHT_Y, false);
         usleep(INTERVAL_30FPS_MICROS);
         box(window, 0, 0);
         refreshContext();
+    }
+}
+
+void BattleViewContext::renderMoveList() {
+    Rect2D rect = {
+        dimensions.width - PROMPT_ACTION_WIDTH + 1,
+        FOOTER_OFFSET,
+        PROMPT_ACTION_WIDTH - 1,
+        PROMPT_ACTIONS + 2
+    };
+
+    // Start with an animation
+    verticalExpandAnimation(rect, INTERVAL_30FPS_MICROS);
+
+    // Build the window
+    WINDOW* newWindow = newwin(rect.height, rect.width, rect.y, rect.x);
+    keypad(newWindow, true);
+    box(newWindow, 0, 0);
+    wrefresh(newWindow);
+
+    int moveScroll = 0;
+    int numMoves = static_cast<int>(friendlyActive->moveSet.size());
+
+    while (true) {
+        // Add move prompts
+        mvwaddstr(newWindow, 1, 1, moveScroll == 0 ? " > [CANCEL] <" : "   [CANCEL]  ");
+        for (int line = 1; line <= numMoves; line++) {
+            std::shared_ptr<MovesData> move = friendlyActive->moveSet[line - 1];
+
+            // Add > < if selected
+            std::string lineStr =
+                (moveScroll == line ? " > " : "   ")
+                + unkebabString(move->identifier)
+                + (moveScroll == line ? " <" : " ");
+
+            mvwaddstr(newWindow, line + 1, 1, rightPad(lineStr, PROMPT_ACTION_WIDTH - 3).c_str());
+        }
+
+        wrefresh(newWindow);
+
+        int ch = getch();
+        switch (ch) {
+            case '\n':
+            case ' ': {
+                bool success = false;
+                // Submit the move if the prompt is selecting one
+                if (moveScroll != 0) {
+                    std::shared_ptr<MovesData> move = friendlyActive->moveSet[moveScroll - 1];
+                    success = manager->submitPokemonMove(friendlyActive, move);
+                }
+                // Regardless, close the move window
+                delwin(newWindow);
+                refreshContext();
+
+                // If the move submission was sucessful, immediately start the turn computation
+                if (success) manager->executeTurn();
+                return;
+            }
+
+            case '8':
+            case 'W':
+            case 'w':
+            case KEY_UP: {
+                moveScroll = clamp(moveScroll - 1, 0, numMoves);
+                continue;
+            }
+
+            case '2':
+            case 'S':
+            case 's':
+            case KEY_DOWN: {
+                moveScroll = clamp(moveScroll + 1, 0, numMoves);
+                continue;
+            }
+            default: {}
+        }
     }
 }
 

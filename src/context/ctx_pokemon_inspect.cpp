@@ -116,9 +116,35 @@ void PokemonInspectContext::pokemonListEntry() {
             ENTRY_HEIGHT + 1
         );
 
+        // Get the pointer to the selected Pokemon
         std::shared_ptr<Pokemon> selectedPokemon = (secondaryList ? opponentPokemon[scroll] : pokemonList[scroll]);
 
-        rasterizePokemonSprite(window, selectedPokemon->data->id, LEFT_SIDE_WIDTH + 12, 13, true);
+        // If the current Pokemon is in battle, indicate it
+        if (parent->type == ContextType::BATTLE_CONTEXT) {
+            auto* battleCtx = dynamic_cast<BattleViewContext*>(parent);
+            if (battleCtx->friendlyActive == selectedPokemon || battleCtx->opponentActive == selectedPokemon) {
+                mvwaddstr(window, scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET, 3, " IN BATTLE ");
+            } else {
+                // Also add a prompt for choosing the Pokemon
+                if (!secondaryList) {
+                    mvwaddstr(
+                        window,
+                        scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET + ENTRY_HEIGHT,
+                        LEFT_SIDE_WIDTH - 4 - 17,
+                        " ENTER to choose "
+                    );
+                }
+            }
+        }
+
+
+        // Draw its sprite in the lower right corner
+        rasterizePokemonSprite(window, selectedPokemon->data->id, LEFT_SIDE_WIDTH + 11, 12, true);
+
+        // Display further information in the upper right corner
+        spaces(this, LEFT_SIDE_WIDTH + 2, 1, dimensions.width - LEFT_SIDE_WIDTH - 2);
+        mvwaddstr(window, 1, LEFT_SIDE_WIDTH + 2, selectedPokemon->movesString().c_str());
+
 
         // We're done, so refresh
         refreshContext();
@@ -130,6 +156,13 @@ void PokemonInspectContext::pokemonListEntry() {
             case '`':  // Near-esc alias
             case '~':  // Near-esc alias
                 return;  // Exit the loop
+
+            case '\n':
+            case ' ': {
+                if (onSelect == nullptr) continue;
+                onSelect(scroll);
+                return;
+            }
 
             case '\t':
                 // Switch to the opponent pokemon list
@@ -175,6 +208,6 @@ void PokemonInspectContext::renderWindowSkeleton() {
     );
 
     mvwvline(window, 0, LEFT_SIDE_WIDTH, ACS_VLINE, dimensions.height);
-    horizontalSeparator(this, LEFT_SIDE_WIDTH, 12, dimensions.width - LEFT_SIDE_WIDTH);
+    horizontalSeparator(this, LEFT_SIDE_WIDTH, 11, dimensions.width - LEFT_SIDE_WIDTH);
     mvwaddch(window, 12, dimensions.width - 1, ' ');
 }
