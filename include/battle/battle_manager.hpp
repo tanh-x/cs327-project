@@ -29,8 +29,16 @@ public:
 
     void executeTurn();
 
+    void swapPlayerPokemon(int newIndex);
+
+    void swapOpponentPokemon(int newIndex);
+
+    void submitItemTurn();
+
 private:
     BattleViewContext* battleCtx;
+
+    bool cancelTurn = false;
 
     std::vector<std::shared_ptr<Pokemon>>* friendlyPokemon;
     std::vector<std::shared_ptr<Pokemon>>* opponentPokemon;

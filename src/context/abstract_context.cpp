@@ -27,7 +27,7 @@ void AbstractContext::start() {
 // Disposes of the context, which is assumed to be the current context, and restores the parent window.
 void AbstractContext::returnToParentContext() {
     // Do not call this method on a context that is not the current context, or if it's the root context
-    if (GAME.context != this || parent == nullptr) exit(1);
+    if (GAME.context != this || parent == nullptr) return;
 
     // Destroy the context and restore the parent
     delwin(window);

@@ -56,7 +56,7 @@ void PokemonInspectContext::start() {
 }
 
 void PokemonInspectContext::pokemonListEntry() {
-    int scroll = 0;
+    int scrollIdx = 0;
 
     while (true) {
         // Draw the Pokemon entries
@@ -84,19 +84,7 @@ void PokemonInspectContext::pokemonListEntry() {
             // Pokemon stats
             mvwaddstr(window, lineOffset + 2, ENTRY_HORIZONTAL_PADDING, pokemon->statsString().c_str());
 
-            // Draw the HP bar
-            mvwaddch(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING, '[');
-            mvwaddch(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING + 31, ']');
-            float healthBarSteps = static_cast<float>(30 * pokemon->health) / static_cast<float>(pokemon->maxHp);
-            sequentialColoredBar(
-                this, ENTRY_HORIZONTAL_PADDING + 1, lineOffset + 3,
-                30, healthBarSteps,
-                RDYLGN10_PALETTE_OFFSET, RDYLGN10_PALETTE_COUNT,
-                true, '=', ' '
-            );
-
-            // Indicate if the pokemon was knocked out
-            if (pokemon->isDead()) mvwaddstr(window, lineOffset + 3, ENTRY_HORIZONTAL_PADDING + 10, "KNOCKED OUT!");
+            pokemonHealthBar(this, pokemon, ENTRY_HORIZONTAL_PADDING, lineOffset + 3);
 
             // Print the health display
             mvwprintw(
@@ -104,36 +92,34 @@ void PokemonInspectContext::pokemonListEntry() {
                 "HP: %d / %d",
                 pokemon->health, pokemon->maxHp
             );
-
         }
 
         // Draw a box around the currently selected Pokemon
         drawBox(
             window,
             1,
-            scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET,
+            scrollIdx * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET,
             LEFT_SIDE_WIDTH - 2,
             ENTRY_HEIGHT + 1
         );
 
         // Get the pointer to the selected Pokemon
-        std::shared_ptr<Pokemon> selectedPokemon = (secondaryList ? opponentPokemon[scroll] : pokemonList[scroll]);
+        std::shared_ptr<Pokemon> selectedPokemon = (secondaryList ? opponentPokemon[scrollIdx]
+                                                                  : pokemonList[scrollIdx]);
 
         // If the current Pokemon is in battle, indicate it
         if (parent->type == ContextType::BATTLE_CONTEXT) {
             auto* battleCtx = dynamic_cast<BattleViewContext*>(parent);
             if (battleCtx->friendlyActive == selectedPokemon || battleCtx->opponentActive == selectedPokemon) {
-                mvwaddstr(window, scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET, 3, " IN BATTLE ");
-            } else {
+                mvwaddstr(window, scrollIdx * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET, 3, " IN BATTLE ");
+            } else if (!secondaryList && !selectedPokemon->isDead()) {
                 // Also add a prompt for choosing the Pokemon
-                if (!secondaryList) {
-                    mvwaddstr(
-                        window,
-                        scroll * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET + ENTRY_HEIGHT,
-                        LEFT_SIDE_WIDTH - 4 - 17,
-                        " ENTER to choose "
-                    );
-                }
+                mvwaddstr(
+                    window,
+                    scrollIdx * ENTRY_HEIGHT + ENTRY_LIST_INITIAL_OFFSET + ENTRY_HEIGHT,
+                    LEFT_SIDE_WIDTH - 4 - 17,
+                    " ENTER to choose "
+                );
             }
         }
 
@@ -159,8 +145,22 @@ void PokemonInspectContext::pokemonListEntry() {
 
             case '\n':
             case ' ': {
-                if (onSelect == nullptr) continue;
-                onSelect(scroll);
+                // Check if we're in the right context
+                if (parent->type != ContextType::BATTLE_CONTEXT) continue;
+
+                // Check if the selected pokemon is the active pokemon
+                auto* battleCtx = dynamic_cast<BattleViewContext*>(parent);
+                if (battleCtx->friendlyActive == selectedPokemon) continue;
+
+                // Check if we're on the secondary list
+                if (secondaryList) continue;
+
+                // Check if the Pokemon was knocked out
+                if (selectedPokemon->isDead()) continue;
+
+                // Then, we can take this Pokemon
+                returnToParentContext();
+                battleCtx->onPokemonSelect(scrollIdx);
                 return;
             }
 
@@ -174,7 +174,7 @@ void PokemonInspectContext::pokemonListEntry() {
                     wclear(window);
 
                     // Then redraw it
-                    scroll = 0;
+                    scrollIdx = 0;
                     renderWindowSkeleton();
                 }
 
@@ -182,7 +182,7 @@ void PokemonInspectContext::pokemonListEntry() {
             case 'W':
             case 'w':
             case KEY_UP: {
-                scroll = clamp(scroll - 1, 0, numEntries - 1);
+                scrollIdx = clamp(scrollIdx - 1, 0, numEntries - 1);
                 continue;
             }
 
@@ -190,7 +190,7 @@ void PokemonInspectContext::pokemonListEntry() {
             case 'S':
             case 's':
             case KEY_DOWN: {
-                scroll = clamp(scroll + 1, 0, numEntries - 1);
+                scrollIdx = clamp(scrollIdx + 1, 0, numEntries - 1);
                 continue;
             }
             default: {}

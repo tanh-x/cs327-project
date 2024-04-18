@@ -61,4 +61,6 @@ typedef struct {
 
 float getBaseNumTrainers(float wilderness);
 
+int coalesceDataInt(int x);
+
 #endif

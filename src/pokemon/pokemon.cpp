@@ -5,7 +5,7 @@
 #include "utils/string_helpers.hpp"
 
 #define MAX_POKEMON_LEVEL 100
-#define SHINY_POKEMON_PROBABILITY 0.275f
+#define SHINY_POKEMON_PROBABILITY 0.175f
 #define GENERATE_IV() randomInt(0, 15)
 #define STRUGGLE_MOVE_IDX 165
 #define MAX_MOVES 3
@@ -89,10 +89,10 @@ std::shared_ptr<Pokemon> Pokemon::generateWildPokemon(
     std::shared_ptr<PokemonData> data = database->pokemonTable.at(idx);
 
     // Compute its level based on distance and menace level
-    int maxLevel = clamp(localManhattanDist / 2, 1, MAX_POKEMON_LEVEL);
+    int maxLevel = clamp(localManhattanDist / 2 + 2, 1, MAX_POKEMON_LEVEL);
     int minLevel = clamp((localManhattanDist - 200) / 2, 1, MAX_POKEMON_LEVEL);
-    int level = randomInt(minLevel, maxLevel);
-    level += static_cast<int>(localMenaceLevel * randomFloat(0.3f, 2.65f));
+    int level = randomInt(minLevel - 5, maxLevel);
+    level += static_cast<int>(localMenaceLevel * randomFloat(0.35f, 2.65f));
     level = clamp(level, minLevel, maxLevel);
 
     return std::make_shared<Pokemon>(database, data, level);
@@ -152,4 +152,12 @@ void Pokemon::setPokemonLevel(int newLevel) {
 
 bool Pokemon::isDead() {
     return health <= 0;
+}
+
+void Pokemon::sustainDamage(int damage) {
+    health = clamp(health - damage, 0, maxHp);
+}
+
+void Pokemon::heal(int amount) {
+    health = clamp(health + amount, 0, maxHp);
 }

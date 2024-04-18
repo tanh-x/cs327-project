@@ -36,7 +36,7 @@
 // Miscellaneous constants
 #define ESCAPE_KEY 27
 
-#define STD_SLOW_FRAME_DELAY 200
+#define STD_SLOW_FRAME_DELAY 100000
 #define INTERVAL_60FPS_MICROS 16667
 #define INTERVAL_30FPS_MICROS 33333
 

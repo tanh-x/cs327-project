@@ -14,13 +14,27 @@
 #define POKEMON_LEFT_Y 13
 
 #define POKEMON_RIGHT_X 80
-#define POKEMON_RIGHT_Y 4
+#define POKEMON_RIGHT_Y 3
+
+#define DIALOG_CHAR_PER_FRAME 3
+#define DIALOG_FRAME_TIME 33333
+#define DIALOG_WAIT_TIME 1000000
+
+#define HEALTH_BAR_VERTICAL_MARGIN 2
+#define HEALTH_BAR_HEIGHT 5
+#define HEALTH_BAR_WIDTH 36
+
+#define POKEMON_CAPTURE_PROBABILITY 0.4f
 
 class BattleManager;
 
 class BattleViewContext : public AbstractContext {
 public:
     BattleManager* manager;
+
+    bool battleTerminated = false;
+    bool playerVictory = false;
+    bool pokemonCaptured = false;
 
     std::shared_ptr<Pokemon> friendlyActive;
     std::shared_ptr<Pokemon> opponentActive;
@@ -32,10 +46,25 @@ public:
 
     void start() override;
 
-private:
+    void onPokemonSelect(int idx);
 
+    void writeToDialog(const std::vector<std::string>& lines, bool animate);
+
+    void pokemonSwapAnimation(int oldId, int newId, bool left);
+
+    void pokemonShakeAnimation(bool left);
+
+    void renderHealthBar(bool friendly);
+
+    void tryCapturePokemon();
+
+private:
     // Pointer to the dialog window that will be created in the constructor
     WINDOW* dialogWindow;
+    Rect2D dialogRect;
+
+    Rect2D leftHealthBarRect;
+    Rect2D rightHealthBarRect;
 
     void battleContextLoop();
 
@@ -46,8 +75,6 @@ private:
     void pokemonEntryAnimation();
 
     void renderMoveList();
-
-    void onPokemonSelect()
 };
 
 #endif

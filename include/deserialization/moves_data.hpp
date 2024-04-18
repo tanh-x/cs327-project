@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include "abstract_deserializable.hpp"
+#include "utils/string_helpers.hpp"
 
 #define MOVE_DATA_CSV_NAME "moves.csv"
 
@@ -11,6 +12,7 @@ class MovesData : public AbstractDeserializable {
 public:
     int id;
     std::string identifier;
+    std::string name;
     int generationId;
     int typeId;
     int power;
@@ -44,6 +46,7 @@ public:
     ) : AbstractDeserializable(),
         id(id),
         identifier(std::move(identifier)),
+        name(unkebabString(this->identifier)),
         generationId(generationId),
         typeId(typeId),
         power(power),
@@ -61,6 +64,8 @@ public:
     void printSelf() const override;
 
     [[maybe_unused]] static MovesData* deserialize(const std::string &line);
+
+    std::string toString();
 };
 
 

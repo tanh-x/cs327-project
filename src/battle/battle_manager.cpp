@@ -47,9 +47,7 @@ bool BattleManager::submitPokemonChange(int newIdx) {
 }
 
 void BattleManager::executeTurn() {
-    // TODO: Delete this
-    spaces(battleCtx, 1, 1, 50);
-    spaces(battleCtx, 2, 1, 50);
+    cancelTurn = false;
 
     // First, let the AI take its turn
     computeOpponentTurnAI();
@@ -74,14 +72,17 @@ void BattleManager::executeTurn() {
         executePlayerTurn();
         battleCtx->refreshContext();
         usleep(SLEEP_BETWEEN_PLY_MILLIS * 1000);
-        executeOpponentTurn();
+        if (battleCtx->battleTerminated) return;
+        if (!cancelTurn) executeOpponentTurn();
     } else {
         executeOpponentTurn();
         battleCtx->refreshContext();
         usleep(SLEEP_BETWEEN_PLY_MILLIS * 1000);
-        executePlayerTurn();
+        if (battleCtx->battleTerminated) return;
+        if (!cancelTurn) executePlayerTurn();
     }
     battleCtx->refreshContext();
+    if (battleCtx->battleTerminated) return;
 
     // We're done, so clean up the turn queue holders
     playerNextMoveType = TurnMoveType::NONE;
@@ -99,28 +100,52 @@ void BattleManager::executePlayerTurn() {
         case TurnMoveType::ATTACK: {
             bool miss = randomInt(0, 100) > playerNextAttack->accuracy;
             if (miss) {
-                mvwprintw(battleCtx->window, 1, 1, "Missed");
-                // TODO: Indicate miss
+                battleCtx->writeToDialog({"Your " + battleCtx->friendlyActive->name + "'s attack missed!"}, true);
                 return;
             }
 
             int damage = inflictDamage(battleCtx->friendlyActive, battleCtx->opponentActive, playerNextAttack);
-            mvwprintw(battleCtx->window, 1, 1, "Dealt %d damage", damage);
-            // TODO: Indicate this
+            battleCtx->pokemonShakeAnimation(false);
+            battleCtx->renderHealthBar(true);
+            battleCtx->renderHealthBar(false);
+            battleCtx->writeToDialog(
+                {
+                    "Your " + battleCtx->friendlyActive->name + " used " + playerNextAttack->name + ".",
+                    battleCtx->opponentActive->name + " took " + std::to_string(damage) + " damage!"
+                }, true
+            );
+
+            if (battleCtx->opponentActive->isDead()) {
+                cancelTurn = true;
+                battleCtx->writeToDialog({battleCtx->opponentActive->name + " fainted!"}, true);
+
+                bool foundReplacement = false;
+                for (int i = 0; i < static_cast<int>(opponentPokemon->size()); i++) {
+                    std::shared_ptr<Pokemon> pokemon = opponentPokemon->at(i);
+                    if (pokemon->isDead()) continue;
+                    swapOpponentPokemon(i);
+                    foundReplacement = true;
+                    break;
+                }
+
+                // If no remaining Pokemon left, the player won
+                if (!foundReplacement) {
+                    battleCtx->battleTerminated = true;
+                    battleCtx->playerVictory = true;
+                    return;
+                }
+            }
+
             return;
         }
 
         case TurnMoveType::ITEM: {
-
+            // Don't need to do anything
+            return;
         }
 
         case TurnMoveType::CHANGE_POKEMON: {
-            battleCtx->friendlyActive = friendlyPokemon->at(activeFriendlyIdx);
-            mvwprintw(
-                battleCtx->window, 1, 1, "Changed pokemon to %s",
-                battleCtx->friendlyActive->name.c_str()
-            );
-            // TODO: Indicate this
+            swapPlayerPokemon(activeFriendlyIdx);
         }
         case TurnMoveType::NONE: return;
     }
@@ -131,28 +156,49 @@ void BattleManager::executeOpponentTurn() {
         case TurnMoveType::ATTACK: {
             bool miss = randomInt(0, 100) > npcNextAttack->accuracy;
             if (miss) {
-                mvwprintw(battleCtx->window, 2, 1, "Missed");
-                // TODO: Indicate miss
+                battleCtx->writeToDialog({battleCtx->opponentActive->name + "'s attack missed!"}, true);
                 return;
             }
 
             int damage = inflictDamage(battleCtx->opponentActive, battleCtx->friendlyActive, npcNextAttack);
-            mvwprintw(battleCtx->window, 2, 1, "Dealt %d damage", damage);
-            // TODO: Indicate this
+            battleCtx->pokemonShakeAnimation(true);
+            battleCtx->renderHealthBar(true);
+            battleCtx->renderHealthBar(false);
+            battleCtx->writeToDialog(
+                {
+                    battleCtx->opponentActive->name + " used " + npcNextAttack->name + ".",
+                    "Your " + battleCtx->friendlyActive->name + " took " + std::to_string(damage) + " damage!"
+                }, true
+            );
+
+            if (battleCtx->friendlyActive->isDead()) {
+                cancelTurn = true;
+                battleCtx->writeToDialog({battleCtx->friendlyActive->name + " fainted!"}, true);
+
+                bool foundReplacement = false;
+                for (int i = 0; i < static_cast<int>(friendlyPokemon->size()); i++) {
+                    if (friendlyPokemon->at(i)->isDead()) continue;
+                    foundReplacement = true;
+                    break;
+                }
+
+                // If no remaining Pokemon left, the player lost
+                if (!foundReplacement) {
+                    battleCtx->battleTerminated = true;
+                    battleCtx->playerVictory = false;
+                    return;
+                }
+
+                // Otherwise, let the player choose the next Pokemon
+                battleCtx->writeToDialog({"Choose another Pokemon to continue the battle."}, true);
+            }
+
             return;
         }
-        case TurnMoveType::ITEM: {
-
-        }
         case TurnMoveType::CHANGE_POKEMON: {
-            battleCtx->opponentActive = opponentPokemon->at(activeOpponentIdx);
-            mvwprintw(
-                battleCtx->window, 1, 1, "Opponent changed pokemon to %s",
-                battleCtx->opponentActive->name.c_str()
-            );
-            // TODO: Indicate this
+            swapOpponentPokemon(activeOpponentIdx);
         }
-        case TurnMoveType::NONE: return;
+        default: return;
     }
 }
 
@@ -163,7 +209,7 @@ int BattleManager::inflictDamage(
     std::shared_ptr<MovesData> move
 ) {
     float base = 2.0f * static_cast<float>(attacker->level) / 5.0f + 2.0f;
-    base *= static_cast<float>(move->power);
+    base *= static_cast<float>(coalesceDataInt(move->power));
     base *= static_cast<float>(attacker->attack);
     base /= static_cast<float>(target->defense);
     base /= 50.0f;
@@ -185,18 +231,16 @@ int BattleManager::inflictDamage(
     }
 
     // Put everything together
-    int overall = static_cast<int>(round(base * criticalFactor * randomFactor * stabFactor));
+    int overall = static_cast<int>(roundf(base * criticalFactor * randomFactor * stabFactor));
 
     // Clamp it between reasonable values
     overall = clamp(overall, MIN_DAMAGE, MAX_DAMAGE);
 
     // Then, pass the calculated damage to the target
-    int targetBeforeHp = target->health;
     target->sustainDamage(overall);
-    int trueDamage = targetBeforeHp - target->health;
 
     // Return the amount of damage that was dealt
-    return trueDamage;
+    return overall;
 }
 
 
@@ -208,7 +252,8 @@ void BattleManager::computeOpponentTurnAI() {
     float changePokemonProbaBonus = -0.4f * (float(activePokemon->health) / float(activePokemon->maxHp)) + 0.37f;
 
     if (proba() < AI_CHANGE_POKEMON_BASE_PROBABILITY + changePokemonProbaBonus
-        && pokemonChangeCooldown <= 0) {
+        && pokemonChangeCooldown <= 0
+        && n >= 2) {
         // The AI has decided to change Pokemon
 
         int healthiestPokemonIdx = -1;
@@ -217,7 +262,7 @@ void BattleManager::computeOpponentTurnAI() {
         // Find the Pokemon with the most health
         for (int i = 0; i < n; i++) {
             std::shared_ptr<Pokemon> pokemon = opponentPokemon->at(i);
-            if (pokemon->isDead() || pokemon->health < maxHealth) continue;
+            if (pokemon->isDead() || pokemon == activePokemon || pokemon->health < maxHealth) continue;
 
             maxHealth = pokemon->health;
             healthiestPokemonIdx = i;
@@ -240,7 +285,7 @@ void BattleManager::computeOpponentTurnAI() {
 
         // Go through every known move and pick the best one with some probability
         for (auto &move: activePokemon->moveSet) {
-            auto heuristic = static_cast<float>(move->power);
+            auto heuristic = static_cast<float>(coalesceDataInt(move->power));
 
             // If a type of the Pokemon matches the move's type, then multiply the heuristic by a factor
             for (const std::shared_ptr<TypeNameData> &type: activePokemon->types) {
@@ -271,4 +316,28 @@ void BattleManager::computeOpponentTurnAI() {
         pokemonChangeCooldown--;
     }
 
+}
+
+void BattleManager::swapPlayerPokemon(int newIndex) {
+    int oldId = battleCtx->friendlyActive->data->id;
+    battleCtx->friendlyActive = friendlyPokemon->at(newIndex);
+    battleCtx->pokemonSwapAnimation(oldId, battleCtx->friendlyActive->data->id, true);
+    battleCtx->renderHealthBar(true);
+    battleCtx->writeToDialog({battleCtx->friendlyActive->name + "! I choose you!"}, true);
+}
+
+void BattleManager::swapOpponentPokemon(int newIndex) {
+    int oldId = battleCtx->opponentActive->data->id;
+    battleCtx->opponentActive = opponentPokemon->at(newIndex);
+    battleCtx->pokemonSwapAnimation(oldId, battleCtx->opponentActive->data->id, false);
+    battleCtx->renderHealthBar(false);
+    battleCtx->writeToDialog(
+        {
+            std::string(battleCtx->opponent->name) + " sent out " + battleCtx->opponentActive->name +
+            "!"
+        }, true);
+}
+
+void BattleManager::submitItemTurn() {
+    this->playerNextMoveType = TurnMoveType::ITEM;
 }

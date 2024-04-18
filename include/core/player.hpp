@@ -3,6 +3,8 @@
 
 // This file holds functionalities related to the player
 
+#define ITEM_STARTING_AMOUNT 4
+
 #include "entities/abstract_entity.hpp"
 #include "world/mapbuilder.hpp"
 
@@ -23,6 +25,10 @@ public:
     int globalY;
     int mapX;
     int mapY;
+
+    int numPotions = ITEM_STARTING_AMOUNT;
+    int numRevives = ITEM_STARTING_AMOUNT;
+    int numPokeballs = ITEM_STARTING_AMOUNT;
 
     PlayerVessel* currentEntity = nullptr;
 

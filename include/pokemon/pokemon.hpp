@@ -56,9 +56,10 @@ public:
     // Battle methods
 
     // Sustains a damage value after the calculation is already mediated in BattleManager
-    void sustainDamage(int damage) {
-        health = clamp(health - damage, 0, maxHp);
-    }
+    void sustainDamage(int damage);
+
+    // Heals the Pokemon up to the max HP
+    void heal(int amount);
 
     static std::shared_ptr<Pokemon> generateWildPokemon(
         PokemonDatabase* database,

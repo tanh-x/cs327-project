@@ -144,3 +144,17 @@
     - Made GUI for player selection
     - Made placeholder GUI for pokemon list
 
+
+-- Assignment 1.09 --
+* Day 1 (2024-04-17)
+    Afternoon:
+    - Added a sprite atlas
+    - Improved Pokemon list visuals
+    - Improved battle GUI
+    Evening:
+    - Loaded sprites into the game
+    - Implemented basic battle mechanics
+    - Battle functionality complete
+    Midnight:
+    - Started working on items
+    - Finished capturing/items usage

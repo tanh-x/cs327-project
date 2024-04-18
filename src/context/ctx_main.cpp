@@ -3,6 +3,7 @@
 #include "context/ctx_trainer_list.hpp"
 #include "context/ctx_building.hpp"
 #include "context/ctx_world_map.hpp"
+#include "context/ctx_inventory.hpp"
 
 
 // Instantiates the root context. Called once when initializing the game.
@@ -41,6 +42,15 @@ bool worldContextInputHandler(int key) {
             );
             trainerListCtx->start();
             // Blocking call until trainer list context completes its operations
+            break;
+        }
+
+        case 'b':
+        case 'B': {
+            // INVENTORY
+            enqueueInputBlockingEvent(0);
+            auto* inventoryContext= new InventoryContext(GAME.context);
+            inventoryContext->start();
             break;
         }
 
@@ -111,7 +121,6 @@ EncounterScenario tryPlayerMovementInput(Player* player, int key) {
             return player->attemptMove(0, 1);
 
         case '1':
-        case 'b':
             // PLAYER DOWN-LEFT
             return player->attemptMove(-1, 1);
 

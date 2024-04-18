@@ -1,6 +1,7 @@
 #include "utils/mathematics.hpp"
 #include <cstdlib>
 #include <cmath>
+#include <climits>
 
 int positiveMod(int x, int y) {
     return ((x % y) + y) % y;
@@ -81,4 +82,8 @@ int manhattanDist(int x1, int y1, int x2, int y2) {
 
 float getBaseNumTrainers(float wilderness) {
     return minf(13.0f, (-6.86f * wilderness + 4.225f) / (6.93f * wilderness - 0.05f));
+}
+
+int coalesceDataInt(int x) {
+    return x == INT_MAX ? 0 : x;
 }

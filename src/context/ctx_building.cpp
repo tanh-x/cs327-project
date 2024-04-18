@@ -14,8 +14,17 @@ BuildingContext::BuildingContext(MainContext* parent, TileType type) : AbstractC
     constructWindow(true);
 
     // Write some text based on the type of building it was
-    if (type == POKEMART) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMART INTERFACE");
-    else if (type == POKECENTER) mvwprintw(window, 1, 1, "PLACEHOLDER POKEMON CENTER INTERFACE");
+    if (type == POKEMART) {
+        mvwprintw(window, 1, 1, "POKEMART - Resupplied all items");
+        GAME.player->numPotions = ITEM_STARTING_AMOUNT;
+        GAME.player->numRevives = ITEM_STARTING_AMOUNT;
+        GAME.player->numPokeballs = ITEM_STARTING_AMOUNT;
+    } else if (type == POKECENTER) {
+        mvwprintw(window, 1, 1, "POKECENTER - All Pokemon healed");
+        for (auto &pokemon: GAME.pokemonInventory) {
+            pokemon->health = pokemon->maxHp;
+        }
+    }
 
     // We're done with initialization
 }

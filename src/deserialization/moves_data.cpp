@@ -1,6 +1,6 @@
 #include <iostream>
 #include "deserialization/moves_data.hpp"
-#include "utils/string_helpers.hpp"
+#include "core/game.hpp"
 
 void MovesData::printSelf() const {
     std::string paddedIdentifier = rightPad(truncateToEllipses(identifier, 20), 20);
@@ -54,4 +54,15 @@ MovesData* MovesData::deserialize(const std::string &line) {
         id, identifier, generationId, typeId, power, pp, accuracy, priority, targetId,
         damageClassId, effectId, effectChance, contestTypeId, contestEffectId, superContestEffectId
     );
+}
+
+std::string MovesData::toString() {
+    std::stringstream oss;
+    oss << name << " ("
+        << unkebabString(GAME.database->typeNameTable.at(typeId)->name) << ") - "
+        << "Power: " << ((power == INT_MAX) ? "N/A" : std::to_string(power)) << ", "
+        << "Accuracy: " << ((accuracy == INT_MAX) ? "N/A" : std::to_string(accuracy)) << "%, "
+        << "Priority: " << ((priority == INT_MAX) ? "N/A" : std::to_string(priority));
+
+    return oss.str();
 }

@@ -1,6 +1,7 @@
 ┌─< README Main Content >──────────────────────────────────────────────────────┐
 │                                                                              │
-│ Generates Pokemon and displays their information in placeholder battles.     │
+│ Implements Pokemon battles, with improved visuals. You can also capture      │
+│ Pokemon.                                                                     │
 │                                                                              │
 │ The game display size has been increased by a factor of 1.5x to 120x36       │
 │                                                                              │

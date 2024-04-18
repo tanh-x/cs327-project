@@ -12,10 +12,10 @@
 #include "utils/string_helpers.hpp"
 #include "entities/entity_types/pokemon_vessel.hpp"
 
-#define INITIAL_LAUNCH_WINDOW_HEIGHT 12
-#define INITIAL_LAUNCH_WINDOW_WIDTH 36
+#define INITIAL_LAUNCH_WINDOW_HEIGHT 9
+#define INITIAL_LAUNCH_WINDOW_WIDTH 38
 #define NUM_POKEMON_SELECTION 7
-#define NUM_FIRST_POKEMON 3
+#define NUM_FIRST_POKEMON 2
 
 #define BATTLE_INITIATION_COOLDOWN 24
 #define NPC_BATTLE_INITIATION_PROBABILITY 0.5f
@@ -30,7 +30,7 @@ void gameLoop() {
     // Draw once
     renderGameUpdate();
 
-    initialLaunchWindow("Choose your three Pokemon");
+    initialLaunchWindow("Choose your two Pokemon");
 
     Event* event;
     while (!GAME.quit_game) {

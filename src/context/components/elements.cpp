@@ -1,9 +1,10 @@
 #include <cmath>
-#include "context/components/elements.hpp"
+#include "context/abstract_context.hpp"
 #include "graphics/parse_frame.hpp"
+#include "context/components/elements.hpp"
 #include "graphics/ncurses_artist.hpp"
-#include "world/world.hpp"
 #include "core/game.hpp"
+
 
 void windowTitle(AbstractContext* context, const char* title, int x) {
     WINDOW* window = context->window;
@@ -57,9 +58,7 @@ void verticalSeparator(AbstractContext* context, int x, int y, int height) {
 }
 
 
-void spaces(AbstractContext* context, int x, int y, int width) {
-    WINDOW* window = context->window;
-
+void spaces(WINDOW* window, int x, int y, int width) {
     wmove(window, y, x);
     for (int i = 0; i < width; i++) {
         waddch(window, ' ');
@@ -67,6 +66,11 @@ void spaces(AbstractContext* context, int x, int y, int width) {
 
     // Refresh the window
     wrefresh(window);
+}
+
+
+void spaces(AbstractContext* context, int x, int y, int width) {
+    spaces(context->window, x, y, width);
 }
 
 
@@ -129,8 +133,29 @@ void drawBox(
     mvwaddch(window, y + height - 1, x + width - 1, br);
 }
 
+void drawBox(
+    WINDOW* window,
+    Rect2D rect,
+    chtype ls, chtype rs,
+    chtype ts, chtype bs,
+    chtype tl, chtype tr,
+    chtype bl, chtype br
+) {
+    drawBox(
+        window, rect.x, rect.y, rect.width, rect.height,
+        ls, rs,
+        ts, bs,
+        tl, tr,
+        bl, br
+    );
+}
 
-void rasterizePokemonSprite(WINDOW* window, int pokemonId, int x, int y, bool flip) {
+
+void rasterizePokemonSprite(
+    WINDOW* window, int pokemonId,
+    int x, int y,
+    bool flip, bool cleanTrail
+) {
     // If the Pokemon's id is more than 151, it is not a generation 1 pokemon, so we don't have a sprite
     // for it. Hence, take pokemon % 151 with 90% chance and use one of the three secret sprites with
     // 10% probability. This random is the same for every Pokemon of the same kind, and is determined
@@ -142,9 +167,13 @@ void rasterizePokemonSprite(WINDOW* window, int pokemonId, int x, int y, bool fl
     Int2D atlasPosition = getAtlasCoordinate(pokemonId);
 
     for (int rasterY = 0; rasterY < SPRITE_HEIGHT; rasterY++) {
-        for (int rasterX = 0; rasterX < SPRITE_HEIGHT; rasterX++) {
+        if (cleanTrail) {
+            mvwaddstr(window, rasterY + y, -4 * ASPECT + x, "        ");
+            mvwaddstr(window, rasterY + y, ASPECT * SPRITE_HEIGHT + x, "      ");
+        }
+        for (int rasterX = -1; rasterX < SPRITE_HEIGHT; rasterX++) {
             // Compute the pixel position on the atlas texture image
-            int atlasX = atlasPosition.x + (flip ? (SPRITE_HEIGHT - rasterX) : rasterX);
+            int atlasX = max(0, atlasPosition.x + (flip ? (SPRITE_HEIGHT - rasterX) : rasterX));
             int atlasY = atlasPosition.y + rasterY;
 
             // Get the pixel value at raster position
@@ -157,4 +186,26 @@ void rasterizePokemonSprite(WINDOW* window, int pokemonId, int x, int y, bool fl
             wattroff(window, COLOR_PAIR(colorValue));
         }
     }
+}
+
+void pokemonHealthBar(
+    AbstractContext* context,
+    std::shared_ptr<Pokemon> pokemon,
+    int x, int y
+) {
+    WINDOW* window = context->window;
+
+    // Draw the HP bar
+    mvwaddch(window, y, x, '[');
+    mvwaddch(window, y, x + 31, ']');
+    float healthBarSteps = static_cast<float>(30 * pokemon->health) / static_cast<float>(pokemon->maxHp);
+    sequentialColoredBar(
+        context, x + 1, y,
+        30, healthBarSteps,
+        RDYLGN10_PALETTE_OFFSET, RDYLGN10_PALETTE_COUNT,
+        true, '=', ' '
+    );
+
+    // Indicate if the pokemon was knocked out
+    if (pokemon->isDead()) mvwaddstr(window, y, x + 10, "KNOCKED OUT!");
 }

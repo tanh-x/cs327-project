@@ -1,4 +1,0 @@
-#ifndef CTX_CONFIRMATION_H
-#define CTX_CONFIRMATION_H
-
-#endif
