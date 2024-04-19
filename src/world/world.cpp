@@ -27,7 +27,7 @@ void initializeWorld(World* world, int worldSeed) {
 
             world->eccentricity[y][x] = eccentricity;
             world->overgrowthLevel[y][x] = overgrowth;
-            world->menaceLevel[y][x] = menace;
+            world->menaceLevel[y][x] = max(0, menace);
             world->wildernessLevel[y][x] = wilderness;
         }
     }

@@ -20,6 +20,8 @@ typedef struct {
     int frameTimeMicros;
 
     bool doBadApple;
+
+    bool generation1;
 } GameOptions;
 
 // Singleton object that stores pointers to core components of the game, as well as other information.

@@ -44,14 +44,18 @@ PokemonDatabase::PokemonDatabase() {
 
     // "Left join" the stats table onto the Pokemon table
     for (const std::shared_ptr<PokemonStatsRelation> &statsRelation: parsedStatsRelation) {
-        std::shared_ptr<PokemonData> pokemon = pokemonTable.at(statsRelation->pokemonId);
-        pokemon->statsTable[statsRelation->statId] = statsRelation;
+        try {
+            std::shared_ptr<PokemonData> pokemon = pokemonTable.at(statsRelation->pokemonId);
+            pokemon->statsTable[statsRelation->statId] = statsRelation;
+        } catch (const std::out_of_range &ignored) {}
     }
 
     // "Left join" the types table onto the Pokemon table
     for (const std::shared_ptr<PokemonTypeRelation> &typeRelation: parsedTypeRelation) {
-        std::shared_ptr<PokemonData> pokemon = pokemonTable.at(typeRelation->pokemonId);
-        pokemon->typesTable[typeRelation->typeId] = typeRelation;
+        try {
+            std::shared_ptr<PokemonData> pokemon = pokemonTable.at(typeRelation->pokemonId);
+            pokemon->typesTable[typeRelation->typeId] = typeRelation;
+        } catch (const std::out_of_range &ignored) {}
     }
 
     // "Left join" the moves table onto the Pokemon table, matching on pokemon.species_id
@@ -64,9 +68,11 @@ PokemonDatabase::PokemonDatabase() {
                 pokemon->movesTable[moveRelation->moveId] = moveRelation;
             }
         } catch (const std::out_of_range &unused) {
-            // Fallback if unable to match with species table
-            std::shared_ptr<PokemonData> pokemon = pokemonTable.at(moveRelation->pokemonId);
-            pokemon->movesTable[moveRelation->moveId] = moveRelation;
+            try {
+                // Fallback if unable to match with species table
+                std::shared_ptr<PokemonData> pokemon = pokemonTable.at(moveRelation->pokemonId);
+                pokemon->movesTable[moveRelation->moveId] = moveRelation;
+            } catch (const std::out_of_range &ignored) {}
         }
     }
 

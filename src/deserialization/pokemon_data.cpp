@@ -1,6 +1,7 @@
 #include <iostream>
 #include "deserialization/pokemon_data.hpp"
 #include "utils/string_helpers.hpp"
+#include "core/game_manager.hpp"
 
 void PokemonData::printSelf() const {
     std::string paddedIdentifier = rightPad(
@@ -29,6 +30,9 @@ void PokemonData::printSelf() const {
 
     // @formatter:off
     int id                  = toIntOrDefault(tokens[0]);
+
+    if (OPTIONS.generation1 && id > GENERATION_1_POKEMON_COUNT) return nullptr;
+
     std::string identifier  = tokens[1];
     int speciesId           = toIntOrDefault(tokens[2]);
     int height              = toIntOrDefault(tokens[3]);

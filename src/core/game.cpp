@@ -261,8 +261,7 @@ void initialLaunchWindow(const char* prompt) {
 
     // Generate some random Pokemon
     for (int i = 3; i < NUM_POKEMON_SELECTION; i++) {
-        // First 200 Pokemon are probably more well-known, I dunno
-        int idx = database->pokemonIds[randomInt(0, 150)];
+        int idx = database->pokemonIds[randomInt(0, GENERATION_1_POKEMON_COUNT - 1)];
         pokemonSelections[i] = database->pokemonTable.at(idx);
     }
 

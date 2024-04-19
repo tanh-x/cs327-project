@@ -18,6 +18,7 @@ int main(int argc, char* argv[]) {
     // Default game option arguments
     bool doColoring = true;
     bool doBadApple = false;
+    bool onlyGen1 = false;
     int numTrainers = 8;
     int frameTimeMicros = 1000000 / 60;
 
@@ -30,6 +31,7 @@ int main(int argc, char* argv[]) {
 
         if (flag == "--nocolor") doColoring = false;
         else if (flag == "--badapple") doBadApple = true;
+        else if (flag == "--gen1") onlyGen1 = true;
         else if (flag == "--numtrainers") numTrainers = (int) strtol(argv[i + 1], nullptr, 10);
         else if (flag == "--frametime") frameTimeMicros = (int) strtol(argv[i + 1], nullptr, 10);
         else checkCsvParseFlag(flag);
@@ -40,6 +42,7 @@ int main(int argc, char* argv[]) {
     OPTIONS.doColoring = doColoring;
     OPTIONS.numTrainers = max(0, numTrainers);
     OPTIONS.frameTimeMicros = frameTimeMicros;
+    OPTIONS.generation1 = onlyGen1;
 
     // Get millisecond seed
     char* val = getenv("START");

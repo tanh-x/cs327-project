@@ -160,9 +160,11 @@ void rasterizePokemonSprite(
     // for it. Hence, take pokemon % 151 with 90% chance and use one of the three secret sprites with
     // 10% probability. This random is the same for every Pokemon of the same kind, and is determined
     // by world seed.
-    if (pokemonId > 151) {
+    if (pokemonId > GENERATION_1_POKEMON_COUNT) {
         int test = globalHashFunction(pokemonId, pokemonId ^ 0x14f2, GAME.world->worldSeed);
-        pokemonId = (test % 10 == 0) ? ((pokemonId % 3) + 152) : ((pokemonId % 151) + 1);
+        pokemonId = (test % 10 == 0)
+                    ? ((pokemonId % 3) + GENERATION_1_POKEMON_COUNT + 1)
+                    : ((pokemonId % GENERATION_1_POKEMON_COUNT) + 1);
     }
     Int2D atlasPosition = getAtlasCoordinate(pokemonId);
 

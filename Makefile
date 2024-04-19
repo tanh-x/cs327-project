@@ -43,6 +43,8 @@ post_build: $(TARGET)
 	@echo -e "  │ Finished all Makefile rules. Binary should be \"$(TARGET)\""
 	@echo -e "  │ "
 	@echo -e "  │ PLEASE READ THE README FILE BEFORE PROCEEDING."
+	@echo -e "  │ "
+	@echo -e "  │ Recommended command:  ./main --gen1"
 	@echo -e "  └──\n"
 
 clean_objects:
