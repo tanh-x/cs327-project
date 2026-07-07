@@ -1,0 +1,215 @@
+![banner](./banner.png)
+
+# CS 327 Pokemon Project
+
+```
+┌─< README Main Content >──────────────────────────────────────────────────────┐
+│                                                                              │
+│ Implements Pokemon battles, with improved visuals. You can also capture      │
+│ Pokemon.                                                                     │
+│                                                                              │
+│ Not all Pokemon have sprites, specially only Gen 1 sprites are available.    │
+│ The others are randomly chosen from the 151 available. Use --gen1 to only    │
+│ have Gen1 Pokemon throughout the game.                                       │
+│                                                                              │
+│ The game display size has been increased by a factor of 1.5x to 116x36       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+NOTES:
+* The game uses extended 256 colors. If your terminal doesn't support it, use
+the --nocolor flag, which disables coloring entirely. While the game is intended
+to be played with colors, all essential visual indicators can be discerned
+without it.
+
+* Most tile types use standard display characters, with these exceptions:
+    - Borders: &, white background
+
+* Movement is aliased to WASD in addition to the specification's controls.
+Escape is aliased to `/~ as well.
+[F]lying / world [M]ap is bound to f/m
+
+
+FLAGS:
+--nocolor
+    Disables tile coloring.
+
+--gen1
+    Only use Generation 1 Pokemon
+
+OLD FLAGS:
+--numtrainers
+    The number of trainers to generate per map. Defaults to 15.
+
+--frametime
+    The time (in microseconds) to wait between drawing each frame.
+    Defaults to 200ms.
+
+--badapple
+    Generate a standard map, but initial boulder placement is determined
+    by a frame from "Bad Apple". Watch it here:
+    https://youtu.be/AD9m8FOhdEg?si=c8DmWOf43goeiIzC
+
+    !!IMPORTANT!! This requires assets/sequence.tar.gz to be unzipped. If
+    done correctly, there should be exactly 6572 of 78x19 PNG images at
+    assets/sequence/badapple-#####.png.
+
+    Then, to play the full animation, run ./animate.sh.
+
+    In Bad Apple mode, it may segfault once every 700 frames or so. Run
+    ./animate.sh 2> /dev/null to suppress these.
+
+
+    ─────────────────────────<  Assignment 1.01  >──────────────────────────
+
+[ Generation Algorithm ]
+The generation consists of three phases:
+- Sampling from 3D voronoi noise
+- Blend and distort the terrain to make it more natural
+- Place roads and buildings
+
+1. First pass: Voronoi noise
+    20 points of each of the 4 types (short/tall grass, boulder, water) are
+    scattered uniformly in 3D space. Initial terrain types are then generated
+    by sampling the corresponding voronoi diagram, i.e., the closest point will
+    determine the type of terrain at that cell. The sampling point has a small
+    random factor to make the terrain more natural.
+
+    The 3rd dimension allows for smooth tweaks of the terrain by sliding along
+    the z-axis, as opposed to using a new seed, which will always generate a 
+    completely different terrain map.
+
+    Since the y-axis covers more space than the x-axis (text is tall, rather
+    than wide), the coordinate space is also scaled accordingly to minimize
+    distortion.
+
+    This first pass will define overall shape of the terrain, but the appearance
+    will be similar to that of a voronoi diagram, which is too geometric. We
+    need further processing to make the terrain more natural
+
+2. Second pass: "Biome blending" / quasi cellular automaton
+    Choose one tile at random ("pivot point"), and consider the neighborhood of
+    12 adjacent points whose taxicab distance is less than 2 from the pivot.
+    These points have a chance to be converted to a different type, whose rules
+    depend on the type of the pivot and the type of the current point. This can
+    be thought of as a cellular automaton system. For more details, see the
+    biome blending rules section.
+
+    Once we're done, with ~80% probability, continue the process by moving the
+    pivot along a random direction by a random amount (0-2 tiles). However, we
+    keep the pivot type of the original one. This allows some chosen tiles to
+    have a far-reaching influence. Repeat until we hit the ~20% stop condition.
+
+    Do this process for 50-300 pivot points, (chosen randomly with replacement).
+
+3. Third pass: Road and buildings
+    Road traversal start from the left and top. For the horizontal road, every
+    step, the road traverses to the right by 1 tile, and goes up/down by `dy`
+    tiles. `dy` is initially 0, but for every step, a random "kick" is applied
+    to `dy`. We don't want our paths to be jagged, so `dy` has a "momentum"
+    factor. Finally, `dy` is also biased by a "drift" factor that pulls the path
+    towards the gate on the other side. The closer we are to the eastern border,
+    the stronger the drift factor. A similar process is done for the vertical.
+
+    For buildings, a random point on a road is chosen prior to road generation.
+    During generation, we know that the road will bend towards `dy` (or `dy`),
+    so we place buildings 1-3 tiles away on the other direction, `-dy`, then we
+    connect the building to the main road with a simple straight path.
+
+
+[ Biome Blending Rules ]
+All these rules are applied for each of the 12 neighboring tiles independently.
+In other words, we reroll, check, and convert for each tile separately.
+
+Boulder pivot: 
+    Boulders may sprout nearby tall grass or water tiles into trees, with a 50%
+    probability. Otherwise, it has a 4.52% probability to convert any tile to
+    another boulder.
+
+Water pivot:
+    Each nearby boulder tile has a 68.5% chance to be eroded, becoming water.
+
+Tall grass pivot:
+    A tall grass have a 20.8% chance of converting neighboring tall grass or
+    water tiles to sprout a new tree. If this fails, it is guaranteed to convert
+    neighboring water or boulders tiles to tall grass. Neighboring short grass
+    tiles might also be grown to tall grass, with 86.2% probability.
+
+Short grass pivot:
+    Short grass has a 60% chance to grow into nearby tall grass or water tiles.
+
+Tree pivot:
+    A tree can spread to any neighboring tiles, with 16.2% probability, or 22.1%
+    probability if it's a short/tall grass tile. If this succeeds, the tile will
+    be converted to a tree. Otherwise, it is converted to tall grass. So, while
+    trees are rare, they can spread plants very well.
+
+    ─────────────────────────<  Assignment 1.02  >──────────────────────────
+
+[ Wilderness / Overgrowth ]
+Maps further away from the center of the map are use more iterations during the
+blending pass. Since the blending process favours the proliferation of foliage,
+an increased number of iterations will lead to a more "overgrown" forest. This
+has the effect of both impeding traversal and creating more threats against the
+player.
+
+
+[ Global Hashing ]
+A global hashing function is used to synchronize the gate positions between maps
+by evaluating the function at the map's global position. Conceptually, imagine
+the gate as living in a global position that is halfway through the positions of
+two adjacent maps. The maps occupy an integer lattice, and the halfway point
+between its 4 neighbors is where we evaluate the hash function at to compute the
+position of the gate. This allows a global coordination between maps without the
+need to pass data around.
+
+    ─────────────────────────<  Assignment 1.04  >──────────────────────────
+
+[ Event System ]
+Instead of placing characters in the queue, instead, events are created every
+time a character wants to perform an action, then those events are enqueued in
+the heap.
+
+    ─────────────────────────<  Assignment 1.05  >──────────────────────────
+
+[ Context Switching ]
+A "Context" is a wrapper around an ncurses window. Each context type will be an
+implementation of the AbstractContext superclass. Contexts are initialized via
+an invocation to the constructor, which always requires the parent context to be
+passed in, alongside some additional arguments. The constructor generally plays
+the initial animation and builds the initial UI. Then, the caller must invoke
+Context::start() to begin the main loop of the context. Not calling start()
+*may* result in undefined behaviour, as there can be side effects that may have
+already been made during the constructor call. When start() returns, the context
+is guaranteed to have finished all its operations, and the terminal has been
+restored to the parent context. No additional handling is necessary
+
+    ─────────────────────────<  Assignment 1.06  >──────────────────────────
+
+[ World Map ]
+The world map is my take on the flying functionality. The world map can be
+opened with F or M.
+
+Each map has a randomly generated name, which is a concatenation between a
+randomly chosen prefix and suffix. Here is the list of all such affixes:
+* Prefix: PEWTER, CERULEAN, LAVENDER, VIRIDIAN, SAFFRON, GOLDENROD, ECRUTEAK,
+          FORTREE, LILYCOVE, SUNYSHORE, CASTELIA, LUMIOSE, MOTOSTOKE, VIRIDIAN,
+          CINNABAR, FUCHSIA, OLIVINE, AZALEA, BLACKTHORN, MOSSDEEP, SOOTOPOLIS,
+          VEILSTONE, HEARTHOME, NIMBASA, DRIFTVEIL, OPELUCID, SNOWPOINT,
+          PACIFIDLOG, FLOAROMA, CANALAVE, MYSTIC, OMINOUS, FLOWERY, MYSTERIOUS,
+          LUSH, LAVENDER, GRASSY
+* Suffix: WOODLAND, LAKES, WOODS, FOREST, HILLS, ZONE, ROADS, PATH, MARSH,
+          PRAIRIE, GROVE, GARDEN, FIELDS, PLAINS, CLIFFS, ORCHARD, CLEARING
+The map at the origin (0, 0) is always called "PALLET TOWN".
+
+Explored areas are colored yellow, while unexplored areas are colored with
+varying shades of gray with different lightness values. Maps closer to the
+origin, which is "PALLET TOWN", are colored in lighter shades of gray. Random
+maps are highlighted with a question mark "?", which doesn't mean anything right
+now, but it looks fun.
+
+The centered ("pivoted") map is colored in light blue and bounded by inwards
+facing angle bracket pairs, >@<, instead of square brackets, [@]. Pressing
+Enter or T will fly / teleport the player to this map.
+
+Pressing z and x will zoom out and in on the world map, respectively.
