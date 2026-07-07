@@ -7,7 +7,8 @@ using namespace std::filesystem;
 path findCsvFile(const std::string &filename) {
     path subpath = path(POKEDEX_CSV_SUBPATH);
 
-    path path1 = path("/share/cs327/") / subpath / filename;
+    // path path1 = path("/share/cs327/") / subpath / filename;
+    path path1 = path("./pokedex") / filename;
     printf("Searching in %s\n", path1.c_str());
     if (exists(path1)) return path1;
 

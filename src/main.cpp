@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <csignal>
+#include <unistd.h>
 #include "core/game_manager.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/artist.hpp"

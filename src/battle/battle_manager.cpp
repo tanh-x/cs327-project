@@ -1,4 +1,5 @@
 #include <cmath>
+#include <unistd.h>
 #include <csignal>
 #include "battle/battle_manager.hpp"
 #include "utils/misc.hpp"
